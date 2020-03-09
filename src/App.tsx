@@ -1,11 +1,8 @@
 import * as React from "react";
 import {
-  ThemeProvider,
-  CSSReset,
   Box,
   Flex,
   Text,
-  Accordion,
   AccordionItem,
   AccordionHeader,
   AccordionPanel,
@@ -13,178 +10,94 @@ import {
   PseudoBox,
   Input,
   Button,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  FormHelperText,
-  InputGroup,
-  InputLeftAddon,
-  InputRightAddon,
   Tabs,
   TabList,
   TabPanels,
   Tab,
   TabPanel,
   Stat,
-  StatLabel,
-  StatNumber,
   StatHelpText,
-  StatArrow,
-  StatGroup
+  StatArrow
 } from "@chakra-ui/core";
-import axios from "axios";
 import "../node_modules/react-vis/dist/style.css";
-import {
-  XYPlot,
-  LineSeries,
-  HorizontalGridLines,
-  VerticalGridLines,
-  XAxis,
-  YAxis,
-  makeVisFlexible,
-  FlexibleXYPlot,
-  FlexibleWidthXYPlot,
-  Hint
-} from "react-vis";
-import moment from "moment";
-import numeral from "numeral";
-import {format, compareAsc} from "date-fns";
-// import "./styles.css";
-//https://api.exchangeratesapi.io/latest
-//https://api.exchangeratesapi.io/latest?symbols=USD,GBP
-//https://api.exchangeratesapi.io/latest?base=USD
-//https://api.exchangeratesapi.io/history?start_at=2018-01-01&end_at=2018-09-01&symbols=USD,GBP
-//https://api.exchangeratesapi.io/history?start_at=2020-01-01&end_at=2020-03-01&symbols=AUD
+import {getCurrenciesName, getCurrentRate, getHistoryData} from "./services/exchange-rates-api";
+import {AppWrapper} from "./lib/components";
+import {CurrencyChangeChart} from "./components";
+// import {DaysAgo} from "./lib/types";
 
-interface Res {
-  rates: Object;
-}
-
-interface Item {
-  x: number;
-  y: number;
-  // yLabel: number;
-}
-
-function getTimestamp(date: string) {
-  let array = date.split("-");
-  let res: string = array[0] + "/" + array[1] + "/" + array[2];
-  // console.log({res});
-  let time = new Date(res).getTime();
-  return time;
-}
-
-function CustomTooltipContent(props: any) {
-  console.log({props});
-  return null;
-}
-
-const numberFormatter = (item: any) => numeral(item).format("0,0");
-const dateFormatter = (item: any) => {
-  console.log({item});
-  return moment(item).format("MMM DD");
+const SYMBOLS: any = {
+  EUR: "€",
+  GBP: "£",
+  USD: "$",
+  JPY: "¥"
 };
 
-function MyChart({data}: any) {
-  const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null);
-
-  return (
-    <FlexibleWidthXYPlot height={200} onMouseLeave={() => setHoveredNode(null)}>
-      <LineSeries
-        data={data}
-        animation
-        onNearestXY={(value: any) => {
-          console.log({value});
-          setHoveredNode(value);
-        }}
-      />
-      {hoveredNode && (
-        <Hint value={hoveredNode}>
-          <Text color='#EB008D'>{hoveredNode.y.toFixed(4)}</Text>
-        </Hint>
-      )}
-    </FlexibleWidthXYPlot>
-  );
+function randomInt(min: number, max: number) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <CSSReset />
-      <Screen />
-    </ThemeProvider>
+    <AppWrapper>
+      <CurrencyExchangeScreen />
+    </AppWrapper>
   );
 }
 
-const currentDate = format(new Date(), "yyyy-mm-dd");
-
-function Screen() {
-  const [currencies, setCurrencies] = React.useState({});
-  const [fromCurrency, setFrom] = React.useState("USD");
-  const [toCurrency, setTo] = React.useState("AUD");
-  const [error, setError] = React.useState("");
-  const [chartData, setData] = React.useState<Item[]>([]);
-  const [currentRate, setCurrentRate] = React.useState("");
-  // const [currentDate, _] = React.useState(() => format(new Date(), "yyyy-mm-dd"));
+function CurrencyExchangeScreen() {
+  const [currencies, setCurrencies] = React.useState<{[key: string]: number}[]>([]);
+  const [fromCurrency, setFrom] = React.useState<string>("GBP");
+  const [toCurrency, setTo] = React.useState<string>("EUR");
+  const [chartData, setData] = React.useState<{x: number; y: number}[]>([]);
+  const [currentRate, setCurrentRate] = React.useState<number | null>(null);
+  const [daysAgo, setDaysAgo] = React.useState<10 | 7 | 30 | 90 | 180 | 360 | 1800>(30);
+  const [pockets, setPockets] = React.useState<{[key: string]: number}>({
+    USD: randomInt(0, 50000),
+    EUR: randomInt(0, 50000),
+    GBP: randomInt(0, 50000)
+  });
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    (async () => {
-      const {data} = await axios(
-        `https://api.exchangeratesapi.io/latest?symbols=${toCurrency}&base=${fromCurrency}`
-      );
-      console.log({data});
-      let res = data.rates[toCurrency].toFixed(4);
-      setCurrentRate(res);
-    })();
+    let interval: any = null;
+    if (fromCurrency && toCurrency) {
+      (function foo() {
+        getCurrentRate({fromCurrency, toCurrency}).then(setCurrentRate);
+        interval = setTimeout(foo, 10000);
+      })();
+    }
+    return () => interval && clearInterval(interval);
   }, [fromCurrency, toCurrency]);
 
   React.useEffect(() => {
-    (async () => {
-      const currentDate = format(new Date(), "yyyy-MM-dd");
-      console.log({currentDate});
-      const {data} = await axios.get<Res>(
-        `https://api.exchangeratesapi.io/history?start_at=2020-01-01&end_at=${currentDate}&symbols=${toCurrency}&base=${fromCurrency}`
-      );
-
-      const formated = data.rates;
-      console.log({formated});
-      const arr: Item[] = Object.entries(formated).map(([key, value], i) => {
-        return {x: getTimestamp(key), y: value[toCurrency]};
-      });
-
-      const sorted = arr.sort((a, b) => {
-        return a.x - b.x;
-      });
-      setData(sorted);
-    })();
-  }, [fromCurrency, currentDate, toCurrency]);
+    if (fromCurrency && toCurrency && daysAgo) {
+      getHistoryData({daysAgo, toCurrency, fromCurrency}).then(setData);
+    }
+  }, [fromCurrency, toCurrency, daysAgo]);
 
   React.useEffect(() => {
-    (async () => {
-      const {data} = await axios(`https://api.exchangeratesapi.io/latest`);
-      let all = {...data.rates, EUR: ""};
-      setCurrencies(all);
-    })();
+    getCurrenciesName().then(setCurrencies);
   }, []);
 
   return (
-    <Flex minHeight='100vh' bg='#FAFAFA' alignItems='start'>
+    <Flex minHeight='100vh' bg='white' alignItems='start'>
       <Flex
         p='16'
-        px={[4, 4, "300px"]}
+        px={[4, 4, "64"]}
         flexDirection='column'
         width={["full", "80%"]}
         bg='white'
         mx='auto'
         mt={[0, 20]}
-        boxShadow='2xl'
+        // boxShadow='2xl'
         overflow='hidden'
       >
         <Box mx='auto' textAlign='center' mb='20'>
           <Text fontSize='2xl'>Exchange mmoney</Text>
         </Box>
         <Flex flexDirection={["column", "row"]}>
-          <Flex flexDir='column' width={["full", "50%"]} pr={[0, 4]}>
+          <Flex flexDir='column' width={["full", "50%"]} pr={[0, 6]}>
             <Box mb='12'>
               <SelectCurrency
                 label='From'
@@ -194,14 +107,14 @@ function Screen() {
               />
             </Box>
 
-            <Box zIndex={1} mb='12'>
+            <Box mb='12'>
               <AmountInput currency={fromCurrency} />
             </Box>
             <Box display={["none", "block"]}>
               <ButtonContinue />
             </Box>
           </Flex>
-          <Flex flexDir='column' width={["full", "50%"]} pl={[0, 4]}>
+          <Flex flexDir='column' width={["full", "50%"]} pl={[0, 6]}>
             <Box mb='12'>
               <SelectCurrency
                 label='To'
@@ -211,8 +124,8 @@ function Screen() {
               />
             </Box>
 
-            <Box zIndex={1} mb='12'>
-              <AmountInput />
+            <Box mb='12'>
+              <AmountInput currency={toCurrency} />
             </Box>
             <Box display={["block", "none"]} mb='12'>
               <ButtonContinue />
@@ -236,8 +149,8 @@ function Screen() {
           </Flex>
         </Flex>
         <Box mt='12'>
-          <SelectRange />
-          <MyChart data={chartData} />
+          <SelectRange setDaysAgo={setDaysAgo} daysAgo={daysAgo} />
+          <CurrencyChangeChart data={chartData} mt='6' />
         </Box>
       </Flex>
     </Flex>
@@ -264,63 +177,61 @@ function getTodaysChange(chartData: any) {
   );
 }
 
-function SelectRange() {
-  return (
-    <Tabs>
-      <TabList>
-        <Tab
-          lineHeight='taller'
-          color='gray.400'
-          fontSize='sm'
-          fontWeight='bold'
-          _selected={{
-            color: "gray.900",
-            borderColor: "#EB008D",
-            boxShadow: "none",
-            borderBottomWidth: "2px"
-          }}
-        >
-          10d
-        </Tab>
-        <Tab
-          lineHeight='taller'
-          color='gray.400'
-          fontSize='sm'
-          fontWeight='bold'
-          _selected={{
-            color: "gray.900",
-            borderColor: "#EB008D",
-            boxShadow: "none",
-            borderBottomWidth: "2px"
-          }}
-        >
-          1W
-        </Tab>
-        {/* <Tab _focus={{boxShadow: "none"}}>1M</Tab>
-        <Tab _focus={{boxShadow: "none"}}>3M</Tab>
-        <Tab _focus={{boxShadow: "none"}}>6M</Tab>
-        <Tab _focus={{boxShadow: "none"}}>1Y</Tab>
-        <Tab _focus={{boxShadow: "none"}}>5Y</Tab> */}
-      </TabList>
+function SelectRange({setDaysAgo, daysAgo}: any) {
+  const tabs = [
+    {name: "10D", value: 10, id: 0},
+    {name: "1W", value: 7, id: 1},
+    {name: "1M", value: 30, id: 2},
+    {name: "3M", value: 90, id: 3},
+    {name: "6M", value: 180, id: 4},
+    {name: "1Y", value: 360, id: 5},
+    {name: "5Y", value: 1800, id: 6}
+  ];
 
-      <TabPanels>
-        <TabPanel>
-          <p>one!</p>
-        </TabPanel>
-        <TabPanel>
-          <p>two!</p>
-        </TabPanel>
-        <TabPanel>
-          <p>three!</p>
-        </TabPanel>
-      </TabPanels>
+  const currentIdx: {name: string; value: number; id: number} | {id: 0} = tabs.find(
+    (t) => t.value === daysAgo
+  ) || {id: 0};
+
+  return (
+    <Tabs index={currentIdx.id}>
+      <TabList>
+        {tabs.map(({value, name}) => {
+          return (
+            <Tab
+              lineHeight='taller'
+              color='gray.400'
+              fontSize='sm'
+              fontWeight='bold'
+              _selected={{
+                color: "gray.900",
+                borderColor: "revo.red",
+                boxShadow: "none",
+                borderBottomWidth: "2px"
+              }}
+              onClick={() => setDaysAgo(value)}
+            >
+              {name}
+            </Tab>
+          );
+        })}
+      </TabList>
     </Tabs>
   );
 }
 
 function ButtonContinue() {
   return (
-    <Button width='full' rounded='full' fontSize='sm' size='lg' bg='#EB008D' color='white'>
+    <Button
+      isDisabled
+      type='submit'
+      width='full'
+      rounded='full'
+      fontSize='sm'
+      size='lg'
+      bg='revo.red'
+      color='white'
+      _hover={{bg: "revo.red"}}
+    >
       Continue
     </Button>
   );
@@ -330,16 +241,16 @@ function AmountInput({currency}: any) {
   return (
     <Flex alignItems='baseline'>
       <Box display={["none", "block"]}>
-        <Text width='12' fontWeight='bolder'>
-          {currency}
+        <Text pr='1' lineHeight='none' fontSize='110px' fontWeight='lighter'>
+          {SYMBOLS[currency]}
         </Text>
       </Box>
       <Input
         pl='0'
         zIndex={1}
         border='none'
-        height='100px'
-        fontSize='100px'
+        height='110px'
+        fontSize='110px'
         fontWeight='lighter'
         placeholder='0'
         _focus={{
@@ -421,7 +332,7 @@ function DropdownBody({currencies, setFrom}: any) {
       py='0'
     >
       <Box as='ul' listStyleType='none'>
-        {Object.keys(currencies).map((c) => {
+        {currencies.map((c: string) => {
           return (
             <PseudoBox
               onClick={() => setFrom(c)}
