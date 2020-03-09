@@ -17,24 +17,17 @@ import {
   TabPanel,
   Stat,
   StatHelpText,
-  StatArrow
+  StatArrow,
+  useToast
 } from "@chakra-ui/core";
 import "../node_modules/react-vis/dist/style.css";
 import {getCurrenciesName, getCurrentRate, getHistoryData} from "./services/exchange-rates-api";
 import {AppWrapper} from "./lib/components";
-import {CurrencyChangeChart} from "./components";
-// import {DaysAgo} from "./lib/types";
+import {CurrencyChangeChart, Dropdown} from "./components";
+import numeral from "numeral";
 
-const SYMBOLS: any = {
-  EUR: "€",
-  GBP: "£",
-  USD: "$",
-  JPY: "¥"
-};
-
-function randomInt(min: number, max: number) {
-  // min and max included
-  return Math.floor(Math.random() * (max - min + 1) + min);
+function f(amount: number): string {
+  return numeral(amount).format("0.00");
 }
 
 export default function App() {
@@ -44,30 +37,65 @@ export default function App() {
     </AppWrapper>
   );
 }
+type Currency = {name: string; value: number; flag: string};
+type Currencies = Currency[];
+type DataPoint = {x: number; y: number};
+type DataPoints = DataPoint[];
 
 function CurrencyExchangeScreen() {
-  const [currencies, setCurrencies] = React.useState<{[key: string]: number}[]>([]);
-  const [fromCurrency, setFrom] = React.useState<string>("GBP");
-  const [toCurrency, setTo] = React.useState<string>("EUR");
-  const [chartData, setData] = React.useState<{x: number; y: number}[]>([]);
+  const [currencies, setCurrencies] = React.useState<Currencies>([]);
+  const [fromCurrency, setFrom] = React.useState<Currency>();
+  const [toCurrency, setTo] = React.useState<Currency>();
+  const [chartData, setData] = React.useState<DataPoints>([]);
   const [currentRate, setCurrentRate] = React.useState<number | null>(null);
   const [daysAgo, setDaysAgo] = React.useState<10 | 7 | 30 | 90 | 180 | 360 | 1800>(30);
-  const [pockets, setPockets] = React.useState<{[key: string]: number}>({
-    USD: randomInt(0, 50000),
-    EUR: randomInt(0, 50000),
-    GBP: randomInt(0, 50000)
-  });
   const [error, setError] = React.useState<string | null>(null);
+  const [fromInputValue, setFromInputValue] = React.useState<string>("");
+  const [toInputValue, setToInputValue] = React.useState<string>("");
+  const [fromInputFocused, setInputFocused] = React.useState<boolean>(true);
+
+  const toast = useToast();
 
   React.useEffect(() => {
-    let interval: any = null;
-    if (fromCurrency && toCurrency) {
-      (function foo() {
-        getCurrentRate({fromCurrency, toCurrency}).then(setCurrentRate);
-        interval = setTimeout(foo, 10000);
-      })();
+    if (currentRate && fromInputValue) {
+      if (fromInputFocused) {
+        const fixedValue = (parseFloat(fromInputValue) * currentRate).toFixed(2);
+        setToInputValue(fixedValue);
+      }
+    } else {
+      setToInputValue("");
     }
-    return () => interval && clearInterval(interval);
+  }, [currentRate, fromInputValue]);
+
+  React.useEffect(() => {
+    if (currentRate && toInputValue) {
+      if (!fromInputFocused) {
+        const fixedValue = (parseFloat(toInputValue) / currentRate).toFixed(2);
+        setFromInputValue(fixedValue);
+      }
+    } else {
+      setFromInputValue("");
+    }
+  }, [currentRate, toInputValue]);
+
+  React.useEffect(() => {
+    if (currencies.length > 0) {
+      const from = currencies.find((c) => c.name === "GBP");
+      const to = currencies.find((c) => c.name === "USD");
+      to && setTo(to);
+      from && setFrom(from);
+    }
+  }, [currencies]);
+
+  React.useEffect(() => {
+    // let interval: any = null;
+    if (fromCurrency && toCurrency) {
+      // (function foo() {
+      getCurrentRate({fromCurrency, toCurrency}).then(setCurrentRate);
+      //     interval = setTimeout(foo, 10000);
+      //   })();
+    }
+    // return () => interval && clearInterval(interval);
   }, [fromCurrency, toCurrency]);
 
   React.useEffect(() => {
@@ -80,79 +108,116 @@ function CurrencyExchangeScreen() {
     getCurrenciesName().then(setCurrencies);
   }, []);
 
+  React.useEffect(() => {
+    toast({
+      position: "bottom-left",
+      title: "Account created.",
+      description: "We've created your account for you.",
+      status: "success",
+      duration: 9000,
+      isClosable: true,
+      render: () => {
+        return (
+          <Box width='xs' p='4' m='4' boxShadow='2xl' borderRadius='lg' color='revo.gray'>
+            <Text fontWeight='bold'>Please note.</Text>
+            <Text>
+              This app is for demonstration purpose only and pockets (GBP, USD, EUR) are randomly
+              generated.
+            </Text>
+          </Box>
+        );
+      }
+    });
+  }, []);
+
   return (
-    <Flex minHeight='100vh' bg='white' alignItems='start'>
+    <Flex minHeight='100vh' bg='white' width='full' flexDirection='column'>
       <Flex
-        p='16'
-        px={[4, 4, "64"]}
-        flexDirection='column'
-        width={["full", "80%"]}
-        bg='white'
-        mx='auto'
-        mt={[0, 20]}
+        // p='16'
+        // px={[4, 4, "64"]}
+        // bg='white'
         // boxShadow='2xl'
-        overflow='hidden'
+        // overflow='hidden'
+        width={["full", "60%"]}
+        flexDirection='column'
+        mx='auto'
+        mt={[0, 16]}
+        px='4'
       >
         <Box mx='auto' textAlign='center' mb='20'>
-          <Text fontSize='2xl'>Exchange mmoney</Text>
+          <Text fontSize='2xl'>Exchange money</Text>
         </Box>
         <Flex flexDirection={["column", "row"]}>
           <Flex flexDir='column' width={["full", "50%"]} pr={[0, 6]}>
-            <Box mb='12'>
-              <SelectCurrency
-                label='From'
-                fromCurrency={fromCurrency}
-                currencies={currencies}
-                setFrom={setFrom}
-              />
-            </Box>
-
-            <Box mb='12'>
-              <AmountInput currency={fromCurrency} />
-            </Box>
+            <Dropdown
+              currencies={currencies}
+              selected={fromCurrency}
+              label='From'
+              setSelected={setFrom}
+            />
+            <AmountInput
+              my='16'
+              label='From'
+              fromInputFocused={fromInputFocused}
+              setInputFocused={setInputFocused}
+              currentRate={currentRate}
+              currency={fromCurrency}
+              inputValue={fromInputValue}
+              setValue={setFromInputValue}
+            />
             <Box display={["none", "block"]}>
               <ButtonContinue />
             </Box>
           </Flex>
           <Flex flexDir='column' width={["full", "50%"]} pl={[0, 6]}>
-            <Box mb='12'>
-              <SelectCurrency
-                label='To'
-                fromCurrency={toCurrency}
-                currencies={currencies}
-                setFrom={setFrom}
-              />
-            </Box>
-
-            <Box mb='12'>
-              <AmountInput currency={toCurrency} />
-            </Box>
+            <Dropdown
+              currencies={currencies}
+              selected={toCurrency}
+              label='To'
+              setSelected={setTo}
+            />
+            <AmountInput
+              my='16'
+              label='To'
+              fromInputFocused={fromInputFocused}
+              setInputFocused={setInputFocused}
+              currentRate={currentRate}
+              currency={toCurrency}
+              inputValue={toInputValue}
+              setValue={setToInputValue}
+            />
             <Box display={["block", "none"]} mb='12'>
               <ButtonContinue />
             </Box>
-            <Flex>
-              <Box width='30%'>
-                <Text fontSize='xs' color='gray.400' fontWeight='semibold'>
-                  Current rate
-                </Text>
-                <Text fontWeight='semibold' fontSize='xl'>
-                  {currentRate}
-                </Text>
-              </Box>
-              <Box width='70%'>
-                <Text fontSize='xs' color='gray.400' fontWeight='semibold'>
-                  Today's change
-                </Text>
-                {chartData.length > 1 && <Text>{getTodaysChange(chartData)}</Text>}
-              </Box>
-            </Flex>
+            <ExchangeMetadata currentRate={currentRate} chartData={chartData} />
           </Flex>
         </Flex>
-        <Box mt='12'>
+        {/* <Box mt='12'>
           <SelectRange setDaysAgo={setDaysAgo} daysAgo={daysAgo} />
           <CurrencyChangeChart data={chartData} mt='6' />
-        </Box>
+        </Box> */}
       </Flex>
+    </Flex>
+  );
+}
+
+function ExchangeMetadata({currentRate, chartData}: any) {
+  return (
+    <Flex>
+      <Box width='30%'>
+        <Text fontSize='xs' color='revo.gray' fontWeight='medium'>
+          Current rate
+        </Text>
+        <Text fontWeight='medium' fontSize='xl'>
+          {currentRate}
+        </Text>
+      </Box>
+      <Box width='70%'>
+        <Text fontSize='xs' color='revo.gray' fontWeight='medium'>
+          Today's change
+        </Text>
+        {chartData.length > 1 && getTodaysChange(chartData)}
+      </Box>
     </Flex>
   );
 }
@@ -165,11 +230,7 @@ function getTodaysChange(chartData: any) {
 
   return (
     <Stat>
-      <StatHelpText
-        fontWeight='semibold'
-        fontSize='xl'
-        color={sign === -1 ? "red.500" : "green.500"}
-      >
+      <StatHelpText fontWeight='medium' fontSize='xl' color={sign === -1 ? "red.500" : "green.500"}>
         <StatArrow type={sign === -1 ? "decrease" : "increase"} />
         {Math.abs(change).toFixed(4)} ({percent.toFixed(2)} %)
       </StatHelpText>
@@ -237,16 +298,36 @@ function ButtonContinue() {
   );
 }
 
-function AmountInput({currency}: any) {
+const SYMBOLS: any = {
+  EUR: "€",
+  GBP: "£",
+  USD: "$",
+  JPY: "¥"
+};
+function AmountInput({
+  currency,
+  inputValue,
+  setValue,
+  currentRate,
+  label,
+  fromInputFocused,
+  setInputFocused,
+  ...props
+}: any) {
   return (
-    <Flex alignItems='baseline'>
-      <Box display={["none", "block"]}>
+    <Flex alignItems='baseline' {...props}>
+      <Box display={["none", "block"]} width='20'>
         <Text pr='1' lineHeight='none' fontSize='110px' fontWeight='lighter'>
-          {SYMBOLS[currency]}
+          {currency && SYMBOLS[currency.name]}
         </Text>
       </Box>
       <Input
+        onFocus={() => setInputFocused(label === "From" ? true : false)}
+        value={!inputValue ? "" : inputValue}
+        onChange={(e: any) => setValue(e.target.value)}
+        type='number'
         pl='0'
+        px={[0]}
         zIndex={1}
         border='none'
         height='110px'
@@ -264,115 +345,28 @@ function AmountInput({currency}: any) {
   );
 }
 
-function SelectCurrency({label, fromCurrency, currencies, setFrom}: any) {
-  const ref = React.useRef();
-  const [open, setOpen] = React.useState(false);
-  useOnClickOutside(ref, () => setOpen(false));
+// function SelectCurrency({label, fromCurrency, currencies, setFrom}: any) {
+//   const ref = React.useRef();
+//   const [open, setOpen] = React.useState(false);
+//   useOnClickOutside(ref, () => setOpen(false));
 
-  return (
-    <Box>
-      <Text fontSize='xs' color='gray.400' fontWeight='semibold'>
-        {label}
-      </Text>
-      <AccordionItem
-        zIndex={10}
-        ref={ref}
-        border='none'
-        width='full'
-        isOpen={open}
-        onClick={() => setOpen(!open)}
-        position='relative'
-      >
-        <DropdownHead fromCurrency={fromCurrency} />
-        <DropdownBody currencies={currencies} setFrom={setFrom} />
-      </AccordionItem>
-    </Box>
-  );
-}
-
-function DropdownHead({fromCurrency}: any) {
-  return (
-    <AccordionHeader
-      pt='1'
-      px='0'
-      _focus={{
-        boxShadow: "none"
-      }}
-      _hover={{
-        bg: "none"
-      }}
-    >
-      <Flex flexDirection='column' width='full'>
-        <Flex width='full'>
-          <Flex flex='1' alignItems='baseline'>
-            <Text>{fromCurrency}</Text>
-            <Text ml='auto' mr='2' color='gray.400' fontWeight='semibold'>
-              50,239.62
-            </Text>
-          </Flex>
-          <AccordionIcon ml='auto' mt='2px' color='gray.400' />
-        </Flex>
-        <Box mt='2' width='full' height='2px' bg='gray.200' />
-      </Flex>
-    </AccordionHeader>
-  );
-}
-
-function DropdownBody({currencies, setFrom}: any) {
-  return (
-    <AccordionPanel
-      overflowY='scroll'
-      position='absolute'
-      width='full'
-      bg='white'
-      boxShadow='2xl'
-      height='64'
-      zIndex={9999}
-      px='0'
-      py='0'
-    >
-      <Box as='ul' listStyleType='none'>
-        {currencies.map((c: string) => {
-          return (
-            <PseudoBox
-              onClick={() => setFrom(c)}
-              onKeyUp={() => setFrom(c)}
-              cursor='pointer'
-              key={c}
-              as='li'
-              tabIndex={0}
-              py='3'
-              pl='6'
-              _hover={{bg: "gray.900", color: "white"}}
-              _focus={{bg: "gray.900", color: "white"}}
-            >
-              {c}
-            </PseudoBox>
-          );
-        })}
-      </Box>
-    </AccordionPanel>
-  );
-}
-
-// Hook
-function useOnClickOutside(ref: any, handler: any) {
-  React.useEffect(() => {
-    const listener = (event: any) => {
-      // Do nothing if clicking ref's element or descendent elements
-      if (!ref.current || ref.current.contains(event.target)) {
-        return;
-      }
-
-      handler(event);
-    };
-
-    document.addEventListener("mousedown", listener);
-    document.addEventListener("touchstart", listener);
-
-    return () => {
-      document.removeEventListener("mousedown", listener);
-      document.removeEventListener("touchstart", listener);
-    };
-  }, [ref, handler]); // ... passing it into this hook. // ... but to optimize you can wrap handler in useCallback before ... // ... callback/cleanup to run every render. It's not a big deal ... // ... function on every render that will cause this effect ... // It's worth noting that because passed in handler is a new ... // Add ref and handler to effect dependencies
-}
+//   return (
+//     <Box>
+//       <Text fontSize='xs' color='gray.400' fontWeight='semibold'>
+//         {label}
+//       </Text>
+//       <AccordionItem
+//         zIndex={10}
+//         ref={ref}
+//         border='none'
+//         width='full'
+//         isOpen={open}
+//         onClick={() => setOpen(!open)}
+//         position='relative'
+//       >
+//         <DropdownHead fromCurrency={fromCurrency} />
+//         <DropdownBody currencies={currencies} setFrom={setFrom} />
+//       </AccordionItem>
+//     </Box>
+//   );
+// }

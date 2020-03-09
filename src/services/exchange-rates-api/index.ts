@@ -6,27 +6,46 @@ import {subDays, format} from "date-fns";
 
 const baseUrl = `https://api.exchangeratesapi.io/latest`;
 
+const currencies = [
+  {name: "GBP", flag: "🇬🇧", value: "50,325.65"},
+  {name: "EUR", flag: "🇪🇺", value: "20,835.01"},
+  {name: "USD", flag: "🇺🇸", value: "69,532.72"}
+];
+
+function randomAmount(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min) + 0.54;
+}
+
+const flags: any = {
+  GBP: "🇬🇧",
+  EUR: "🇪🇺",
+  USD: "🇺🇸"
+};
+
 async function getCurrenciesName() {
   const {data} = await axios.get<{rates: any; base: any}>(`${baseUrl}`);
   const names = [...Object.keys(data.rates), data.base];
-  return names;
+  const formatted = names.map((name) => ({
+    name,
+    flag: flags[name] || flags["GBP"],
+    value: randomAmount(500, 50000)
+  }));
+  return formatted;
 }
 
 async function getCurrentRate({fromCurrency, toCurrency}: any) {
   console.log("ellapsed");
-  const {data} = await axios(`${baseUrl}?symbols=${toCurrency}&base=${fromCurrency}`);
-  return data.rates[toCurrency].toFixed(4);
+  const {data} = await axios(`${baseUrl}?symbols=${toCurrency.name}&base=${fromCurrency.name}`);
+  return data.rates[toCurrency.name].toFixed(4);
 }
-
-// const DaysAgo = 10 | 7 | 30 | 90 | 180 | 360 | 1800;
 
 interface DaysAgo {
   daysAgo: 10 | 7 | 30 | 90 | 180 | 360 | 1800;
 }
 
 interface FromToCurrencies {
-  toCurrency: string;
-  fromCurrency: string;
+  toCurrency: {name: string; value: number; flag: string};
+  fromCurrency: {name: string; value: number; flag: string};
 }
 
 type IProps = DaysAgo & FromToCurrencies;
@@ -35,11 +54,11 @@ async function getHistoryData({daysAgo, toCurrency, fromCurrency}: IProps) {
   const {data} = await axios.get<{rates: {[key: string]: {[key: string]: number}}}>(
     `https://api.exchangeratesapi.io/history?start_at=${getStartAtDay(
       daysAgo
-    )}&end_at=${getEndAtDay()}&symbols=${toCurrency}&base=${fromCurrency}`
+    )}&end_at=${getEndAtDay()}&symbols=${toCurrency.name}&base=${fromCurrency.name}`
   );
 
   const result = Object.entries(data.rates).map(([date, rate], i) => {
-    return {x: getTimestamp(date), y: rate[toCurrency]};
+    return {x: getTimestamp(date), y: rate[toCurrency.name]};
   });
 
   const sorted = result.sort((a, b) => {

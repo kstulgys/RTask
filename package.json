@@ -22,6 +22,7 @@
     "numeral": "^2.0.6",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-icons": "^3.9.0",
     "react-scripts": "^3.4.0",
     "react-vis": "^1.11.7",
     "react-vis-types": "^0.0.6",
