@@ -1,98 +1,71 @@
-import axios from "axios";
-import {subDays, format} from "date-fns";
-// get all currencies
-// get base currency history
-// get current rate
+import axios from 'axios';
+import {randomAmount, formatHistoryData, getEndAtDay, getStartAtDay} from '../../lib/utils';
 
-const baseUrl = `https://api.exchangeratesapi.io/latest`;
+const baseUrl = 'https://api.exchangeratesapi.io';
 
-const currencies = [
-  {name: "GBP", flag: "🇬🇧", value: "50,325.65"},
-  {name: "EUR", flag: "🇪🇺", value: "20,835.01"},
-  {name: "USD", flag: "🇺🇸", value: "69,532.72"}
-];
+type Currency = {name: string; value: number};
+type Currencies = Currency[];
+type Rates = {[key: string]: {[key: string]: number}};
 
-function randomAmount(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1) + min) + 0.54;
+async function getCurrencies(): Promise<Currencies> {
+  try {
+    const {data} = await axios.get<{rates: Rates; base: string}>(`${baseUrl}/latest`);
+    const names = [...Object.keys(data.rates), data.base];
+    const myPockets = await getMyPockets();
+    const formatted: Currencies = [];
+
+    names.forEach(name => {
+      if (myPockets[name]) {
+        formatted.unshift({name, value: myPockets[name]});
+      } else {
+        formatted.push({name, value: 0});
+      }
+    });
+    return formatted;
+  } catch (error) {
+    throw error.message;
+  }
 }
 
-const flags: any = {
-  GBP: "🇬🇧",
-  EUR: "🇪🇺",
-  USD: "🇺🇸"
-};
-
-async function getCurrenciesName() {
-  const {data} = await axios.get<{rates: any; base: any}>(`${baseUrl}`);
-  const names = [...Object.keys(data.rates), data.base];
-  const formatted = names.map((name) => ({
-    name,
-    flag: flags[name] || flags["GBP"],
-    value: randomAmount(500, 50000)
-  }));
-  return formatted;
+async function getMyPockets(): Promise<{[key: string]: number}> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return new Promise((res, _) => {
+    setTimeout(
+      () =>
+        res({
+          GBP: randomAmount(100, 50000),
+          EUR: randomAmount(100, 50000),
+          USD: randomAmount(100, 50000),
+        }),
+      500,
+    );
+  });
 }
 
-async function getCurrentRate({fromCurrency, toCurrency}: any) {
-  console.log("ellapsed");
-  const {data} = await axios(`${baseUrl}?symbols=${toCurrency.name}&base=${fromCurrency.name}`);
+interface GetCurrentRate {
+  fromCurrency: Currency;
+  toCurrency: Currency;
+}
+
+async function getCurrentRate({fromCurrency, toCurrency}: GetCurrentRate): Promise<string> {
+  const {data} = await axios(`${baseUrl}/latest?symbols=${toCurrency.name}&base=${fromCurrency.name}`);
   return data.rates[toCurrency.name].toFixed(4);
 }
 
-interface DaysAgo {
+async function getHistoryData({daysAgo, toCurrency, fromCurrency}: GetHistoryData): Promise<{x: number; y: number}[]> {
+  const {data} = await axios.get<{rates: {[key: string]: {[key: string]: number}}}>(
+    `${baseUrl}/history?start_at=${getStartAtDay(daysAgo)}&end_at=${getEndAtDay()}&symbols=${toCurrency.name}&base=${
+      fromCurrency.name
+    }`,
+  );
+  const formatted = formatHistoryData({data, toCurrency});
+  return formatted;
+}
+
+export {getCurrencies, getCurrentRate, getHistoryData};
+
+interface GetHistoryData {
+  toCurrency: {name: string; value: number};
+  fromCurrency: {name: string; value: number};
   daysAgo: 10 | 7 | 30 | 90 | 180 | 360 | 1800;
 }
-
-interface FromToCurrencies {
-  toCurrency: {name: string; value: number; flag: string};
-  fromCurrency: {name: string; value: number; flag: string};
-}
-
-type IProps = DaysAgo & FromToCurrencies;
-
-async function getHistoryData({daysAgo, toCurrency, fromCurrency}: IProps) {
-  const {data} = await axios.get<{rates: {[key: string]: {[key: string]: number}}}>(
-    `https://api.exchangeratesapi.io/history?start_at=${getStartAtDay(
-      daysAgo
-    )}&end_at=${getEndAtDay()}&symbols=${toCurrency.name}&base=${fromCurrency.name}`
-  );
-
-  const result = Object.entries(data.rates).map(([date, rate], i) => {
-    return {x: getTimestamp(date), y: rate[toCurrency.name]};
-  });
-
-  const sorted = result.sort((a, b) => {
-    return a.x - b.x;
-  });
-
-  return sorted;
-}
-
-function getEndAtDay() {
-  return format(new Date(), "yyyy-MM-dd");
-}
-
-function getStartAtDay(param: number) {
-  const day = subDays(new Date(), param);
-  return format(new Date(day), "yyyy-MM-dd");
-}
-
-function getTimestamp(date: string) {
-  let array = date.split("-");
-  let res: string = array[0] + "/" + array[1] + "/" + array[2];
-  let time = new Date(res).getTime();
-  return time;
-}
-
-export {getCurrenciesName, getCurrentRate, getHistoryData};
-
-// interface TimeFrame {
-//     value:
-//       | {key: "10D"; days: 10}
-//       | {key: "1W"; days: 7}
-//       | {key: "1M"; days: 30}
-//       | {key: "3M"; days: 90}
-//       | {key: "6M"; days: 180}
-//       | {key: "1Y"; days: 360}
-//       | {key: "5Y"; days: 1800};
-//   }
