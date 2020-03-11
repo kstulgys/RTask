@@ -1,32 +1,9 @@
 import * as React from 'react';
 import {getCurrencies, getCurrentRate} from '../services/exchange-rates-api';
-
-type Currency = {name: string; value: number};
-type Currencies = Currency[];
-type DataPoint = {x: number; y: number};
-type DataPoints = DataPoint[];
-type AvailableDays = 10 | 7 | 30 | 90 | 180 | 360 | 1800;
-
-interface CurrencyState {
-  isLoading: boolean;
-  currencies: Currencies;
-  currenciesFromFiltered: Currencies;
-  currenciesToFiltered: Currencies;
-  fromCurrency: Currency | null;
-  toCurrency: Currency | null;
-  chartData: DataPoints;
-  currentRate: number | null;
-  historyDaysAgo: AvailableDays;
-  currencyFocused: 'From' | 'To';
-  error: string | null;
-  fromInputValue: number;
-  toInputValue: number;
-}
-
-interface Action {
-  type: string;
-  payload?: any;
-}
+import {Currency, Currencies, CurrencyState, CurrencyDispatch, CurrencyProviderProps, Action} from './types';
+import actions from './actions';
+import reducer from './reducer';
+import {FromOrTo, Label} from 'screens/types';
 
 const initialState: CurrencyState = {
   isLoading: true,
@@ -36,7 +13,7 @@ const initialState: CurrencyState = {
   fromCurrency: null,
   toCurrency: null,
   chartData: [],
-  currentRate: null,
+  currentRate: 0,
   historyDaysAgo: 30,
   currencyFocused: 'From',
   error: null,
@@ -44,81 +21,11 @@ const initialState: CurrencyState = {
   toInputValue: 0,
 };
 
-const actions = {
-  FETCH_CURRENCIES_START: 'FETCH_CURRENCIES_START',
-  FETCH_CURRENCIES_SUCCESS: 'FETCH_CURRENCIES_SUCCESS',
-  FETCH_CURRENCIES_FAIL: 'FETCH_CURRENCIES_FAIL',
-
-  SET_FROM_CURRENCY: 'SET_FROM_CURRENCY',
-  SET_TO_CURRENCY: 'SET_TO_CURRENCY',
-
-  SELECT_FROM_CURRENCY: 'SELECT_FROM_CURRENCY',
-  SELECT_TO_CURRENCY: 'SELECT_TO_CURRENCY',
-
-  FETCH_RATE_START: 'FETCH_RATE_START',
-  FETCH_RATE_SUCCESS: 'FETCH_RATE_SUCCESS',
-  FETCH_RATE_FAIL: 'FETCH_RATE_FAIL',
-
-  SET_FILTERED_FROM_CURRENCIES: 'SET_FILTERED_FROM_CURRENCIES',
-  SET_FILTERED_TO_CURRENCIES: 'SET_FILTERED_TO_CURRENCIES',
-
-  FROM_INPUT_CHANGED: 'FROM_INPUT_CHANGED',
-  TO_INPUT_CHANGED: 'TO_INPUT_CHANGED',
-};
-
-type CurrencyDispatch = React.Dispatch<Action>;
-
 const CurrencyStateContext = React.createContext<CurrencyState>(initialState);
-const CurrencyDispatchContext = React.createContext<CurrencyDispatch>({} as CurrencyDispatch);
-
-function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
-  switch (action.type) {
-    case actions.FETCH_CURRENCIES_START: {
-      return {...state, isLoading: true};
-    }
-    case actions.FETCH_CURRENCIES_SUCCESS: {
-      return {...state, currencies: action.payload, isLoading: false};
-    }
-    case actions.FETCH_CURRENCIES_FAIL: {
-      return {...state, isLoading: false, error: action.payload};
-    }
-    case actions.SET_FROM_CURRENCY: {
-      return {...state, fromCurrency: action.payload};
-    }
-    case actions.SET_TO_CURRENCY: {
-      return {...state, toCurrency: action.payload};
-    }
-    case actions.SELECT_FROM_CURRENCY: {
-      return {...state, fromCurrency: action.payload};
-    }
-    case actions.SELECT_TO_CURRENCY: {
-      return {...state, toCurrency: action.payload};
-    }
-    case actions.FETCH_RATE_SUCCESS: {
-      return {...state, currentRate: action.payload};
-    }
-    case actions.SET_FILTERED_FROM_CURRENCIES: {
-      return {...state, currenciesFromFiltered: action.payload};
-    }
-    case actions.SET_FILTERED_TO_CURRENCIES: {
-      return {...state, currenciesToFiltered: action.payload};
-    }
-    // case actions.SET_LOADING: {
-    //   return {...state, isLoading: action.payload};
-    // }
-
-    default: {
-      throw new Error(`Unhandled action type: ${action.type}`);
-    }
-  }
-}
-
-interface CurrencyProviderProps {
-  children: React.ReactNode;
-}
+const CurrencyDispatchContext = React.createContext<React.Dispatch<Action>>({} as React.Dispatch<Action>);
 
 function CurrencyProvider({children}: CurrencyProviderProps): JSX.Element {
-  const [state, dispatch] = React.useReducer(currencyReducer, initialState);
+  const [state, dispatch] = React.useReducer<React.Reducer<CurrencyState, Action>>(reducer, initialState);
 
   React.useEffect(() => {
     // setLoading(dispatch, true);
@@ -139,20 +46,20 @@ function CurrencyProvider({children}: CurrencyProviderProps): JSX.Element {
   }, [state.currencies]);
 
   React.useEffect(() => {
-    let interval: any = null;
+    // let interval: any = null;
     if (state.fromCurrency && state.toCurrency) {
-      (function foo(): void {
-        const {fromCurrency, toCurrency} = state;
-        getCurrentRate({fromCurrency, toCurrency}).then(payload => {
-          dispatch({
-            type: actions.FETCH_RATE_SUCCESS,
-            payload,
-          });
+      // (function foo(): void {
+      const {fromCurrency, toCurrency} = state;
+      getCurrentRate({fromCurrency, toCurrency}).then(payload => {
+        dispatch({
+          type: actions.FETCH_RATE_SUCCESS,
+          payload,
         });
-        interval = setTimeout(foo, 10000);
-      })();
+      });
+      // interval = setTimeout(foo, 10000);
+      // })();
     }
-    return () => interval && clearInterval(interval);
+    // return (): void => interval && clearInterval(interval);
   }, [state.fromCurrency, state.toCurrency]);
 
   return (
@@ -162,23 +69,100 @@ function CurrencyProvider({children}: CurrencyProviderProps): JSX.Element {
   );
 }
 
-function useCurrencyState(): CurrencyState {
-  const context = React.useContext(CurrencyStateContext);
-  if (context === undefined) {
+function useCurrencyState() {
+  const state = React.useContext(CurrencyStateContext);
+  const dispatch = useCurrencyDispatch();
+  const methods = useMethods(state, dispatch);
+  if (methods === undefined) {
     throw new Error('useCurrencyState must be used within a CurrencyProvider');
   }
-  return context;
+  return {...state, ...methods};
 }
 
 function useCurrencyDispatch(): CurrencyDispatch {
-  const context = React.useContext(CurrencyDispatchContext);
-  if (context === undefined) {
+  const dispatch = React.useContext(CurrencyDispatchContext);
+  if (dispatch === undefined) {
     throw new Error('useCurrencyDispatch must be used within a CurrencyProvider');
   }
-  return context;
+  return dispatch;
 }
 
-function fetchCurrencies(dispatch: any): void {
+function useMethods(state: CurrencyState, dispatch: CurrencyDispatch): any {
+  function selectFromCurrency(payload: Currency): void {
+    dispatch({
+      type: actions.SELECT_FROM_CURRENCY,
+      payload,
+    });
+  }
+
+  function selectToCurrency(payload: Currency): void {
+    dispatch({
+      type: actions.SELECT_TO_CURRENCY,
+      payload,
+    });
+  }
+
+  function filterFromCurrencies(searchTerm: string, currencies: Currencies): void {
+    const payload = currencies.filter(c => c?.name.includes(searchTerm.toUpperCase()));
+    dispatch({
+      type: actions.SET_FILTERED_FROM_CURRENCIES,
+      payload,
+    });
+  }
+
+  function filterToCurrencies(searchTerm: string, currencies: Currencies): void {
+    const payload = currencies.filter(c => c?.name.includes(searchTerm.toUpperCase()));
+    dispatch({
+      type: actions.SET_FILTERED_TO_CURRENCIES,
+      payload,
+    });
+  }
+
+  function changeInputValue({input, type}: {input: string; type: FromOrTo}): void {
+    const reachedDecimals = input[input.length - 4] === '.';
+    if (reachedDecimals) return;
+
+    if (type === Label.from) {
+      const value = Number((Number(input) * state.currentRate).toFixed(2));
+      dispatch({
+        type: actions.FROM_INPUT_CHANGED,
+        payload: input,
+      });
+      dispatch({
+        type: actions.TO_INPUT_CHANGED,
+        payload: value,
+      });
+    }
+    if (type === Label.to) {
+      const value = Number((Number(input) / state.currentRate).toFixed(2));
+      dispatch({
+        type: actions.FROM_INPUT_CHANGED,
+        payload: value,
+      });
+      dispatch({
+        type: actions.TO_INPUT_CHANGED,
+        payload: input,
+      });
+    }
+  }
+
+  function swapInputs(): void {
+    dispatch({
+      type: actions.SWAP_INPUTS,
+    });
+  }
+
+  return {
+    selectFromCurrency,
+    selectToCurrency,
+    filterFromCurrencies,
+    filterToCurrencies,
+    changeInputValue,
+    swapInputs,
+  };
+}
+
+function fetchCurrencies(dispatch: CurrencyDispatch): void {
   getCurrencies().then(currencies => {
     dispatch({
       type: actions.FETCH_CURRENCIES_SUCCESS,
@@ -187,9 +171,13 @@ function fetchCurrencies(dispatch: any): void {
   });
 }
 
-function setInitialFromToCurrency(dispatch: any, currencies: Currencies): void {
-  const fromCurrency = currencies.find((c: Currency) => c?.name === 'GBP');
-  const toCurrency = currencies.find((c: Currency) => c?.name === 'USD');
+function setInitialFromToCurrency(dispatch: CurrencyDispatch, currencies: Currencies): void {
+  const initialFrom = 'GBP';
+  const initialTo = 'USD';
+
+  const fromCurrency = currencies.find((c: Currency) => c?.name === initialFrom);
+  const toCurrency = currencies.find((c: Currency) => c?.name === initialTo);
+
   if (fromCurrency) {
     dispatch({
       type: actions.SET_FROM_CURRENCY,
@@ -204,42 +192,4 @@ function setInitialFromToCurrency(dispatch: any, currencies: Currencies): void {
   }
 }
 
-function selectFromCurrency(dispatch: any, payload: Currency): void {
-  dispatch({
-    type: actions.SELECT_FROM_CURRENCY,
-    payload,
-  });
-}
-
-function selectToCurrency(dispatch: any, payload: Currency): void {
-  dispatch({
-    type: actions.SELECT_TO_CURRENCY,
-    payload,
-  });
-}
-
-function filterFromCurrencies(dispatch: any, searchTerm: string, currencies: Currencies): void {
-  const payload = currencies.filter(c => c?.name.includes(searchTerm.toUpperCase()));
-  dispatch({
-    type: actions.SET_FILTERED_FROM_CURRENCIES,
-    payload,
-  });
-}
-
-function filterToCurrencies(dispatch: any, searchTerm: string, currencies: Currencies): void {
-  const payload = currencies.filter(c => c?.name.includes(searchTerm.toUpperCase()));
-  dispatch({
-    type: actions.SET_FILTERED_TO_CURRENCIES,
-    payload,
-  });
-}
-
-export {
-  CurrencyProvider,
-  useCurrencyState,
-  useCurrencyDispatch,
-  selectFromCurrency,
-  selectToCurrency,
-  filterFromCurrencies,
-  filterToCurrencies,
-};
+export {CurrencyProvider, useCurrencyState};

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {AppWrapper} from './lib/components';
+import {AppWrapper} from './components';
 import {CurrencyExchange} from './screens';
 import {CurrencyProvider} from './context';
 

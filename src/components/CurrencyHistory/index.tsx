@@ -20,7 +20,7 @@ import {
   StatArrow,
   useToast,
 } from '@chakra-ui/core';
-import '../node_modules/react-vis/dist/style.css';
+// import '../node_modules/react-vis/dist/style.css';
 
 // function SelectRange({setDaysAgo, daysAgo}: any) {
 //   const tabs = [

@@ -1,7 +1,12 @@
 import * as React from 'react';
 import {Button} from '@chakra-ui/core';
 
-export function ButtonContinue({text, ...props}: any) {
+interface ButtonContinueProps {
+  text: string;
+  [key: string]: any;
+}
+
+export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Element {
   return (
     <Button
       isDisabled
