@@ -14,7 +14,7 @@ export function useUpdatePockets({dispatch, inputValueFrom, inputValueTo, select
   React.useEffect(() => {
     if (selectedFrom && selectedTo) {
       const selectedFromPocketValue = +(selectedFrom.value - inputValueFrom).toFixed(2);
-      const selectedToPocketValue = +(selectedTo.value + inputValueFrom).toFixed(2);
+      const selectedToPocketValue = +(selectedTo.value + inputValueTo).toFixed(2);
       const canSubmit = Math.sign(selectedFromPocketValue) !== -1 && !!inputValueFrom;
       const payload = {canSubmit, selectedFromPocketValue, selectedToPocketValue};
       console.log({payload});

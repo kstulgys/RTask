@@ -5,9 +5,7 @@ export type DataPoints = DataPoint[];
 export type AvailableDays = 10 | 7 | 30 | 90 | 180 | 360 | 1800;
 
 export type CurrencyState = {
-  // fromCurrency: Currency;
-  // toCurrency: Currency;
-  // currencyFocused: 'From' | 'To';
+  isSubmitting: boolean;
   selectedFromPocketValue: number;
   selectedToPocketValue: number;
   canSubmit: boolean;

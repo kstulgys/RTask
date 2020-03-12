@@ -8,11 +8,13 @@ interface ButtonContinueProps {
 }
 
 export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Element {
-  const {canSubmit} = useCurrencyState();
+  const {canSubmit, submitPockets, isSubmitting} = useCurrencyState();
 
   return (
     <Button
+      isLoading={isSubmitting}
       isDisabled={!canSubmit}
+      onClick={submitPockets}
       type="submit"
       width="full"
       rounded="full"

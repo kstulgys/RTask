@@ -4,13 +4,10 @@ import {Currency, Currencies, CurrencyState, CurrencyDispatch, CurrencyProviderP
 import actions from './actions';
 import reducer from './reducer';
 import {FromOrTo, Label} from 'screens/types';
-import {LabelSeries} from 'react-vis';
 import {useSetInitialState, useSetInitialCurrencies, useCurrencyRatePolling, useUpdatePockets} from 'lib/hooks';
 
 const initialState: CurrencyState = {
-  // currencyFocused: 'From',
-  // selectedFrom: {name: 'GBP', value: 0},
-  // toCurrency: {name: 'USD', value: 0},
+  isSubmitting: false,
   selectedFromPocketValue: 0,
   selectedToPocketValue: 0,
   canSubmit: false,
@@ -114,12 +111,45 @@ function useMethods(state: CurrencyState, dispatch: CurrencyDispatch): any {
     });
   }
 
+  async function submitPockets() {
+    if (state.selectedFrom && state.selectedTo) {
+      const from = {currency: state.selectedFrom.name, amount: state.inputValueFrom};
+      const to = {currency: state.selectedTo.name, amount: state.inputValueTo};
+
+      dispatch({
+        type: actions.UPDATE_POCKETS_START,
+      });
+      try {
+        await waait();
+        await updatePockets({from, to});
+        dispatch({
+          type: actions.UPDATE_POCKETS_SUCCESS,
+        });
+      } catch (error) {
+        console.log('Failed to update  pockets');
+        dispatch({
+          type: actions.UPDATE_POCKETS_FAIL,
+          payload: 'Failed to update  pockets',
+        });
+      }
+    }
+  }
+
   return {
+    submitPockets,
     filterCurrencies,
     currencySelect,
     changeInputValue,
     swapInputs,
   };
+}
+
+function waait() {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      res();
+    }, 2000);
+  });
 }
 
 export {CurrencyProvider, useCurrencyState};

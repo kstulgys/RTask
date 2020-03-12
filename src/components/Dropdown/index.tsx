@@ -24,7 +24,6 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
     filteredTo,
     selectedFromPocketValue,
     selectedToPocketValue,
-    canSubmit,
   } = useCurrencyState();
 
   const ref = React.useRef();
@@ -84,14 +83,16 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
           >
             <SearchCurrencyInput label={label} />
             {currencies.map((item: Currency) => {
-              return (
-                <CurrencyItem
-                  key={item.name}
-                  handleSelect={handleSelect}
-                  handleOnKeySelect={handleOnKeySelect}
-                  item={item}
-                />
-              );
+              if (label === Label.from ? item.name !== selectedTo.name : item.name !== selectedFrom.name) {
+                return (
+                  <CurrencyItem
+                    key={item.name}
+                    handleSelect={handleSelect}
+                    handleOnKeySelect={handleOnKeySelect}
+                    item={item}
+                  />
+                );
+              }
             })}
           </Box>
         )}

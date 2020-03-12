@@ -1,38 +1,101 @@
 import actions from './actions';
 import {CurrencyState, Action} from './types';
 
-function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
+function appReducer(state: CurrencyState, action: Action): CurrencyState {
+  const newState = {
+    ...state,
+    ...updatePocketsReducer(state, action),
+    ...fetchCurrenciesReducer(state, action),
+    ...setInitialCurrenciesReducer(state, action),
+    ...currencySelectReducer(state, action),
+    ...setFilteredCurrenciesReducer(state, action),
+    ...inputChangedReducer(state, action),
+    ...fetchCurrencyRateReducer(state, action),
+    ...updatePocketValueReducer(state, action),
+    ...swapInputsReducer(state, action),
+  };
+
+  if (newState) {
+    return newState;
+  } else {
+    throw new Error(`Unhandled action type: ${action.type}`);
+  }
+}
+
+function updatePocketsReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
+    case actions.UPDATE_POCKETS_START: {
+      return {...state, isSubmitting: true};
+    }
+    case actions.UPDATE_POCKETS_SUCCESS: {
+      if (state.selectedFrom && state.selectedTo) {
+        return {
+          ...state,
+          isSubmitting: false,
+          inputValueFrom: 0,
+          inputValueTo: 0,
+          selectedFrom: {name: state.selectedFrom.name, value: state.selectedFromPocketValue},
+          selectedTo: {name: state.selectedTo.name, value: state.selectedToPocketValue},
+        };
+      }
+    }
+    case actions.UPDATE_POCKETS_SUCCESS: {
+      return {...state, isSubmitting: false, error: action.payload};
+    }
+  }
+}
+
+function fetchCurrenciesReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
   switch (action.type) {
     case actions.FETCH_CURRENCIES_START: {
       return {...state, isLoading: true};
     }
     case actions.FETCH_CURRENCIES_SUCCESS: {
-      return {...state, currencies: action.payload, isLoading: false};
+      const newState = {...state, currencies: action.payload, isLoading: false};
+      console.log({newState});
+      return newState;
     }
     case actions.FETCH_CURRENCIES_FAIL: {
       return {...state, isLoading: false, error: action.payload};
     }
+  }
+}
+
+function setInitialCurrenciesReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
     case actions.SET_FROM_CURRENCY: {
       return {...state, selectedFrom: action.payload, selectedFromPocketValue: action.payload.value};
     }
     case actions.SET_TO_CURRENCY: {
       return {...state, selectedTo: action.payload, selectedToPocketValue: action.payload.value};
     }
+  }
+}
+
+function currencySelectReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
     case actions.SELECT_FROM_CURRENCY: {
       return {...state, selectedFrom: action.payload};
     }
     case actions.SELECT_TO_CURRENCY: {
       return {...state, selectedTo: action.payload};
     }
-    case actions.FETCH_RATE_SUCCESS: {
-      return {...state, currentRate: action.payload};
-    }
+  }
+}
+
+function setFilteredCurrenciesReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
     case actions.SET_FILTERED_FROM_CURRENCIES: {
       return {...state, filteredFrom: action.payload};
     }
     case actions.SET_FILTERED_TO_CURRENCIES: {
       return {...state, filteredTo: action.payload};
     }
+  }
+}
+
+function inputChangedReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
     case actions.FROM_INPUT_CHANGED: {
       if (state.selectedFrom) {
         return {...state, inputValueFrom: action.payload};
@@ -41,7 +104,19 @@ function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
     case actions.TO_INPUT_CHANGED: {
       return {...state, inputValueTo: action.payload};
     }
+  }
+}
 
+function fetchCurrencyRateReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
+    case actions.FETCH_RATE_SUCCESS: {
+      return {...state, currentRate: action.payload};
+    }
+  }
+}
+
+function updatePocketValueReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
     case actions.UPDATE_SELECTED_POCKETS_VALUES: {
       if (state.selectedFrom && state.selectedTo) {
         const {selectedFromPocketValue, selectedToPocketValue, canSubmit} = action.payload;
@@ -54,7 +129,11 @@ function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
       }
       return state;
     }
+  }
+}
 
+function swapInputsReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
     case actions.SWAP_INPUTS: {
       const copy = {...state};
       const updates = {
@@ -65,11 +144,7 @@ function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
       };
       return {...state, ...updates};
     }
-
-    default: {
-      throw new Error(`Unhandled action type: ${action.type}`);
-    }
   }
 }
 
-export default currencyReducer;
+export default appReducer;

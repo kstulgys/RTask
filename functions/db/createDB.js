@@ -2,12 +2,10 @@
 function createDB(db) {
   const updatePockets = async ({from, to}) => {
     const pockets = await db.get('pockets').value();
-    console.log({from});
-    console.log({pockets});
     if (!pockets[from.currency]) {
       throw Error('Pocket does not exist');
     } else {
-      pockets[from.currency] = pockets[from.currency] - from.amount;
+      pockets[from.currency] = +(pockets[from.currency] - from.amount).toFixed(2);
       if (pockets[from.currency] < 0) {
         throw Error('Not enough money in the pocket');
       }
@@ -15,7 +13,7 @@ function createDB(db) {
     if (!pockets[to.currency]) {
       pockets[to.currency] = to.amount;
     } else {
-      pockets[to.currency] = pockets[to.currency] + to.amount;
+      pockets[to.currency] = +(pockets[to.currency] + to.amount).toFixed(2);
     }
 
     console.log({pockets});
@@ -35,11 +33,3 @@ function createDB(db) {
 }
 
 module.exports = createDB;
-
-// db.update('pockets', pockets => {
-//   return pockets[from.currency] - from.amount;
-// });
-
-// db.update('pockets', pockets => {
-//     return pockets[from.currency] - from.amount;
-//   });

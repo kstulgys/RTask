@@ -12,7 +12,7 @@ export function IconSwapInputs(): JSX.Element {
       as={FiRepeat}
       color="revo.blue"
       mx={['auto', 'auto', 12]}
-      mt={[0, 0, 4]}
+      mt={[0, 0, 6]}
       mb={[12, 12, 0]}
       bg="none"
       _hover={{bg: 'none'}}
