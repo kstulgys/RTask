@@ -3,12 +3,12 @@ import {Stat, StatHelpText, StatArrow} from '@chakra-ui/core';
 import {DataPoints} from 'context/types';
 
 interface TodaysChangeProps {
-  chartData: DataPoints;
+  dataPoints: DataPoints;
 }
 
-export function TodaysChange({chartData}: TodaysChangeProps): JSX.Element {
-  const change: number = chartData[chartData.length - 1].y - chartData[chartData.length - 2].y;
-  const percent = (change * 100) / chartData[chartData.length - 1].y;
+export function TodaysChange({dataPoints}: TodaysChangeProps): JSX.Element {
+  const change: number = dataPoints[dataPoints.length - 1].y - dataPoints[dataPoints.length - 2].y;
+  const percent = (change * 100) / dataPoints[dataPoints.length - 1].y;
 
   const sign = Math.sign(change);
 

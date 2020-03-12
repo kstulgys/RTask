@@ -20,6 +20,8 @@ const actions = {
   TO_INPUT_CHANGED: 'TO_INPUT_CHANGED',
 
   SWAP_INPUTS: 'SWAP_INPUTS',
+
+  SUBMIT_INPUT_VALUES: 'SUBMIT_INPUT_VALUES',
 };
 
 export default actions;

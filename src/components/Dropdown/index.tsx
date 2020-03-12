@@ -17,20 +17,20 @@ interface DropdownProps {
 
 export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
   const {
-    fromCurrency,
-    toCurrency,
-    currenciesFromFiltered,
-    currenciesToFiltered,
     selectFromCurrency,
     selectToCurrency,
+    selectedFrom,
+    selectedTo,
+    filteredFrom,
+    filteredTo,
+    inputValueFrom,
+    inputValueTo,
   } = useCurrencyState();
 
   const ref = React.useRef();
   const [open, setOpen] = React.useState<boolean>(false);
   const toggleOpen = (): void => setOpen(!open);
   useOnClickOutside(ref, () => setOpen(false));
-
-  const currencies = label === Label.from ? currenciesFromFiltered : currenciesToFiltered;
 
   const handleOnKeySelect = (item: Currency): void => {
     if (label === Label.from) {
@@ -46,7 +46,19 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
     handleOnKeySelect(item);
   };
 
-  const selected = label === Label.from ? fromCurrency : toCurrency;
+  const getUpdatedTotal = () => {
+    if (label === Label.from && selected) {
+      const totalValue = Number((selected.value - inputValueFrom).toFixed(2));
+      return numeral(totalValue).format('00,000.00');
+    }
+    if (label === Label.to && selected) {
+      const totalValue = Number((selected.value + inputValueTo).toFixed(2));
+      return numeral(totalValue).format('00,000.00');
+    }
+  };
+
+  const selected = label === Label.from ? selectedFrom : selectedTo;
+  const currencies = label === Label.from ? filteredFrom : filteredTo;
 
   return (
     <Box {...props}>
@@ -61,7 +73,7 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
             <Text fontWeight="medium">{selected && selected.name}</Text>
             <Flex ml="auto" alignItems="center">
               <Text color="revo.gray" fontWeight="medium">
-                {selected && numeral(selected.value).format('00,000.00')}
+                {getUpdatedTotal()}
               </Text>
               <Box ml="2" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
             </Flex>
@@ -86,6 +98,9 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
           >
             <SearchCurrencyInput label={label} />
             {currencies.map((item: Currency) => {
+              // if (item.name === selected.name) {
+              //   return null;
+              // }
               return (
                 <CurrencyItem
                   key={item.name}

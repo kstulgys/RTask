@@ -13,39 +13,41 @@ function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
       return {...state, isLoading: false, error: action.payload};
     }
     case actions.SET_FROM_CURRENCY: {
-      return {...state, fromCurrency: action.payload};
+      return {...state, selectedFrom: action.payload};
     }
     case actions.SET_TO_CURRENCY: {
-      return {...state, toCurrency: action.payload};
+      return {...state, selectedTo: action.payload};
     }
     case actions.SELECT_FROM_CURRENCY: {
-      return {...state, fromCurrency: action.payload};
+      return {...state, selectedFrom: action.payload};
     }
     case actions.SELECT_TO_CURRENCY: {
-      return {...state, toCurrency: action.payload};
+      return {...state, selectedTo: action.payload};
     }
     case actions.FETCH_RATE_SUCCESS: {
       return {...state, currentRate: action.payload};
     }
     case actions.SET_FILTERED_FROM_CURRENCIES: {
-      return {...state, currenciesFromFiltered: action.payload};
+      return {...state, filteredFrom: action.payload};
     }
     case actions.SET_FILTERED_TO_CURRENCIES: {
-      return {...state, currenciesToFiltered: action.payload};
+      return {...state, filteredTo: action.payload};
     }
     case actions.FROM_INPUT_CHANGED: {
-      return {...state, fromInputValue: action.payload};
+      if (state.selectedFrom) {
+        return {...state, inputValueFrom: action.payload};
+      }
     }
     case actions.TO_INPUT_CHANGED: {
-      return {...state, toInputValue: action.payload};
+      return {...state, inputValueTo: action.payload};
     }
     case actions.SWAP_INPUTS: {
       const copy = {...state};
       const updates = {
-        fromCurrency: copy.toCurrency,
-        toCurrency: copy.fromCurrency,
-        fromInputValue: copy.toInputValue,
-        toInputValue: copy.fromInputValue,
+        selectedFrom: copy.selectedTo,
+        selectedTo: copy.selectedFrom,
+        inputValueFrom: copy.inputValueTo,
+        inputValueTo: copy.inputValueFrom,
       };
       return {...state, ...updates};
     }

@@ -1,55 +1,52 @@
 import axios from 'axios';
-import {randomAmount, formatHistoryData, getEndAtDay, getStartAtDay} from '../../lib/utils';
+import {randomAmount, formatHistoryData, getEndAtDay, getStartAtDay} from 'lib/utils';
 
 const baseUrl = 'https://api.exchangeratesapi.io';
 
 type Currency = {name: string; value: number};
 type Currencies = Currency[];
-type Rates = {[key: string]: {[key: string]: number}};
+type Rates = {[key: string]: number};
 
 async function getCurrencies(): Promise<Currencies> {
   try {
     const {data} = await axios.get<{rates: Rates; base: string}>(`${baseUrl}/latest`);
-    const names = [...Object.keys(data.rates), data.base];
     const myPockets = await getMyPockets();
+    const names = [...Object.keys(data.rates), data.base];
     const formatted: Currencies = [];
 
     names.forEach(name => {
       if (myPockets[name]) {
-        formatted.unshift({name, value: myPockets[name]});
+        formatted.push({name, value: myPockets[name]});
       } else {
         formatted.push({name, value: 0});
       }
     });
-    return formatted;
+
+    return formatted.sort((a, b) => b.value - a.value);
   } catch (error) {
-    throw error.message;
+    throw Error(error.response.data);
   }
 }
 
 async function getMyPockets(): Promise<{[key: string]: number}> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return new Promise((res, _) => {
-    setTimeout(
-      () =>
-        res({
-          GBP: randomAmount(100, 50000),
-          EUR: randomAmount(100, 50000),
-          USD: randomAmount(100, 50000),
-        }),
-      500,
-    );
-  });
+  const {data} = await axios.get<{[key: string]: number}>('/api/getPockets');
+  return data;
 }
 
 interface GetCurrentRate {
-  fromCurrency: Currency;
-  toCurrency: Currency;
+  selectedFrom: Currency;
+  selectedTo: Currency;
 }
 
-async function getCurrentRate({fromCurrency, toCurrency}: GetCurrentRate): Promise<string> {
-  const {data} = await axios(`${baseUrl}/latest?symbols=${toCurrency.name}&base=${fromCurrency.name}`);
-  return data.rates[toCurrency.name].toFixed(4);
+async function getCurrentRate({selectedFrom, selectedTo}: GetCurrentRate): Promise<string> {
+  const {data} = await axios(`${baseUrl}/latest?symbols=${selectedTo.name}&base=${selectedFrom.name}`);
+  return data.rates[selectedTo.name].toFixed(4);
+}
+
+interface GetHistoryData {
+  toCurrency: {name: string; value: number};
+  fromCurrency: {name: string; value: number};
+  daysAgo: 10 | 7 | 30 | 90 | 180 | 360 | 1800;
 }
 
 async function getHistoryData({daysAgo, toCurrency, fromCurrency}: GetHistoryData): Promise<{x: number; y: number}[]> {
@@ -62,10 +59,18 @@ async function getHistoryData({daysAgo, toCurrency, fromCurrency}: GetHistoryDat
   return formatted;
 }
 
-export {getCurrencies, getCurrentRate, getHistoryData};
-
-interface GetHistoryData {
-  toCurrency: {name: string; value: number};
-  fromCurrency: {name: string; value: number};
-  daysAgo: 10 | 7 | 30 | 90 | 180 | 360 | 1800;
+interface UpdatePocketsProps {
+  from: {currency: string; amount: number};
+  to: {currency: string; amount: number};
 }
+
+async function updatePockets({from, to}: UpdatePocketsProps): Promise<[]> {
+  const {data} = await axios.post('/api/updatePockets', {
+    from,
+    to,
+  });
+
+  return data;
+}
+
+export {getCurrencies, getCurrentRate, getHistoryData, updatePockets};

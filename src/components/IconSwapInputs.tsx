@@ -7,9 +7,10 @@ export function IconSwapInputs(): JSX.Element {
   const {swapInputs} = useCurrencyState();
   return (
     <IconButton
+      aria-label="swap currencies"
       onClick={swapInputs}
       as={FiRepeat}
-      aria-label="swap currencies"
+      color="revo.blue"
       mx={['auto', 'auto', 12]}
       mt={[0, 0, 4]}
       mb={[12, 12, 0]}

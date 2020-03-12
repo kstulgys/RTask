@@ -6,18 +6,20 @@ export type AvailableDays = 10 | 7 | 30 | 90 | 180 | 360 | 1800;
 
 export type CurrencyState = {
   isLoading: boolean;
+  filteredFrom: Currencies;
+  filteredTo: Currencies;
+  // fromCurrency: Currency;
+  // toCurrency: Currency;
+  // currencyFocused: 'From' | 'To';
+  selectedFrom: Currency | null;
+  selectedTo: Currency | null;
   currencies: Currencies;
-  currenciesFromFiltered: Currencies;
-  currenciesToFiltered: Currencies;
-  fromCurrency: Currency | null;
-  toCurrency: Currency | null;
-  chartData: DataPoints;
-  currentRate: number;
+  dataPoints: DataPoints;
   historyDaysAgo: AvailableDays;
-  currencyFocused: 'From' | 'To';
+  currentRate: number;
+  inputValueFrom: number;
+  inputValueTo: number;
   error: string | null;
-  fromInputValue: number;
-  toInputValue: number;
 };
 
 export type CurrencyDispatch = React.Dispatch<Action>;

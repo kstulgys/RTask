@@ -4,7 +4,7 @@ import {useCurrencyState} from 'context';
 import {TodaysChange} from './TodaysChnage';
 
 export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Element {
-  const {currentRate, chartData} = useCurrencyState();
+  const {currentRate, dataPoints} = useCurrencyState();
 
   return (
     <Flex {...props}>
@@ -20,7 +20,7 @@ export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Eleme
         <Text fontSize="xs" color="revo.gray" fontWeight="medium">
           {`Today's change`}
         </Text>
-        {chartData.length > 1 && <TodaysChange chartData={chartData} />}
+        {dataPoints.length > 1 && <TodaysChange dataPoints={dataPoints} />}
       </Box>
     </Flex>
   );
