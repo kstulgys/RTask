@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {randomAmount, formatHistoryData, getEndAtDay, getStartAtDay} from 'lib/utils';
+import {formatHistoryData, getEndAtDay, getStartAtDay} from 'lib/utils';
 
 const baseUrl = 'https://api.exchangeratesapi.io';
 

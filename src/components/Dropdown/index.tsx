@@ -17,14 +17,14 @@ interface DropdownProps {
 
 export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
   const {
-    selectFromCurrency,
-    selectToCurrency,
+    currencySelect,
     selectedFrom,
     selectedTo,
     filteredFrom,
     filteredTo,
-    inputValueFrom,
-    inputValueTo,
+    selectedFromPocketValue,
+    selectedToPocketValue,
+    canSubmit,
   } = useCurrencyState();
 
   const ref = React.useRef();
@@ -33,12 +33,7 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
   useOnClickOutside(ref, () => setOpen(false));
 
   const handleOnKeySelect = (item: Currency): void => {
-    if (label === Label.from) {
-      selectFromCurrency(item);
-    }
-    if (label === Label.to) {
-      selectToCurrency(item);
-    }
+    currencySelect({name: item.name, type: label});
   };
 
   const handleSelect = (item: Currency): void => {
@@ -46,19 +41,10 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
     handleOnKeySelect(item);
   };
 
-  const getUpdatedTotal = () => {
-    if (label === Label.from && selected) {
-      const totalValue = Number((selected.value - inputValueFrom).toFixed(2));
-      return numeral(totalValue).format('00,000.00');
-    }
-    if (label === Label.to && selected) {
-      const totalValue = Number((selected.value + inputValueTo).toFixed(2));
-      return numeral(totalValue).format('00,000.00');
-    }
-  };
-
   const selected = label === Label.from ? selectedFrom : selectedTo;
   const currencies = label === Label.from ? filteredFrom : filteredTo;
+  const pocketValue = label === Label.from ? selectedFromPocketValue : selectedToPocketValue;
+  const pocketValueColor = label === Label.from && Math.sign(selectedFromPocketValue) === -1 ? 'revo.red' : 'revo.gray';
 
   return (
     <Box {...props}>
@@ -72,8 +58,8 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
           <Flex alignItems="center" mb="2" height="5">
             <Text fontWeight="medium">{selected && selected.name}</Text>
             <Flex ml="auto" alignItems="center">
-              <Text color="revo.gray" fontWeight="medium">
-                {getUpdatedTotal()}
+              <Text color={pocketValueColor} fontWeight="medium">
+                {numeral(pocketValue).format('00,000.00')}
               </Text>
               <Box ml="2" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
             </Flex>
@@ -98,9 +84,6 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
           >
             <SearchCurrencyInput label={label} />
             {currencies.map((item: Currency) => {
-              // if (item.name === selected.name) {
-              //   return null;
-              // }
               return (
                 <CurrencyItem
                   key={item.name}

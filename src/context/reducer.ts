@@ -13,10 +13,10 @@ function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
       return {...state, isLoading: false, error: action.payload};
     }
     case actions.SET_FROM_CURRENCY: {
-      return {...state, selectedFrom: action.payload};
+      return {...state, selectedFrom: action.payload, selectedFromPocketValue: action.payload.value};
     }
     case actions.SET_TO_CURRENCY: {
-      return {...state, selectedTo: action.payload};
+      return {...state, selectedTo: action.payload, selectedToPocketValue: action.payload.value};
     }
     case actions.SELECT_FROM_CURRENCY: {
       return {...state, selectedFrom: action.payload};
@@ -41,6 +41,20 @@ function currencyReducer(state: CurrencyState, action: Action): CurrencyState {
     case actions.TO_INPUT_CHANGED: {
       return {...state, inputValueTo: action.payload};
     }
+
+    case actions.UPDATE_SELECTED_POCKETS_VALUES: {
+      if (state.selectedFrom && state.selectedTo) {
+        const {selectedFromPocketValue, selectedToPocketValue, canSubmit} = action.payload;
+        return {
+          ...state,
+          canSubmit,
+          selectedFromPocketValue,
+          selectedToPocketValue,
+        };
+      }
+      return state;
+    }
+
     case actions.SWAP_INPUTS: {
       const copy = {...state};
       const updates = {

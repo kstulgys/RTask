@@ -11,46 +11,25 @@ interface InputAmountProps {
 
 export function InputAmount({label, ...props}: InputAmountProps): JSX.Element {
   const {selectedFrom, selectedTo, inputValueFrom, inputValueTo, changeInputValue} = useCurrencyState();
-  const withMinus = (input: number): string | number | undefined => {
-    let stringify = String(input);
-    if (!!Number(input) && stringify[0] !== '-') {
-      const withMinus = stringify.split('');
-      withMinus.unshift('-');
-      stringify = withMinus.join('');
-      return stringify;
-    }
-    return input;
-  };
-  const inputValue = label === Label.from ? withMinus(inputValueFrom) : inputValueTo;
-  const currency = label === Label.from ? selectedFrom : selectedTo;
+  const addMinus = (input: number): number => (!!input ? -Math.abs(input) : 0);
+  const removeMinus = (input: string): string => Math.abs(+input) + '';
+  const inputValue = label === Label.from ? addMinus(inputValueFrom) : inputValueTo;
+  const selected = label === Label.from ? selectedFrom : selectedTo;
 
-  const withoutMinus = (inputValue: string) => {
-    if (inputValue[0] === '-') {
-      inputValue = inputValue.substr(1);
-    }
-    return inputValue;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    changeInputValue({input: removeMinus(e.target.value), type: label});
   };
 
   return (
     <Flex alignItems="baseline" my={[8, 12, 16]} {...props}>
       <Box display={['none', 'block']} pr="2">
         <Text pr="1" lineHeight="none" fontSize="110px" fontWeight="lighter">
-          {currency?.name && SYMBOLS[currency.name].symbol_native}
+          {selected?.name && SYMBOLS[selected.name].symbol_native}
         </Text>
       </Box>
-      {/* <input
-        type="number"
-        // onChange={(e: React.ChangeEvent<HTMLInputElement>): void =>
-        //   changeInputValue({input: withoutMinus(e.target.value), type: label})
-        // }
-        // value={!!inputValue || inputValue.length > 1 ? inputValue : ''}
-        placeholder="0"
-      /> */}
-      <Input type="number" onChange={(e: any) => console.log(e.target.value)} />
-      {/* <Input
-        onChange={(e: React.ChangeEvent<HTMLInputElement>): void =>
-          changeInputValue({input: withoutMinus(e.target.value), type: label})
-        }
+      <Input
+        onChange={handleInputChange}
+        value={!!inputValue ? inputValue : ''}
         type="number"
         pl="0"
         px={[0]}
@@ -66,7 +45,7 @@ export function InputAmount({label, ...props}: InputAmountProps): JSX.Element {
         _placeholder={{
           color: 'revo.lightGray',
         }}
-      /> */}
+      />
     </Flex>
   );
 }
