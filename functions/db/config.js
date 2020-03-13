@@ -3,7 +3,7 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
-const adapter = new FileSync('tmp/database.json');
+const adapter = new FileSync('/tmp/database.json');
 const lowDB = low(adapter);
 
 function randomAmount(min, max) {
