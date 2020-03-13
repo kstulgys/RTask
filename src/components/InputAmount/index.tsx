@@ -1,27 +1,28 @@
 import * as React from 'react';
 import {Box, Flex, Text, Input} from '@chakra-ui/core';
-import {useCurrencyState} from 'context';
+import {useCurrencyState, useCurrencyDispatch} from 'context';
 import {SYMBOLS} from './symbols';
-import {Label, FromOrTo} from 'screens/types';
+import {Currency, CurrencyDispatch, CurrencyState} from 'context/types';
 
 interface InputAmountProps {
-  label: FromOrTo;
   [key: string]: any;
+  inputValue: number;
+  selected: Currency | null;
+  handleChange: (dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) => void;
 }
 
-export function InputAmount({label, ...props}: InputAmountProps): JSX.Element {
-  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo, changeInputValue} = useCurrencyState();
-  const addMinus = (input: number): number => (!!input ? -Math.abs(input) : 0);
-  const removeMinus = (input: string): string => Math.abs(+input) + '';
-  const inputValue = label === Label.from ? addMinus(inputValueFrom) : inputValueTo;
-  const selected = label === Label.from ? selectedFrom : selectedTo;
+export function InputAmount(props: InputAmountProps): JSX.Element {
+  const {handleChange, selected, inputValue, ...rest} = props;
+  const state = useCurrencyState();
+  const dispatch = useCurrencyDispatch();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    changeInputValue({input: removeMinus(e.target.value), type: label});
+    const inputValue = e.target.value;
+    handleChange(dispatch, state, inputValue);
   };
 
   return (
-    <Flex alignItems="baseline" my={[8, 12, 16]} {...props}>
+    <Flex alignItems="baseline" my={[8, 12, 16]} {...rest}>
       <Box display={['none', 'block']} pr="2">
         <Text pr="1" lineHeight="none" fontSize="110px" fontWeight="lighter">
           {selected?.name && SYMBOLS[selected.name].symbol_native}
@@ -49,3 +50,6 @@ export function InputAmount({label, ...props}: InputAmountProps): JSX.Element {
     </Flex>
   );
 }
+
+// const addMinus = (input: number): number => (!!input ? -Math.abs(input) : 0);
+// const removeMinus = (input: string): string => Math.abs(+input) + '';

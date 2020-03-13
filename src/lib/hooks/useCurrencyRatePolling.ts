@@ -1,30 +1,39 @@
 import * as React from 'react';
-import {getCurrencies, getCurrentRate, updatePockets} from 'services/exchangerates-api';
-import actions from 'context/actions';
+import {getCurrentRate} from 'services/exchangerates-api';
+import {ActionTypes} from 'context/actionTypes';
 import {CurrencyDispatch, Currency} from 'context/types';
 
 interface Props {
   dispatch: CurrencyDispatch;
   selectedFrom: Currency | null;
   selectedTo: Currency | null;
+  currentRate: number;
   interval?: number;
 }
 
-export function useCurrencyRatePolling({dispatch, selectedFrom, selectedTo, interval = 1000000}: Props): void {
+export function useCurrencyRatePolling({
+  dispatch,
+  selectedFrom,
+  selectedTo,
+  currentRate,
+  interval = 10000,
+}: Props): void {
   React.useEffect(() => {
-    let timer: any = null;
-
-    if (selectedFrom && selectedTo) {
-      (function foo(): void {
-        getCurrentRate({selectedFrom, selectedTo}).then(payload => {
+    const pollRate = async () => {
+      if (selectedFrom && selectedTo) {
+        // const prevRate = currentRate;
+        const newRate = await getCurrentRate({selectedFrom, selectedTo});
+        const prevRate = currentRate;
+        if (newRate !== prevRate) {
           dispatch({
-            type: actions.FETCH_RATE_SUCCESS,
-            payload,
+            type: ActionTypes.FETCH_CURRENCY_RATE,
+            payload: {currentRate: newRate},
           });
-        });
-        timer = setTimeout(foo, interval);
-      })();
-    }
-    return (): void => timer && clearInterval(timer);
+        }
+      }
+    };
+
+    const timer = setInterval(pollRate, interval);
+    return () => clearInterval(timer);
   }, [selectedFrom, selectedTo]);
 }

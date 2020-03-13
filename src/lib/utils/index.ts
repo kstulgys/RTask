@@ -1,7 +1,7 @@
 import {subDays, format} from 'date-fns';
+import {Currencies} from 'context/types';
 
-function randomAmount(min: number, max: number): number {
-  const precision = 100;
+function randomNumber(min: number, max: number, precision = 100): number {
   return Math.floor(Math.random() * ((max - min) * precision - 1 * precision) + 1 * precision) / (1 * precision);
 }
 
@@ -37,4 +37,42 @@ function getStartAtDay(param: number): string {
   return format(new Date(day), 'yyyy-MM-dd');
 }
 
-export {randomAmount, formatHistoryData, getEndAtDay, getStartAtDay};
+function getSelected(name: string, currencies: Currencies) {
+  return currencies.find(c => c.name === name);
+}
+
+function getFiltered(searchTerm: string, currencies: Currencies) {
+  return currencies.filter(c => c.name.includes(searchTerm.toUpperCase()));
+}
+
+function getCanSubmit({
+  selectedFromPocketValue,
+  inputValueFrom,
+}: {
+  selectedFromPocketValue: number;
+  inputValueFrom: number;
+}) {
+  return Math.sign(selectedFromPocketValue) !== -1 && !!inputValueFrom;
+}
+
+function getPocketValue(totalValue: number, inputValue: number) {
+  return +(totalValue - inputValue).toFixed(2);
+}
+
+function waait() {
+  const time = randomNumber(1000, 3500, 1);
+  console.log({time});
+  return new Promise((res, rej) => setTimeout(() => res(), time));
+}
+
+export {
+  waait,
+  randomNumber,
+  formatHistoryData,
+  getEndAtDay,
+  getStartAtDay,
+  getSelected,
+  getFiltered,
+  getCanSubmit,
+  getPocketValue,
+};
