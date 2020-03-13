@@ -24,6 +24,7 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
     filteredTo,
     selectedFromPocketValue,
     selectedToPocketValue,
+    currencies,
   } = useCurrencyState();
 
   const ref = React.useRef();
@@ -41,7 +42,7 @@ export function Dropdown({label, ...props}: DropdownProps): JSX.Element {
   };
 
   const selected = label === Label.from ? selectedFrom : selectedTo;
-  const currencies = label === Label.from ? filteredFrom : filteredTo;
+  // const currencies = label === Label.from ? filteredFrom : filteredTo;
   const pocketValue = label === Label.from ? selectedFromPocketValue : selectedToPocketValue;
   const pocketValueColor = label === Label.from && Math.sign(selectedFromPocketValue) === -1 ? 'revo.red' : 'revo.gray';
 

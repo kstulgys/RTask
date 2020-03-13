@@ -38,24 +38,24 @@ interface GetCurrentRate {
   selectedTo: Currency;
 }
 
-async function getCurrentRate({selectedFrom, selectedTo}: GetCurrentRate): Promise<string> {
+async function getCurrentRate({selectedFrom, selectedTo}: GetCurrentRate): Promise<number> {
   const {data} = await axios(`${baseUrl}/latest?symbols=${selectedTo.name}&base=${selectedFrom.name}`);
-  return data.rates[selectedTo.name].toFixed(4);
+  return +data.rates[selectedTo.name].toFixed(4);
 }
 
 interface GetHistoryData {
-  toCurrency: {name: string; value: number};
-  fromCurrency: {name: string; value: number};
+  selectedTo: Currency;
+  selectedFrom: Currency;
   daysAgo: 10 | 7 | 30 | 90 | 180 | 360 | 1800;
 }
 
-async function getHistoryData({daysAgo, toCurrency, fromCurrency}: GetHistoryData): Promise<{x: number; y: number}[]> {
+async function getDataPoints({daysAgo, selectedTo, selectedFrom}: GetHistoryData): Promise<{x: number; y: number}[]> {
   const {data} = await axios.get<{rates: {[key: string]: {[key: string]: number}}}>(
-    `${baseUrl}/history?start_at=${getStartAtDay(daysAgo)}&end_at=${getEndAtDay()}&symbols=${toCurrency.name}&base=${
-      fromCurrency.name
+    `${baseUrl}/history?start_at=${getStartAtDay(daysAgo)}&end_at=${getEndAtDay()}&symbols=${selectedTo.name}&base=${
+      selectedFrom.name
     }`,
   );
-  const formatted = formatHistoryData({data, toCurrency});
+  const formatted = formatHistoryData({data, selectedTo});
   return formatted;
 }
 
@@ -73,4 +73,4 @@ async function updatePockets({from, to}: UpdatePocketsProps): Promise<[]> {
   return data;
 }
 
-export {getCurrencies, getCurrentRate, getHistoryData, updatePockets};
+export {getCurrencies, getCurrentRate, getDataPoints, updatePockets};

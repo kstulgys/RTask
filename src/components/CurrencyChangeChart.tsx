@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {Text, Flex} from '@chakra-ui/core';
-// import '../node_modules/react-vis/dist/style.css';
 import {LineSeries, FlexibleWidthXYPlot, Hint} from 'react-vis';
+import '../../node_modules/react-vis/dist/style.css';
 
 export function CurrencyChangeChart({data, ...props}: any): JSX.Element {
   const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null);
   return (
-    <Flex {...props} height="175px">
+    <Flex {...props} height="175px" ml="-30px">
       <FlexibleWidthXYPlot height={175} onMouseLeave={() => setHoveredNode(null)}>
         <LineSeries
           color="#0075EB"

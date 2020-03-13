@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {getCurrencies} from 'services/exchangerates-api';
+import {getCurrencies, getDataPoints} from 'services/exchangerates-api';
 import actions from 'context/actions';
 import {CurrencyDispatch} from 'context/types';
 

@@ -4,7 +4,15 @@ import {Currency, Currencies, CurrencyState, CurrencyDispatch, CurrencyProviderP
 import actions from './actions';
 import reducer from './reducer';
 import {FromOrTo, Label} from 'screens/types';
-import {useSetInitialState, useSetInitialCurrencies, useCurrencyRatePolling, useUpdatePockets} from 'lib/hooks';
+import {
+  useSetInitialState,
+  useSetInitialCurrencies,
+  useCurrencyRatePolling,
+  useUpdatePockets,
+  useDataPoints,
+  useOnRateChanged,
+} from 'lib/hooks';
+import {setInitialData} from 'lib/utils/helpers';
 
 const initialState: CurrencyState = {
   isSubmitting: false,
@@ -30,12 +38,19 @@ const CurrencyDispatchContext = React.createContext<React.Dispatch<Action>>({} a
 
 function CurrencyProvider({children}: CurrencyProviderProps): JSX.Element {
   const [state, dispatch] = React.useReducer<React.Reducer<CurrencyState, Action>>(reducer, initialState);
-  const {selectedFrom, selectedTo, currencies, inputValueFrom, inputValueTo} = state;
+  const {selectedFrom, selectedTo, currencies, inputValueFrom, inputValueTo, currentRate} = state;
 
-  useSetInitialState(dispatch);
-  useSetInitialCurrencies({dispatch, currencies});
-  useCurrencyRatePolling({dispatch, selectedFrom, selectedTo});
-  useUpdatePockets({dispatch, inputValueFrom, inputValueTo, selectedFrom, selectedTo});
+  React.useEffect(() => {
+    setInitialData(dispatch);
+  }, []);
+
+  // useUpdatePockets({dispatch, inputValueFrom, inputValueTo, selectedFrom, selectedTo});
+  // useCurrencyRatePolling({dispatch, selectedFrom, selectedTo});
+  // useDataPoints({dispatch, selectedFrom, selectedTo});
+  // useOnRateChanged({dispatch, currentRate, inputValueFrom, selectedTo});
+  // // Set initial data
+  // useSetInitialCurrencies({dispatch, currencies});
+  // useSetInitialState(dispatch);
 
   return (
     <CurrencyStateContext.Provider value={state}>
@@ -106,9 +121,22 @@ function useMethods(state: CurrencyState, dispatch: CurrencyDispatch): any {
   }
 
   function swapInputs(): void {
+    // const operationOnToValue = (input: number): number => +(input * state.currentRate).toFixed(2);
+    // get new rate
+    // if (state.selectedTo && state.selectedFrom) {
+    //   currencySelect({type: Label.from, name: state.selectedTo.name});
+    //   currencySelect({type: Label.to, name: state.selectedFrom.name});
+    // }
+    // to value becomes from
+    // dispatch({
+    //   type: actions.FROM_INPUT_CHANGED,
+    //   payload: state.inputValueTo,
+    // });
+    // do recalculation
     dispatch({
       type: actions.SWAP_INPUTS,
     });
+    // changeInputValue({input: state.inputValueFrom + '', type: Label.from});
   }
 
   async function submitPockets() {

@@ -2,25 +2,44 @@ import actions from './actions';
 import {CurrencyState, Action} from './types';
 
 function appReducer(state: CurrencyState, action: Action): CurrencyState {
-  const newState = {
-    ...state,
-    ...updatePocketsReducer(state, action),
-    ...fetchCurrenciesReducer(state, action),
-    ...setInitialCurrenciesReducer(state, action),
-    ...currencySelectReducer(state, action),
-    ...setFilteredCurrenciesReducer(state, action),
-    ...inputChangedReducer(state, action),
-    ...fetchCurrencyRateReducer(state, action),
-    ...updatePocketValueReducer(state, action),
-    ...swapInputsReducer(state, action),
-  };
+  switch (action.type) {
+    case actions.SET_INITIAL_DATA: {
+      // payload: {
+      //   currencies,
+      //   selectedFrom,
+      //   selectedTo,
+      //   currentRate,
+      //   dataPoints,
+      //   isLoading: false,
+      // },
+      return {...state, ...action.payload};
+    }
 
-  if (newState) {
-    return newState;
-  } else {
-    throw new Error(`Unhandled action type: ${action.type}`);
+    default: {
+      return state;
+    }
   }
 }
+
+// const newState = {
+//   ...state,
+//   ...updatePocketsReducer(state, action),
+//   ...fetchCurrenciesReducer(state, action),
+//   ...setInitialCurrenciesReducer(state, action),
+//   ...currencySelectReducer(state, action),
+//   ...setFilteredCurrenciesReducer(state, action),
+//   ...inputChangedReducer(state, action),
+//   ...fetchCurrencyRateReducer(state, action),
+//   ...updatePocketValueReducer(state, action),
+//   ...swapInputsReducer(state, action),
+//   ...setDataPointsReducer(state, action),
+// };
+
+// if (newState) {
+//   return newState;
+// } else {
+//   throw new Error(`Unhandled action type: ${action.type}`);
+// }
 
 function updatePocketsReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
   switch (action.type) {
@@ -52,7 +71,6 @@ function fetchCurrenciesReducer(state: CurrencyState, action: Action): CurrencyS
     }
     case actions.FETCH_CURRENCIES_SUCCESS: {
       const newState = {...state, currencies: action.payload, isLoading: false};
-      console.log({newState});
       return newState;
     }
     case actions.FETCH_CURRENCIES_FAIL: {
@@ -117,17 +135,19 @@ function fetchCurrencyRateReducer(state: CurrencyState, action: Action): Currenc
 
 function updatePocketValueReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
   switch (action.type) {
-    case actions.UPDATE_SELECTED_POCKETS_VALUES: {
-      if (state.selectedFrom && state.selectedTo) {
-        const {selectedFromPocketValue, selectedToPocketValue, canSubmit} = action.payload;
-        return {
-          ...state,
-          canSubmit,
-          selectedFromPocketValue,
-          selectedToPocketValue,
-        };
-      }
-      return state;
+    case actions.UPDATE_SELECTED_TO_POCKET_VALUE: {
+      return {
+        ...state,
+        selectedToPocketValue: action.payload,
+      };
+    }
+    case actions.UPDATE_SELECTED_FROM_POCKET_VALUE: {
+      const {selectedFromPocketValue, canSubmit} = action.payload;
+      return {
+        ...state,
+        canSubmit,
+        selectedFromPocketValue,
+      };
     }
   }
 }
@@ -140,9 +160,17 @@ function swapInputsReducer(state: CurrencyState, action: Action): CurrencyState 
         selectedFrom: copy.selectedTo,
         selectedTo: copy.selectedFrom,
         inputValueFrom: copy.inputValueTo,
-        inputValueTo: copy.inputValueFrom,
+        selectedFromPocketValue: copy.selectedToPocketValue,
       };
       return {...state, ...updates};
+    }
+  }
+}
+
+function setDataPointsReducer(state: CurrencyState, action: Action): CurrencyState | undefined {
+  switch (action.type) {
+    case actions.SET_DATA_POINTS: {
+      return {...state, dataPoints: action.payload};
     }
   }
 }

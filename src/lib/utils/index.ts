@@ -7,7 +7,7 @@ function randomAmount(min: number, max: number): number {
 
 interface FormatHistoryData {
   data: {rates: {[key: string]: {[key: string]: number}}};
-  toCurrency: {name: string; value: number};
+  selectedTo: {name: string; value: number};
 }
 
 function getTimestamp(date: string): number {
@@ -17,9 +17,9 @@ function getTimestamp(date: string): number {
   return time;
 }
 
-function formatHistoryData({data, toCurrency}: FormatHistoryData): {x: number; y: number}[] {
+function formatHistoryData({data, selectedTo}: FormatHistoryData): {x: number; y: number}[] {
   const result = Object.entries(data.rates).map(([date, rate]) => {
-    return {x: getTimestamp(date), y: rate[toCurrency.name]};
+    return {x: getTimestamp(date), y: rate[selectedTo.name]};
   });
 
   const sorted = result.sort((a, b) => {

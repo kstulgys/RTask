@@ -19,8 +19,12 @@ export function useUpdatePockets({dispatch, inputValueFrom, inputValueTo, select
       const payload = {canSubmit, selectedFromPocketValue, selectedToPocketValue};
       console.log({payload});
       dispatch({
-        type: actions.UPDATE_SELECTED_POCKETS_VALUES,
-        payload,
+        type: actions.UPDATE_SELECTED_FROM_POCKET_VALUE,
+        payload: {canSubmit, selectedFromPocketValue},
+      });
+      dispatch({
+        type: actions.UPDATE_SELECTED_TO_POCKET_VALUE,
+        payload: selectedToPocketValue,
       });
     }
   }, [inputValueFrom, inputValueTo, selectedFrom, selectedTo]);

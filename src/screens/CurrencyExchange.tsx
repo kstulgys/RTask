@@ -9,46 +9,41 @@ import {
   ButtonContinue,
   Notification,
   IconSwapInputs,
+  Loader,
 } from 'components';
 import {useCurrencyState} from 'context';
 import {Side, Label, LeftOrRight} from './types';
-import {FiRepeat} from 'react-icons/fi';
 
 export function CurrencyExchange(): JSX.Element {
-  const {isLoading} = useCurrencyState();
-
+  const {isLoading, dataPoints} = useCurrencyState();
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <ContainerScreen>
-      {isLoading ? (
-        <Spinner mx="auto" my="auto" color="revo.blue" />
-      ) : (
-        <ContainerApp>
-          <Notification />
-          <TextHeader text="Exchange money" />
-          <Flex flexDirection={['column', 'column', 'row']}>
-            <ContainerInputs side={Side.left}>
-              <Dropdown label={Label.from} />
-              <InputAmount label={Label.from} />
-              <Box display={['none', 'none', 'block']}>
-                <ButtonContinue text="Continue" />
-              </Box>
-            </ContainerInputs>
-            <IconSwapInputs />
-            <ContainerInputs side={Side.right}>
-              <Dropdown label={Label.to} />
-              <InputAmount label={Label.to} />
-              <Box display={['block', 'block', 'none']} mb="12">
-                <ButtonContinue text="Continue" />
-              </Box>
-              <CurrencyMetadata />
-            </ContainerInputs>
-          </Flex>
-          {/* <Box mt='12'>
-          <SelectRange setDaysAgo={setDaysAgo} daysAgo={daysAgo} />
-          <CurrencyChangeChart data={chartData} mt='6' />
-        </Box> */}
-        </ContainerApp>
-      )}
+      <ContainerApp>
+        <Notification />
+        <TextHeader text="Exchange money" />
+        <Flex flexDirection={['column', 'column', 'row']} alignItems="start">
+          <ContainerInputs side={Side.left}>
+            <Dropdown label={Label.from} />
+            <InputAmount label={Label.from} />
+            <Box display={['none', 'none', 'block']}>
+              <ButtonContinue text="Continue" />
+            </Box>
+          </ContainerInputs>
+          <IconSwapInputs />
+          <ContainerInputs side={Side.right}>
+            <Dropdown label={Label.to} />
+            <InputAmount label={Label.to} />
+            <Box display={['block', 'block', 'none']} mb="12">
+              <ButtonContinue text="Continue" />
+            </Box>
+            <CurrencyMetadata />
+          </ContainerInputs>
+        </Flex>
+        <CurrencyChangeChart data={dataPoints} mt="6" />
+      </ContainerApp>
     </ContainerScreen>
   );
 }
@@ -69,16 +64,5 @@ interface ContainerInputsProps {
 }
 
 function ContainerInputs({side, ...props}: ContainerInputsProps): JSX.Element {
-  // console.log({side});
-  // const pl = side === Side.right ? [0, 0, 6] : 0;
-  // const pr = side === Side.left ? [0, 0, 6] : 0;
-
-  return (
-    <Flex
-      flexDir="column"
-      width={['full', 'full', '50%']}
-      {...props}
-      // pr={pr} pl={pl}
-    />
-  );
+  return <Flex flexDir="column" width={['full', 'full', '50%']} {...props} />;
 }

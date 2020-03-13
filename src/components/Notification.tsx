@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Box, Flex, Text, useToast} from '@chakra-ui/core';
+import {Box, Text, useToast} from '@chakra-ui/core';
 
 export function Notification({duration, position, text}: any) {
   const toast = useToast();
