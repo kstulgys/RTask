@@ -2,16 +2,7 @@
 import {getCurrentRate, getDataPoints, getCurrencies, updatePockets} from 'services/exchangerates-api';
 import {CurrencyDispatch, CurrencyState} from 'context/types';
 import {ActionTypes} from 'context/actionTypes';
-import {getSelected, getCanSubmit, waait} from 'lib/utils';
-// SET_INITIAL_DATA
-// getCurrencies ✅
-// set From and To {name,value}{name,value} ✅
-// get currentRate ✅
-// get dataPoints ✅
-// get isLoading ✅
-// ----
-// get filteredFrom ✅
-// get filteredTo ✅
+import {getSelected, getCanSubmit, waait, getPocketValue, getInputValue} from 'lib/utils';
 
 async function setInitialData(dispatch: CurrencyDispatch) {
   dispatch({
@@ -63,18 +54,11 @@ async function setInitialData(dispatch: CurrencyDispatch) {
   }
 }
 
-// INPUT_FROM_VALUE_CHANGED
-// update inputFromValue ✅
-// update From pocket value ✅
-// update inputToValue ✅
-// update To pocket value ✅
-// update canSubmit ✅
-
 function handleInputValueFromChange(dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) {
   if (!state.selectedTo || !state.selectedFrom) return;
-  const selectedFromPocketValue = +(state.selectedFrom.value - Number(inputValue)).toFixed(2);
-  const inputValueTo = +(+inputValue * state.currentRate).toFixed(2);
-  const selectedToPocketValue = +(state.selectedTo.value + inputValueTo).toFixed(2);
+  const selectedFromPocketValue = getPocketValue('From', state.selectedFrom.value, inputValue);
+  const inputValueTo = getInputValue('To', state.currentRate, inputValue);
+  const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValueTo);
   const canSubmit = getCanSubmit({selectedFromPocketValue, inputValueFrom: +inputValue});
 
   dispatch({
@@ -89,18 +73,11 @@ function handleInputValueFromChange(dispatch: CurrencyDispatch, state: CurrencyS
   });
 }
 
-// INPUT_TO_VALUE_CHANGED
-// update inputToValue ✅
-// update To pocket value ✅
-// update inputFromValue ✅
-// update From pocket value ✅
-// update canSubmit ✅
-
 function handleInputValueToChange(dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) {
   if (!state.selectedTo || !state.selectedFrom) return;
-  const inputValueFrom = +(+inputValue / state.currentRate).toFixed(2);
-  const selectedToPocketValue = +(+inputValue + state.selectedTo.value).toFixed(2);
-  const selectedFromPocketValue = +(state.selectedFrom.value - inputValueFrom).toFixed(2);
+  const inputValueFrom = getInputValue('From', state.currentRate, inputValue);
+  const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValue);
+  const selectedFromPocketValue = getPocketValue('From', state.selectedFrom.value, inputValue);
   const canSubmit = getCanSubmit({selectedFromPocketValue, inputValueFrom});
 
   dispatch({
@@ -115,15 +92,11 @@ function handleInputValueToChange(dispatch: CurrencyDispatch, state: CurrencySta
   });
 }
 
-// CURRENCY_RATE_CHANGED
-// update inputToValue ✅
-// update To pocket value ✅
-// update chart data ✅
-
 async function handleCurencyRateChange(dispatch: CurrencyDispatch, state: CurrencyState) {
   if (!state.selectedTo || !state.selectedFrom) return;
-  const inputValueTo = +(state.inputValueFrom * state.currentRate).toFixed(2);
-  const selectedToPocketValue = +(state.selectedTo.value + inputValueTo).toFixed(2);
+  const inputValueTo = getInputValue('To', state.currentRate, state.inputValueFrom);
+  const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValueTo);
+
   const dataPoints = await getDataPoints({
     daysAgo: 30,
     selectedTo: state.selectedTo,
@@ -140,18 +113,6 @@ async function handleCurencyRateChange(dispatch: CurrencyDispatch, state: Curren
   });
 }
 
-// CURRENCIES_SWAPPED
-// update selectedFrom = selectedTo {name,value} ✅
-// update selectedTo = selectedFrom {name,value}✅
-// --- IF !!inputValueTo ---
-// update inputValueFrom = inputValueTo ✅
-// update selectedFromPocketValue (was + now - inputValueFrom) ✅
-// ---
-// get currentRate ✅
-// update inputValueTo ✅
-// update canSubmit ✅
-// update selectedToPocketValue (was - now + inputValueTo) ✅
-
 async function handleCurrenciesSwapp(dispatch: CurrencyDispatch, state: CurrencyState) {
   if (state.selectedFrom && state.selectedTo) {
     const copy = {...state};
@@ -159,10 +120,10 @@ async function handleCurrenciesSwapp(dispatch: CurrencyDispatch, state: Currency
     const selectedTo = copy.selectedFrom;
     const inputValueFrom = copy.inputValueTo;
     if (!selectedFrom || !selectedTo) return;
-    const selectedFromPocketValue = +(selectedFrom.value - inputValueFrom).toFixed(2);
+    const selectedFromPocketValue = getPocketValue('From', selectedFrom.value, inputValueFrom);
     const currentRate = await getCurrentRate({selectedFrom, selectedTo});
-    const inputValueTo = +(currentRate * inputValueFrom).toFixed(2);
-    const selectedToPocketValue = +(inputValueTo + selectedTo.value).toFixed(2);
+    const inputValueTo = getInputValue('To', currentRate, inputValueFrom);
+    const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValueTo);
     const canSubmit = getCanSubmit({selectedFromPocketValue, inputValueFrom});
 
     dispatch({
@@ -180,11 +141,6 @@ async function handleCurrenciesSwapp(dispatch: CurrencyDispatch, state: Currency
     });
   }
 }
-
-// SUBMIT_VALUES_SUCCESS
-// update inputFromValue = 0 ✅
-// update inputToValue = 0 ✅
-// update canSubmit = false ✅
 
 async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencyState) {
   if (!state.selectedFrom || !state.selectedTo) return;
@@ -222,21 +178,14 @@ async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencySta
   }
 }
 
-// CURRENCY_FROM_SELECTED
-// get currencyRate ✅
-// update currencyFrom ✅
-// update from pocket ✅
-// update inputValueTo ✅
-// update selectedToPocketValue ✅
-// update get dataPoints ✅
-
 async function selectFromCurrency(dispatch: CurrencyDispatch, state: CurrencyState, name: string) {
   const selectedFrom = getSelected(name, state.currencies);
   if (!state.selectedFrom || !state.selectedTo || !selectedFrom) return;
   const currentRate = await getCurrentRate({selectedFrom, selectedTo: state.selectedTo});
-  const selectedFromPocketValue = +(selectedFrom.value - state.inputValueFrom).toFixed(2);
-  const inputValueTo = +(currentRate * state.inputValueFrom).toFixed(2);
-  const selectedToPocketValue = +(inputValueTo + state.selectedTo.value).toFixed(2);
+  const selectedFromPocketValue = getPocketValue('From', selectedFrom.value, state.inputValueFrom);
+  const inputValueTo = getInputValue('To', currentRate, state.inputValueFrom);
+  const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValueTo);
+
   const dataPoints = await getDataPoints({
     daysAgo: 30,
     selectedTo: state.selectedTo,
@@ -256,19 +205,13 @@ async function selectFromCurrency(dispatch: CurrencyDispatch, state: CurrencySta
   });
 }
 
-// CURRENCY_TO_SELECTED
-// get currencyRate ✅
-// update selectedTo ✅
-// update inputValueTo ✅
-// update selectedToPocketValue  ✅
-// update get dataPoints ✅
-
 async function selectToCurrency(dispatch: CurrencyDispatch, state: CurrencyState, name: string) {
   const selectedTo = getSelected(name, state.currencies);
   if (!state.selectedFrom || !state.selectedTo || !selectedTo) return;
   const currentRate = await getCurrentRate({selectedFrom: state.selectedFrom, selectedTo});
-  const inputValueTo = +(currentRate * state.inputValueFrom).toFixed(2);
-  const selectedToPocketValue = +(inputValueTo + selectedTo.value).toFixed(2);
+  const inputValueTo = getInputValue('To', currentRate, state.inputValueFrom);
+  const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValueTo);
+
   const dataPoints = await getDataPoints({
     daysAgo: 30,
     selectedTo: selectedTo,

@@ -1,5 +1,6 @@
 import {subDays, format} from 'date-fns';
 import {Currencies} from 'context/types';
+type FomOrTo = 'From' | 'To';
 
 function randomNumber(min: number, max: number, precision = 100): number {
   return Math.floor(Math.random() * ((max - min) * precision - 1 * precision) + 1 * precision) / (1 * precision);
@@ -55,9 +56,9 @@ function getCanSubmit({
   return Math.sign(selectedFromPocketValue) !== -1 && !!inputValueFrom;
 }
 
-function getPocketValue(totalValue: number, inputValue: number) {
-  return +(totalValue - inputValue).toFixed(2);
-}
+// function getPocketValue(totalValue: number, inputValue: number) {
+//   return +(totalValue - inputValue).toFixed(2);
+// }
 
 function waait() {
   const time = randomNumber(1000, 3500, 1);
@@ -65,7 +66,25 @@ function waait() {
   return new Promise((res, rej) => setTimeout(() => res(), time));
 }
 
+function getPocketValue(type: FomOrTo, currentValue: number, input: string | number) {
+  const valueNumber = +input;
+  if (type === 'To') {
+    return +(currentValue + valueNumber).toFixed(2);
+  }
+  return +(currentValue - valueNumber).toFixed(2);
+}
+
+function getInputValue(type: FomOrTo, currentRate: number, input: string | number) {
+  const valueNumber = +input;
+  if (type === 'To') {
+    return +(currentRate * valueNumber).toFixed(2);
+  }
+  return +(+valueNumber / currentRate).toFixed(2);
+}
+
 export {
+  getPocketValue,
+  getInputValue,
   waait,
   randomNumber,
   formatHistoryData,
@@ -74,5 +93,5 @@ export {
   getSelected,
   getFiltered,
   getCanSubmit,
-  getPocketValue,
+  // getPocketValue,
 };
