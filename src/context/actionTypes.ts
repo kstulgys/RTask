@@ -11,6 +11,7 @@ export enum ActionTypes {
   CURRENCY_FROM_SELECTED = 'CURRENCY_FROM_SELECTED',
   CURRENCY_TO_SELECTED = 'CURRENCY_TO_SELECTED',
   FETCH_CURRENCY_RATE = 'FETCH_CURRENCY_RATE',
+  STATUS_CLEANUP = 'STATUS_CLEANUP',
 }
 
 export type ActionType =
@@ -25,4 +26,5 @@ export type ActionType =
   | ActionTypes.SET_LOADING
   | ActionTypes.SUBMIT_VALUES_FAIL
   | ActionTypes.SUBMIT_VALUES_START
-  | ActionTypes.SUBMIT_VALUES_SUCCESS;
+  | ActionTypes.SUBMIT_VALUES_SUCCESS
+  | ActionTypes.STATUS_CLEANUP;
