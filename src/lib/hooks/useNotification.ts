@@ -4,12 +4,7 @@ import {Box, Text, useToast, IToast} from '@chakra-ui/core';
 interface Props {
   status?: IToast['status'];
 }
-// title: "Account created.",
-// description: "We've created your account for you.",
-// status: "success",
-// duration: 9000,
-// isClosable: true,
-// })
+
 export function useNotification({status}: Props): any {
   const toast = useToast();
   React.useEffect(() => {

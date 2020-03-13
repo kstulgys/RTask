@@ -2,7 +2,7 @@ import * as React from 'react';
 import {CurrencyState, CurrencyProviderProps, Action} from './types';
 import reducer from './reducer';
 import {setInitialData, handleCurencyRateChange} from './actions';
-import {useCurrencyRatePolling, useNotification} from 'lib/hooks';
+import {useCurrencyRatePolling} from 'lib/hooks';
 
 const initialState: CurrencyState = {
   isLoading: true,
@@ -25,7 +25,7 @@ const CurrencyDispatchContext = React.createContext<React.Dispatch<Action>>({} a
 
 function CurrencyProvider({children}: CurrencyProviderProps): JSX.Element {
   const [state, dispatch] = React.useReducer<React.Reducer<CurrencyState, Action>>(reducer, initialState);
-  const {selectedFrom, selectedTo, currentRate, status} = state;
+  const {selectedFrom, selectedTo, currentRate} = state;
   useCurrencyRatePolling({dispatch, selectedFrom, selectedTo, currentRate});
 
   React.useEffect(() => {

@@ -21,7 +21,6 @@ export function useCurrencyRatePolling({
   React.useEffect(() => {
     const pollRate = async () => {
       if (selectedFrom && selectedTo) {
-        // const prevRate = currentRate;
         const newRate = await getCurrentRate({selectedFrom, selectedTo});
         const prevRate = currentRate;
         if (newRate !== prevRate) {
