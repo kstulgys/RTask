@@ -43,9 +43,7 @@ export function CurrencyExchange(): JSX.Element {
   return (
     <ContainerScreen>
       <ContainerApp>
-        {/* <Notification type="initial" /> */}
-        <Notification status="success" title="Success" />
-
+        <Notification />
         <TextHeader text="Exchange money" />
         <Flex flexDirection={['column', 'column', 'row']} alignItems="start">
           <ContainerInputs>

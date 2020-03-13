@@ -3,7 +3,7 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
-const adapter = new FileSync('database.json');
+const adapter = new FileSync('tmp/database.json');
 const lowDB = low(adapter);
 
 function randomAmount(min, max) {
@@ -22,16 +22,5 @@ lowDB
     pockets,
   })
   .write();
-
-// Add a post
-// db.get('posts')
-//   .push({id: 1, title: 'lowdb is awesome'})
-//   .write();
-
-// // Set a user using Lodash shorthand syntax
-// db.set('user.name', 'typicode').write();
-
-// // Increment count
-// db.update('count', n => n + 1).write();
 
 module.exports = lowDB;

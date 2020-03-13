@@ -16,7 +16,6 @@ function createDB(db) {
       pockets[to.currency] = +(pockets[to.currency] + to.amount).toFixed(2);
     }
 
-    console.log({pockets});
     db.set('pockets', pockets).write();
     return pockets;
   };
