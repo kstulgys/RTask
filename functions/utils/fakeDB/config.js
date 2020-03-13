@@ -3,7 +3,7 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
-const adapter = new FileSync('db.json');
+const adapter = new FileSync('/tmp/db.json');
 const lowDB = low(adapter);
 
 // Set some defaults (required if your JSON file is empty)

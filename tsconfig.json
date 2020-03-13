@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "functions/fakeDB"],
   "compilerOptions": {
     "baseUrl": "src",
     "strict": true,
