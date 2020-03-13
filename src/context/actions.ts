@@ -23,7 +23,7 @@ async function setInitialData(dispatch: CurrencyDispatch) {
     const currencies = await getCurrencies();
     const selectedFrom = getSelected('GBP', currencies);
     const selectedTo = getSelected('USD', currencies);
-    if (!selectedFrom || !selectedTo || !currencies) {
+    if (!selectedFrom || !selectedTo) {
       dispatch({
         type: ActionTypes.SET_LOADING,
         payload: {
