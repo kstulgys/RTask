@@ -22,7 +22,7 @@ function Wrapper({children}) {
   );
 }
 
-test('Render with initial state', async () => {
+test.skip('Render with initial state', async () => {
   const {getByText, getByTestId} = render(
     <Wrapper>
       <CurrencyExchange />

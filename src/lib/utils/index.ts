@@ -79,7 +79,7 @@ function getInputValue(type: FomOrTo, currentRate: number, input: string | numbe
   if (type === 'To') {
     return +(currentRate * valueNumber).toFixed(2);
   }
-  return +(+valueNumber / currentRate).toFixed(2);
+  return +(valueNumber / currentRate).toFixed(2);
 }
 
 export {
