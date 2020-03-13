@@ -6,10 +6,6 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const lowDB = low(adapter);
 
-function randomAmount(min, max) {
-  const precision = 100;
-  return Math.floor(Math.random() * ((max - min) * precision - 1 * precision) + 1 * precision) / (1 * precision);
-}
 // Set some defaults (required if your JSON file is empty)
 const pockets = {
   GBP: randomAmount(100, 50000),
@@ -17,10 +13,10 @@ const pockets = {
   USD: randomAmount(100, 50000),
 };
 
-lowDB
-  .defaults({
-    pockets,
-  })
-  .write();
-
+lowDB.defaults({pockets}).write();
 module.exports = lowDB;
+
+function randomAmount(min, max) {
+  const precision = 100;
+  return Math.floor(Math.random() * ((max - min) * precision - 1 * precision) + 1 * precision) / (1 * precision);
+}
