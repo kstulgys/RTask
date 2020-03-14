@@ -17,7 +17,7 @@ const initialState: CurrencyState = {
   currentRate: 0,
   inputValueFrom: 0,
   inputValueTo: 0,
-  status: undefined,
+  status: {name: 'idle', message: ''},
 };
 
 const CurrencyStateContext = React.createContext<CurrencyState>(initialState);
@@ -59,4 +59,4 @@ function useCurrencyDispatch() {
   return dispatch;
 }
 
-export {CurrencyProvider, useCurrencyState, useCurrencyDispatch};
+export {CurrencyProvider, useCurrencyState, useCurrencyDispatch, CurrencyStateContext, CurrencyDispatchContext};

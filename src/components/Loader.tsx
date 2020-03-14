@@ -3,7 +3,7 @@ import {Flex, Spinner} from '@chakra-ui/core';
 
 export function Loader(): JSX.Element {
   return (
-    <Flex height="100vh" test-id="loader">
+    <Flex height="100vh" data-testid="loader">
       <Spinner size="xl" mx="auto" mt="30vh" color="revo.blue" />;
     </Flex>
   );

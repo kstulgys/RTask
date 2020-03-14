@@ -1,15 +1,17 @@
 import * as React from 'react';
 import {render} from 'react-dom';
 import {CurrencyExchange} from './screens';
-import {AppWrapper} from './components';
 import {CurrencyProvider} from './context';
+import {ThemeProvider, CSSReset} from '@chakra-ui/core';
+import theme from 'theme';
 
 function App(): JSX.Element {
   return (
     <CurrencyProvider>
-      <AppWrapper>
+      <ThemeProvider theme={theme}>
+        <CSSReset />
         <CurrencyExchange />
-      </AppWrapper>
+      </ThemeProvider>
     </CurrencyProvider>
   );
 }

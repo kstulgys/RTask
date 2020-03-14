@@ -56,13 +56,8 @@ function getCanSubmit({
   return Math.sign(selectedFromPocketValue) !== -1 && !!inputValueFrom;
 }
 
-// function getPocketValue(totalValue: number, inputValue: number) {
-//   return +(totalValue - inputValue).toFixed(2);
-// }
-
 function waait() {
   const time = randomNumber(1000, 3500, 1);
-  console.log({time});
   return new Promise((res, rej) => setTimeout(() => res(), time));
 }
 
@@ -93,5 +88,4 @@ export {
   getSelected,
   getFiltered,
   getCanSubmit,
-  // getPocketValue,
 };

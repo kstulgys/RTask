@@ -3,6 +3,7 @@ import {getCurrentRate, getDataPoints, getCurrencies, updatePockets} from 'servi
 import {CurrencyDispatch, CurrencyState} from 'context/types';
 import {ActionTypes} from 'context/actionTypes';
 import {getSelected, getCanSubmit, waait, getPocketValue, getInputValue} from 'lib/utils';
+import {StatusTypes} from 'context/types';
 
 async function setInitialData(dispatch: CurrencyDispatch) {
   dispatch({
@@ -19,7 +20,7 @@ async function setInitialData(dispatch: CurrencyDispatch) {
         type: ActionTypes.SET_LOADING,
         payload: {
           isLoading: false,
-          status: 'error',
+          status: StatusTypes.error,
         },
       });
       return;
@@ -40,6 +41,7 @@ async function setInitialData(dispatch: CurrencyDispatch) {
         selectedTo,
         currentRate,
         dataPoints,
+        status: StatusTypes.idl,
       },
     });
   } catch (error) {
@@ -48,7 +50,7 @@ async function setInitialData(dispatch: CurrencyDispatch) {
       type: ActionTypes.SET_LOADING,
       payload: {
         isLoading: false,
-        status: 'error',
+        status: StatusTypes.error,
       },
     });
   }
@@ -163,7 +165,7 @@ async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencySta
         selectedTo: {...state.selectedTo, value: state.selectedToPocketValue},
         isSubmitting: false,
         canSubmit: false,
-        status: 'success',
+        status: StatusTypes.success,
       },
     });
   } catch (error) {
@@ -172,7 +174,7 @@ async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencySta
       type: ActionTypes.SUBMIT_VALUES_FAIL,
       payload: {
         isSubmitting: false,
-        status: 'error',
+        status: StatusTypes.error,
       },
     });
   }
@@ -180,7 +182,7 @@ async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencySta
 
 async function selectFromCurrency(dispatch: CurrencyDispatch, state: CurrencyState, name: string) {
   const selectedFrom = getSelected(name, state.currencies);
-  if (!state.selectedFrom || !state.selectedTo || !selectedFrom) return;
+  if (!state.selectedTo || !selectedFrom) return;
   const currentRate = await getCurrentRate({selectedFrom, selectedTo: state.selectedTo});
   const selectedFromPocketValue = getPocketValue('From', selectedFrom.value, state.inputValueFrom);
   const inputValueTo = getInputValue('To', currentRate, state.inputValueFrom);

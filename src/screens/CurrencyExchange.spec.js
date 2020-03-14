@@ -1,33 +1,40 @@
 /* eslint-disable react/prop-types */
-import * as React from 'react';
-import {render, waitForElement, cleanup, wait, waitForElementToBeRemoved} from '@testing-library/react';
+import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import {AppWrapper} from 'components';
-import {CurrencyExchange} from './';
+import {render, waitForElement, cleanup, wait, waitForElementToBeRemoved, waitFor} from 'lib/utils/testing-utils';
 import {setInitialData, handleCurencyRateChange} from 'context/actions';
-import {useCurrencyDispatch, useCurrencyState, CurrencyProvider} from 'context';
+import {CurrencyExchange} from './';
 
-beforeEach(cleanup);
+// beforeEach(cleanup);
 
-jest.mock('../context/actions', () => ({
-  setInitialData: jest.fn(),
-  handleCurencyRateChange: jest.fn(),
-}));
+const state = {
+  isLoading: true,
+  isSubmitting: false,
+  selectedFromPocketValue: 0,
+  selectedToPocketValue: 0,
+  canSubmit: false,
+  selectedFrom: null,
+  selectedTo: null,
+  currencies: [],
+  dataPoints: [],
+  currentRate: 0,
+  inputValueFrom: 0,
+  inputValueTo: 0,
+  status: {name: 'idle', message: ''},
+};
 
-function Wrapper({children}) {
-  return (
-    <CurrencyProvider>
-      <AppWrapper>{children}</AppWrapper>
-    </CurrencyProvider>
-  );
-}
+jest.mock('context/actions');
 
-test.skip('Render with initial state', async () => {
-  const {getByText, getByTestId} = render(
-    <Wrapper>
-      <CurrencyExchange />
-    </Wrapper>,
-  );
-  await waitForElementToBeRemoved(() => getByTestId('loader'));
-  expect(getByText('Exchange money')).toBeInTheDOM();
+describe('Renders expected Layout', () => {
+  it('Shows loader when on initial render', async () => {
+    const {getByTestId, debug} = render(<CurrencyExchange />, {state});
+    expect(getByTestId('loader')).toBeInTheDocument();
+    // expect(setInitialData).toBeCalled();
+  });
+  it('Show loader/spinner when app is initialy started', async () => {
+    const newState = {...state, isLoading: false};
+    const {getByText, debug, queryByTestId} = render(<CurrencyExchange />, {state: newState});
+    expect(queryByTestId(/loader/i)).toBeNull();
+    expect(getByText(/exchange money/i)).toBeInTheDocument();
+  });
 });

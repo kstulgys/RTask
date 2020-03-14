@@ -11,17 +11,17 @@ import {
   IconSwapInputs,
   Loader,
 } from 'components';
-import {useCurrencyState} from 'context';
-import {Label} from './types';
 import {
   selectFromCurrency,
   selectToCurrency,
   handleInputValueToChange,
   handleInputValueFromChange,
 } from 'context/actions';
+import {useCurrencyState} from 'context';
+import {Label} from './types';
 import {useNotification} from 'lib/hooks';
 
-export function CurrencyExchange(): JSX.Element {
+export function CurrencyExchange() {
   const {
     isLoading,
     selectedFrom,
