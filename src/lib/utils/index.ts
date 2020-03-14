@@ -1,5 +1,5 @@
 import {subDays, format} from 'date-fns';
-import {Currencies} from 'context/types';
+import {Currencies, Currency, DataPoints} from 'context/types';
 type FomOrTo = 'From' | 'To';
 
 function randomNumber(min: number, max: number, precision = 100): number {
@@ -8,7 +8,7 @@ function randomNumber(min: number, max: number, precision = 100): number {
 
 interface FormatHistoryData {
   data: {rates: {[key: string]: {[key: string]: number}}};
-  selectedTo: {name: string; value: number};
+  selectedTo: Currency;
 }
 
 function getTimestamp(date: string): number {
@@ -77,7 +77,14 @@ function getInputValue(type: FomOrTo, currentRate: number, input: string | numbe
   return +(valueNumber / currentRate).toFixed(2);
 }
 
+function isValue(value: string) {
+  const isNumber = typeof +value === 'number' && isFinite(+value);
+  const hasDot = value[value.length - 4] === '.';
+  return !hasDot && isNumber;
+}
+
 export {
+  isValue,
   getPocketValue,
   getInputValue,
   waait,

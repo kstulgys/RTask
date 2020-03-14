@@ -2,7 +2,7 @@
 import {getCurrentRate, getDataPoints, getCurrencies, updatePockets} from 'services/exchangerates-api';
 import {CurrencyDispatch, CurrencyState} from 'context/types';
 import {ActionTypes} from 'context/actionTypes';
-import {getSelected, getCanSubmit, waait, getPocketValue, getInputValue} from 'lib/utils';
+import {getSelected, getCanSubmit, waait, getPocketValue, getInputValue, isValue} from 'lib/utils';
 import {StatusTypes} from 'context/types';
 
 async function setInitialData(dispatch: CurrencyDispatch) {
@@ -57,7 +57,7 @@ async function setInitialData(dispatch: CurrencyDispatch) {
 }
 
 function handleInputValueFromChange(dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) {
-  if (!state.selectedTo || !state.selectedFrom) return;
+  if (!state.selectedTo || !state.selectedFrom || !isValue(inputValue)) return;
   const selectedFromPocketValue = getPocketValue('From', state.selectedFrom.value, inputValue);
   const inputValueTo = getInputValue('To', state.currentRate, inputValue);
   const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValueTo);
@@ -76,7 +76,7 @@ function handleInputValueFromChange(dispatch: CurrencyDispatch, state: CurrencyS
 }
 
 function handleInputValueToChange(dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) {
-  if (!state.selectedTo || !state.selectedFrom) return;
+  if (!state.selectedTo || !state.selectedFrom || !isValue(inputValue)) return;
   const inputValueFrom = getInputValue('From', state.currentRate, inputValue);
   const selectedToPocketValue = getPocketValue('To', state.selectedTo.value, inputValue);
   const selectedFromPocketValue = getPocketValue('From', state.selectedFrom.value, inputValue);
