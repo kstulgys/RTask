@@ -71,7 +71,7 @@ async function setInitialData(dispatch: CurrencyDispatch) {
       payload,
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.toString());
     dispatch({
       type: ActionTypes.SET_INITIAL_DATA_FAIL,
       payload: {
@@ -84,9 +84,9 @@ async function setInitialData(dispatch: CurrencyDispatch) {
 
 function handleInputValueFromChange(dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) {
   if (!state.selectedTo || !state.selectedFrom || !isInputValue(inputValue)) return;
-  const pocketValueFrom = getPocketValue('From', state.selectedFrom.value, inputValue);
   const inputValueTo = getInputValue('To', state.currentRate, inputValue);
   const pocketValueTo = getPocketValue('To', state.selectedTo.value, inputValueTo);
+  const pocketValueFrom = getPocketValue('From', state.selectedFrom.value, inputValue);
   const canSubmit = getCanSubmit({pocketValueFrom, inputValueFrom: +inputValue});
   const payload: InputValueChangePayload = {
     inputValueFrom: +inputValue,
@@ -103,9 +103,9 @@ function handleInputValueFromChange(dispatch: CurrencyDispatch, state: CurrencyS
 
 function handleInputValueToChange(dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) {
   if (!state.selectedTo || !state.selectedFrom || !isInputValue(inputValue)) return;
+  const pocketValueFrom = getPocketValue('From', state.selectedFrom.value, inputValue);
   const inputValueFrom = getInputValue('From', state.currentRate, inputValue);
   const pocketValueTo = getPocketValue('To', state.selectedTo.value, inputValue);
-  const pocketValueFrom = getPocketValue('From', state.selectedFrom.value, inputValue);
   const canSubmit = getCanSubmit({pocketValueFrom, inputValueFrom});
   const payload: InputValueChangePayload = {
     inputValueTo: +inputValue,
