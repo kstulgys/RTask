@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import {getCurrentRate, getDataPoints, getCurrencies, updatePockets} from 'services/exchangerates-api';
-import {CurrencyDispatch, CurrencyState} from 'context/types';
-import {ActionTypes} from 'context/actionTypes';
 import {getSelected, getCanSubmit, waait, getPocketValue, getInputValue, isInputValue} from 'lib/utils';
-import {StatusTypes, Status, Currency} from 'context/types';
+import {CurrencyDispatch, CurrencyState, StatusTypes} from 'context/types';
+import {ActionTypes} from 'context/actionTypes';
 
 export type InitialDataPayload = Omit<CurrencyState, 'isSubmitting' | 'canSubmit' | 'inputValueFrom' | 'inputValueTo'>;
 export type InputValueChangePayload = Pick<
@@ -31,6 +30,23 @@ export type CurrencyToSelectedPayload = Pick<
   'currentRate' | 'selectedTo' | 'inputValueTo' | 'pocketValueTo' | 'dataPoints'
 >;
 
+interface CurrenciesFromStorage {
+  from: string | null;
+  to: string | null;
+}
+
+function getCurrenciesFromStorage(): CurrenciesFromStorage {
+  const result = window.localStorage.getItem('currencies');
+  if (!!result) {
+    const {from, to} = JSON.parse(result);
+    return {from, to};
+  }
+  return {from: null, to: null};
+}
+function setToStorage({from, to}: {from: string; to: string}) {
+  window.localStorage.setItem('currencies', JSON.stringify({from, to}));
+}
+
 async function setInitialData(dispatch: CurrencyDispatch) {
   dispatch({
     type: ActionTypes.SET_INITIAL_DATA_START,
@@ -38,9 +54,10 @@ async function setInitialData(dispatch: CurrencyDispatch) {
   });
 
   try {
+    const {from, to} = await getCurrenciesFromStorage();
     const currencies = await getCurrencies();
-    const selectedFrom = getSelected('GBP', currencies);
-    const selectedTo = getSelected('USD', currencies);
+    const selectedFrom = getSelected(from ? from : 'GBP', currencies);
+    const selectedTo = getSelected(to ? to : 'USD', currencies);
     if (!selectedFrom || !selectedTo) {
       dispatch({
         type: ActionTypes.SET_INITIAL_DATA_FAIL,
@@ -125,6 +142,7 @@ async function handleCurencyRateChange(dispatch: CurrencyDispatch, state: Curren
   const inputValueTo = getInputValue('To', state.currentRate, state.inputValueFrom);
   const pocketValueTo = getPocketValue('To', state.selectedTo.value, inputValueTo);
   const canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: state.inputValueFrom});
+  // TODO: handle error
   const dataPoints = await getDataPoints({
     daysAgo: 30,
     selectedTo: state.selectedTo,
@@ -149,6 +167,7 @@ async function handleCurrenciesSwapp(dispatch: CurrencyDispatch, state: Currency
     const selectedTo = copy.selectedFrom;
     const inputValueFrom = copy.inputValueTo;
     if (!selectedFrom || !selectedTo) return;
+    setToStorage({from: selectedFrom.name, to: selectedTo.name});
     const pocketValueFrom = getPocketValue('From', selectedFrom.value, inputValueFrom);
     const currentRate = await getCurrentRate({selectedFrom, selectedTo});
     const inputValueTo = getInputValue('To', currentRate, inputValueFrom);
@@ -172,12 +191,8 @@ async function handleCurrenciesSwapp(dispatch: CurrencyDispatch, state: Currency
 }
 
 async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencyState) {
-  if (
-    !state.selectedFrom ||
-    !state.selectedTo ||
-    !getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: state.inputValueFrom})
-  )
-    return;
+  const canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: state.inputValueFrom});
+  if (!state.selectedFrom || !state.selectedTo || !canSubmit) return;
   dispatch({
     type: ActionTypes.SUBMIT_VALUES_START,
     payload: {isSubmitting: true},
@@ -214,6 +229,8 @@ async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencySta
 async function selectFromCurrency(dispatch: CurrencyDispatch, state: CurrencyState, name: string) {
   const selectedFrom = getSelected(name, state.currencies);
   if (!state.selectedTo || !selectedFrom) return;
+  setToStorage({from: selectedFrom.name, to: state.selectedTo.name});
+  // TODO: handle error
   const currentRate = await getCurrentRate({selectedFrom, selectedTo: state.selectedTo});
   const pocketValueFrom = getPocketValue('From', selectedFrom.value, state.inputValueFrom);
   const inputValueTo = getInputValue('To', currentRate, state.inputValueFrom);
@@ -240,6 +257,8 @@ async function selectFromCurrency(dispatch: CurrencyDispatch, state: CurrencySta
 async function selectToCurrency(dispatch: CurrencyDispatch, state: CurrencyState, name: string) {
   const selectedTo = getSelected(name, state.currencies);
   if (!state.selectedFrom || !state.selectedTo || !selectedTo) return;
+  setToStorage({from: state.selectedFrom.name, to: selectedTo.name});
+  // TODO: handle error
   const currentRate = await getCurrentRate({selectedFrom: state.selectedFrom, selectedTo});
   const inputValueTo = getInputValue('To', currentRate, state.inputValueFrom);
   const pocketValueTo = getPocketValue('To', state.selectedTo.value, inputValueTo);
