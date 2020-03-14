@@ -13,7 +13,7 @@ export function IconSwapInputs(): JSX.Element {
   };
 
   return (
-    <Box height="auto" mx={['auto', 'auto', 12]} mt={[0, 0, 6]} mb={[10, 12, 0]}>
+    <Box height="auto" mx={['auto', 'auto', 12]} mt={[0, 0, 6]} mb={[8, 12, 0]}>
       <IconButton
         aria-label="swap currencies"
         onClick={handleClick}

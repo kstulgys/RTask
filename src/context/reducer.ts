@@ -4,10 +4,13 @@ import {CurrencyState, Action} from './types';
 function appReducer(state: CurrencyState, action: Action): CurrencyState {
   console.log(action.type);
   switch (action.type) {
-    case ActionTypes.SET_LOADING: {
+    case ActionTypes.SET_INITIAL_DATA_START: {
       return {...state, ...action.payload};
     }
-    case ActionTypes.SET_INITIAL_DATA: {
+    case ActionTypes.SET_INITIAL_DATA_SUCCESS: {
+      return {...state, ...action.payload};
+    }
+    case ActionTypes.SET_INITIAL_DATA_FAIL: {
       return {...state, ...action.payload};
     }
     case ActionTypes.CURRENCY_FROM_SELECTED: {
@@ -43,7 +46,6 @@ function appReducer(state: CurrencyState, action: Action): CurrencyState {
     case ActionTypes.STATUS_CLEANUP: {
       return {...state, ...action.payload};
     }
-
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }

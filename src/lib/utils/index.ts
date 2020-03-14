@@ -46,14 +46,8 @@ function getFiltered(searchTerm: string, currencies: Currencies) {
   return currencies.filter(c => c.name.includes(searchTerm.toUpperCase()));
 }
 
-function getCanSubmit({
-  selectedFromPocketValue,
-  inputValueFrom,
-}: {
-  selectedFromPocketValue: number;
-  inputValueFrom: number;
-}) {
-  return Math.sign(selectedFromPocketValue) !== -1 && !!inputValueFrom;
+function getCanSubmit({pocketValueFrom, inputValueFrom}: {pocketValueFrom: number; inputValueFrom: number}) {
+  return Math.sign(pocketValueFrom) !== -1 && !!inputValueFrom;
 }
 
 function waait() {
@@ -77,14 +71,15 @@ function getInputValue(type: FomOrTo, currentRate: number, input: string | numbe
   return +(valueNumber / currentRate).toFixed(2);
 }
 
-function isValue(value: string) {
+function isInputValue(value: string) {
   const isNumber = typeof +value === 'number' && isFinite(+value);
-  const hasDot = value[value.length - 4] === '.';
-  return !hasDot && isNumber;
+  const exceedsDecimalPlace = value[value.length - 4] === '.' || value[value.length - 4] === ',';
+  const isPositive = +value > 0;
+  return !exceedsDecimalPlace && isNumber && isPositive;
 }
 
 export {
-  isValue,
+  isInputValue,
   getPocketValue,
   getInputValue,
   waait,

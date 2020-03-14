@@ -26,8 +26,8 @@ export function CurrencyExchange() {
     isLoading,
     selectedFrom,
     selectedTo,
-    selectedFromPocketValue,
-    selectedToPocketValue,
+    pocketValueFrom,
+    pocketValueTo,
     currencies,
     dataPoints,
     inputValueFrom,
@@ -50,7 +50,7 @@ export function CurrencyExchange() {
             <Dropdown
               label={Label.from}
               selected={selectedFrom}
-              pocketValue={selectedFromPocketValue}
+              pocketValue={pocketValueFrom}
               currencies={currencies.filter(c => c.name !== selectedTo?.name)}
               selectCurrency={selectFromCurrency}
             />
@@ -68,7 +68,7 @@ export function CurrencyExchange() {
             <Dropdown
               label={Label.to}
               selected={selectedTo}
-              pocketValue={selectedToPocketValue}
+              pocketValue={pocketValueTo}
               currencies={currencies.filter(c => c.name !== selectedFrom?.name)}
               selectCurrency={selectToCurrency}
             />
@@ -88,17 +88,14 @@ export function CurrencyExchange() {
 interface ContainerProps {
   [key: string]: any;
 }
-
 function ContainerScreen(props: ContainerProps): JSX.Element {
   return <Flex as="main" minHeight="100vh" bg="white" width="full" flexDirection="column" {...props} />;
 }
-
 function ContainerApp(props: ContainerProps): JSX.Element {
   return (
     <Flex width={['full', 'full', 'full', '60%']} flexDirection="column" mx="auto" mt={[0, 16]} px="4" {...props} />
   );
 }
-
 function ContainerInputs(props: ContainerProps): JSX.Element {
   return <Flex flexDir="column" width={['full', 'full', '50%']} {...props} />;
 }

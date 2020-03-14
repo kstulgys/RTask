@@ -4,11 +4,11 @@ import reducer from './reducer';
 import {setInitialData, handleCurencyRateChange} from './actions';
 import {useCurrencyRatePolling} from 'lib/hooks';
 
-const initialState: CurrencyState = {
+export const initialState: CurrencyState = {
   isLoading: true,
   isSubmitting: false,
-  selectedFromPocketValue: 0,
-  selectedToPocketValue: 0,
+  pocketValueFrom: 0,
+  pocketValueTo: 0,
   canSubmit: false,
   selectedFrom: null,
   selectedTo: null,

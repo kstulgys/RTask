@@ -22,7 +22,7 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
   };
 
   return (
-    <Flex alignItems="baseline" my={[8, 12, 16]} {...rest}>
+    <Flex alignItems="baseline" my={[6, 12, 16]} {...rest}>
       <Box display={['none', 'block']} pr="2">
         <Text pr="1" lineHeight="none" fontSize="110px" fontWeight="lighter">
           {selected?.name && SYMBOLS[selected.name].symbol_native}
@@ -30,14 +30,14 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
       </Box>
       <Input
         onChange={handleInputChange}
-        value={!!inputValue ? inputValue : ''}
+        value={inputValue ? inputValue : ''}
         type="number"
         pl="0"
         px={[0]}
         zIndex={1}
         border="none"
         height="110px"
-        fontSize="110px"
+        fontSize={[80, 110]}
         fontWeight="lighter"
         placeholder="0"
         _focus={{
@@ -50,6 +50,3 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
     </Flex>
   );
 }
-
-// const addMinus = (input: number): number => (!!input ? -Math.abs(input) : 0);
-// const removeMinus = (input: string): string => Math.abs(+input) + '';

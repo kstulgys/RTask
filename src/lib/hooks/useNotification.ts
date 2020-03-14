@@ -24,7 +24,7 @@ export function useNotification({status}: Props): any {
       });
       dispatch({
         type: ActionTypes.STATUS_CLEANUP,
-        payload: {status: StatusTypes.idl},
+        payload: {status: StatusTypes.idle},
       });
     }
   }, [status]);
