@@ -120,8 +120,8 @@ function handleInputValueFromChange(dispatch: CurrencyDispatch, state: CurrencyS
 
 function handleInputValueToChange(dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) {
   if (!state.selectedTo || !state.selectedFrom || !isInputValue(inputValue)) return;
-  const pocketValueFrom = getPocketValue('From', state.selectedFrom.value, inputValue);
   const inputValueFrom = getInputValue('From', state.currentRate, inputValue);
+  const pocketValueFrom = getPocketValue('From', state.selectedFrom.value, inputValueFrom);
   const pocketValueTo = getPocketValue('To', state.selectedTo.value, inputValue);
   const canSubmit = getCanSubmit({pocketValueFrom, inputValueFrom});
   const payload: InputValueChangePayload = {
