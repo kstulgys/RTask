@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Stat, StatHelpText, StatArrow} from '@chakra-ui/core';
+import {Stat, StatHelpText, StatArrow, Box} from '@chakra-ui/core';
 import {DataPoints} from 'context/types';
 
 interface TodaysChangeProps {
@@ -13,11 +13,11 @@ export function TodaysChange({dataPoints}: TodaysChangeProps): JSX.Element {
   const sign = Math.sign(change);
 
   return (
-    <Stat>
-      <StatHelpText fontWeight="medium" fontSize="xl" color={sign === -1 ? 'red.500' : 'green.500'}>
-        <StatArrow type={sign === -1 ? 'decrease' : 'increase'} />
-        {Math.abs(change).toFixed(4)} ({percent.toFixed(2)} %)
-      </StatHelpText>
-    </Stat>
+    // <Stat>
+    <StatHelpText fontWeight="medium" fontSize="xl" color={sign === -1 ? 'red.500' : 'green.500'}>
+      <StatArrow type={sign === -1 ? 'decrease' : 'increase'} />
+      {Math.abs(change).toFixed(4)} ({percent.toFixed(2)} %)
+    </StatHelpText>
+    // </Stat>
   );
 }

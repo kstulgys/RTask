@@ -15,6 +15,7 @@
     "@types/lowdb": "^1.0.9",
     "@types/numeral": "^0.0.26",
     "@types/recharts": "^1.8.7",
+    "@types/testing-library__cypress": "^5.0.3",
     "axios": "0.19.2",
     "date-fns": "^2.10.0",
     "emotion-theming": "10.0.27",
@@ -32,12 +33,14 @@
     "recharts": "^2.0.0-beta.1"
   },
   "devDependencies": {
+    "@testing-library/cypress": "^6.0.0",
     "@testing-library/jest-dom": "^5.1.1",
     "@testing-library/react": "^10.0.1",
     "@types/react": "16.9.19",
     "@types/react-dom": "16.9.5",
     "@typescript-eslint/eslint-plugin": "^2.23.0",
     "@typescript-eslint/parser": "^2.23.0",
+    "cypress": "^4.1.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^6.10.0",
@@ -47,6 +50,7 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^1.7.0",
     "faker": "^4.1.0",
+    "kentcdodds": "^1.0.0",
     "prettier": "^1.19.1",
     "typescript": "3.7.5"
   },
@@ -55,7 +59,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "cypress": "cypress open"
   },
   "husky": {
     "hooks": {

@@ -1,6 +1,7 @@
 {
   "include": ["src", "functions/fakeDB"],
   "compilerOptions": {
+    "types": ["cypress", "@types/testing-library__cypress"],
     "baseUrl": "src",
     "strict": true,
     "lib": ["dom", "es2015"],

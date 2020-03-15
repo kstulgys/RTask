@@ -43,7 +43,7 @@ function getCurrenciesFromStorage(): CurrenciesFromStorage {
   }
   return {from: null, to: null};
 }
-function setToStorage({from, to}: {from: string; to: string}) {
+function setCurrenciesToStorage({from, to}: {from: string; to: string}) {
   window.localStorage.setItem('currencies', JSON.stringify({from, to}));
 }
 
@@ -167,7 +167,7 @@ async function handleCurrenciesSwapp(dispatch: CurrencyDispatch, state: Currency
     const selectedTo = copy.selectedFrom;
     const inputValueFrom = copy.inputValueTo;
     if (!selectedFrom || !selectedTo) return;
-    setToStorage({from: selectedFrom.name, to: selectedTo.name});
+    setCurrenciesToStorage({from: selectedFrom.name, to: selectedTo.name});
     const pocketValueFrom = getPocketValue('From', selectedFrom.value, inputValueFrom);
     const currentRate = await getCurrentRate({selectedFrom, selectedTo});
     const inputValueTo = getInputValue('To', currentRate, inputValueFrom);
@@ -229,7 +229,7 @@ async function handleValuesSubmit(dispatch: CurrencyDispatch, state: CurrencySta
 async function selectFromCurrency(dispatch: CurrencyDispatch, state: CurrencyState, name: string) {
   const selectedFrom = getSelected(name, state.currencies);
   if (!state.selectedTo || !selectedFrom) return;
-  setToStorage({from: selectedFrom.name, to: state.selectedTo.name});
+  setCurrenciesToStorage({from: selectedFrom.name, to: state.selectedTo.name});
   // TODO: handle error
   const currentRate = await getCurrentRate({selectedFrom, selectedTo: state.selectedTo});
   const pocketValueFrom = getPocketValue('From', selectedFrom.value, state.inputValueFrom);
@@ -257,7 +257,7 @@ async function selectFromCurrency(dispatch: CurrencyDispatch, state: CurrencySta
 async function selectToCurrency(dispatch: CurrencyDispatch, state: CurrencyState, name: string) {
   const selectedTo = getSelected(name, state.currencies);
   if (!state.selectedFrom || !state.selectedTo || !selectedTo) return;
-  setToStorage({from: state.selectedFrom.name, to: selectedTo.name});
+  setCurrenciesToStorage({from: state.selectedFrom.name, to: selectedTo.name});
   // TODO: handle error
   const currentRate = await getCurrentRate({selectedFrom: state.selectedFrom, selectedTo});
   const inputValueTo = getInputValue('To', currentRate, state.inputValueFrom);

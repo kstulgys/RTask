@@ -9,3 +9,4 @@ export * from './Dropdown';
 export * from './CurrencyChangeChart';
 export * from './IconSwapInputs';
 export * from './Loader';
+export * from './ErrorBoundary';

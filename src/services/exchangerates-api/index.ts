@@ -24,7 +24,7 @@ async function getCurrencies(): Promise<Currencies> {
 
     return formatted.sort((a, b) => b.value - a.value);
   } catch (error) {
-    throw Error(error.response.data);
+    throw Error(error.toString());
   }
 }
 

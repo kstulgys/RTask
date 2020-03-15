@@ -1,7 +1,7 @@
 import {ActionTypes} from './actionTypes';
 import {CurrencyState, Action} from './types';
 
-function appReducer(state: CurrencyState, action: Action): CurrencyState {
+export function appReducer(state: CurrencyState, action: Action): CurrencyState {
   console.log(action.type);
   switch (action.type) {
     case ActionTypes.SET_INITIAL_DATA_START: {

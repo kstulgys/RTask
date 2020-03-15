@@ -63,7 +63,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
           <Flex alignItems="center" mb="2" height="5">
             <Text fontWeight="medium">{selected?.name}</Text>
             <Flex ml="auto" alignItems="center">
-              <Text color={pocketValueColor} fontWeight="medium">
+              <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLocaleLowerCase()}`}>
                 {numeral(pocketValue).format('00,000.00')}
               </Text>
               <Box ml="2" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>

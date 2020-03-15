@@ -1,8 +1,6 @@
 import * as React from 'react';
 import {CurrencyState, CurrencyProviderProps, Action} from './types';
 import reducer from './reducer';
-import {setInitialData, handleCurencyRateChange} from './actions';
-import {useCurrencyRatePolling} from 'lib/hooks';
 
 export const initialState: CurrencyState = {
   isLoading: true,
@@ -25,16 +23,6 @@ const CurrencyDispatchContext = React.createContext<React.Dispatch<Action>>({} a
 
 function CurrencyProvider({children}: CurrencyProviderProps): JSX.Element {
   const [state, dispatch] = React.useReducer<React.Reducer<CurrencyState, Action>>(reducer, initialState);
-  const {selectedFrom, selectedTo, currentRate} = state;
-  useCurrencyRatePolling({dispatch, selectedFrom, selectedTo, currentRate});
-
-  React.useEffect(() => {
-    setInitialData(dispatch);
-  }, []);
-
-  React.useEffect(() => {
-    handleCurencyRateChange(dispatch, state);
-  }, [state.currentRate]);
 
   return (
     <CurrencyStateContext.Provider value={state}>
@@ -60,3 +48,16 @@ function useCurrencyDispatch() {
 }
 
 export {CurrencyProvider, useCurrencyState, useCurrencyDispatch, CurrencyStateContext, CurrencyDispatchContext};
+
+// const [state, dispatch] = useReducer(reducer, initialState);
+
+function useReducer(reducer: (state: object, action: object) => object, initState: object) {
+  const [state, setState] = React.useState(initState);
+
+  const dispatch = ({type, payload}: any) => {
+    const newState = reducer(initState, {type, payload});
+    setState(newState);
+  };
+
+  return [state, dispatch];
+}

@@ -8,11 +8,11 @@ export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Eleme
 
   return (
     <Flex {...props}>
-      <Box width="40">
+      <Box minWidth="20" mr={[10, 12]}>
         <Text fontSize="xs" color="revo.gray" fontWeight="medium">
           Current rate
         </Text>
-        <Text fontWeight="medium" fontSize="xl">
+        <Text data-testid='current-rate' fontWeight="medium" fontSize="xl">
           {!!currentRate && currentRate}
         </Text>
       </Box>

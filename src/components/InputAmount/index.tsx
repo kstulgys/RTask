@@ -8,11 +8,12 @@ interface InputAmountProps {
   [key: string]: any;
   inputValue: number;
   selected: Currency | null;
+  autoFocus: boolean;
   handleChange: (dispatch: CurrencyDispatch, state: CurrencyState, inputValue: string) => void;
 }
 
 export function InputAmount(props: InputAmountProps): JSX.Element {
-  const {handleChange, selected, inputValue, ...rest} = props;
+  const {handleChange, selected, inputValue, autoFocus, ...rest} = props;
   const state = useCurrencyState();
   const dispatch = useCurrencyDispatch();
 
@@ -29,6 +30,8 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
         </Text>
       </Box>
       <Input
+        data-testid={autoFocus ? 'input-from' : 'input-to'}
+        autoFocus={autoFocus}
         onChange={handleInputChange}
         value={inputValue ? inputValue : ''}
         type="number"
