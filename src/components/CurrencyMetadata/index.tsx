@@ -12,7 +12,7 @@ export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Eleme
         <Text fontSize="xs" color="revo.gray" fontWeight="medium">
           Current rate
         </Text>
-        <Text data-testid='current-rate' fontWeight="medium" fontSize="xl">
+        <Text data-testid="current-rate" fontWeight="medium" fontSize="xl">
           {!!currentRate && currentRate}
         </Text>
       </Box>

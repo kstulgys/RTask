@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import axios from 'axios';
 import {formatHistoryData, getEndAtDay, getStartAtDay} from 'lib/utils';
 

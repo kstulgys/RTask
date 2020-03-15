@@ -1,14 +1,13 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable react/prop-types */
 import React from 'react';
 import {render} from '@testing-library/react';
 import {CurrencyStateContext, CurrencyDispatchContext, initialState} from 'context';
 import {ThemeProvider, CSSReset} from '@chakra-ui/core';
 import theme from 'theme';
-import appReducer from 'context/reducer';
 
-const customRender = (ui, {state = {}, dispatch = () => undefined, ...options} = {}) => {
-  function Wrapper({children, props}) {
-    const [state, dispatch] = React.useReducer(appReducer, initialState);
+const customRender = (ui: any, {state = {}, dispatch = () => undefined, ...options} = {}) => {
+  function Wrapper({children, props}: any) {
     return (
       <CurrencyStateContext.Provider value={state} {...props}>
         <CurrencyDispatchContext.Provider value={dispatch}>

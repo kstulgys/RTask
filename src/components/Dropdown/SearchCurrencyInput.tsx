@@ -1,10 +1,15 @@
 import * as React from 'react';
 import {Input, InputGroup, InputLeftElement, Icon} from '@chakra-ui/core';
 
+// text: string = (<HTMLInputElement>var.target).value;
+
 export default function SearchCurrencyInput({handleSearch}: {handleSearch: (searchTerm: string) => void}): JSX.Element {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleInputChange = (e: any): void => {
+    // const {target as HTMLTextAreaElement} = e
     handleSearch(e.target.value);
   };
+
+  // <textarea onChange={({ target }) => this.setState({ value: (target as HTMLTextAreaElement).value })}
 
   return (
     <InputGroup my="1">
