@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import axios from 'axios';
-import {formatHistoryData, getEndAtDay, getStartAtDay} from 'lib/utils';
+import {formatHistoryData, getEndAtDay, getStartAtDay} from 'lib/utils/helpers';
 
 const baseUrl = 'https://api.exchangeratesapi.io';
 

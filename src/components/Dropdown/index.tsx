@@ -8,7 +8,7 @@ import BorderAnimated from './BorderAnimated';
 import SearchCurrencyInput from './SearchCurrencyInput';
 import CurrencyItem from './CurrencyItem';
 import {useOnClickOutside} from 'lib/hooks';
-import {getFiltered} from 'lib/utils';
+import {getFiltered} from 'lib/utils/helpers';
 import numeral from 'numeral';
 
 interface DropdownProps {

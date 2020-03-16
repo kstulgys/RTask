@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable react/prop-types */
 import React from 'react';
-import {render} from '@testing-library/react';
+import {render, cleanup} from '@testing-library/react';
 import {CurrencyStateContext, CurrencyDispatchContext, initialState} from 'context';
 import {ThemeProvider, CSSReset} from '@chakra-ui/core';
 import theme from 'theme';

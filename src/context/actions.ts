@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import {getCurrentRate, getDataPoints, getCurrencies, updatePockets} from 'services/exchangerates-api';
-import {getSelected, getCanSubmit, waait, getPocketValue, getInputValue, isInputValue} from 'lib/utils';
+import {getSelected, getCanSubmit, waait, getPocketValue, getInputValue, isInputValue} from 'lib/utils/helpers';
 import {CurrencyDispatch, CurrencyState, StatusTypes} from 'context/types';
 import {ActionTypes} from 'context/actionTypes';
 

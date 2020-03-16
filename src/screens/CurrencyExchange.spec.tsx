@@ -8,21 +8,22 @@ import {initialState} from 'context';
 import {appReducer} from 'context/reducer';
 import {ActionTypes} from 'context/actionTypes';
 
-beforeEach(cleanup);
+afterEach(cleanup);
 
-// jest.mock('context/actions', () => {
-//   setInitialData: jest.fn();
-//   handleCurencyRateChange: jest.fn();
-// });
+jest.mock('context/actions');
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 let state = initialState;
 
-test('app renders with spinner', async () => {
+it('app renders with spinner', async () => {
   const {getByTestId} = render(<CurrencyExchange />, {state});
   expect(getByTestId('loader')).toBeInTheDocument();
 });
 
-test('app renders after SET_INITIAL_DATA_SUCCESS', () => {
+it('app renders after SET_INITIAL_DATA_SUCCESS', () => {
   // SET_INITIAL_DATA_SUCCESS
   const payload: InitialDataPayload = {
     pocketValueTo: 1000,
@@ -36,9 +37,10 @@ test('app renders after SET_INITIAL_DATA_SUCCESS', () => {
     status: StatusTypes.idle,
   };
   state = appReducer(state, {type: ActionTypes.SET_INITIAL_DATA_SUCCESS, payload});
-  const {debug, getByText, queryByTestId} = render(<CurrencyExchange />, {
+  const {debug, getByText, queryByTestId, getByTestId} = render(<CurrencyExchange />, {
     state,
   });
+  expect(setInitialData).toHaveBeenCalledTimes(1);
   expect(queryByTestId(/loader/i)).toBeNull();
   expect(getByText(/exchange money/i)).toBeInTheDocument();
   expect(queryByTestId('input-from')).toBeInTheDocument();

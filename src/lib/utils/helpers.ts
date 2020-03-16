@@ -72,7 +72,7 @@ function getInputValue(type: FomOrTo, currentRate: number, input: string | numbe
 }
 
 function isInputValue(value: string) {
-  const isNumber = typeof +value === 'number' && isFinite(+value);
+  const isNumber = typeof value === 'string' && typeof +value === 'number' && isFinite(+value);
   const exceedsDecimalPlace = value[value.length - 4] === '.' || value[value.length - 4] === ',';
   const isPositive = +value >= 0;
   return !exceedsDecimalPlace && isNumber && isPositive;
@@ -90,4 +90,5 @@ export {
   getSelected,
   getFiltered,
   getCanSubmit,
+  getTimestamp,
 };
