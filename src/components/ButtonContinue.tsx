@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Button} from '@chakra-ui/core';
+import {Button, Flex} from '@chakra-ui/core';
 import {useCurrencyState, useCurrencyDispatch} from 'context';
 import {handleValuesSubmit} from 'context/actions';
 
@@ -12,13 +12,13 @@ export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Eleme
   const state = useCurrencyState();
   const dispatch = useCurrencyDispatch();
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     handleValuesSubmit(dispatch, state);
   };
 
   return (
     <Button
-      data-testid="continue"
+      data-testid="submit-values"
       isLoading={state.isSubmitting}
       isDisabled={!state.canSubmit}
       onClick={handleSubmit}

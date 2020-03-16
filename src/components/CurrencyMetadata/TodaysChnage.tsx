@@ -13,11 +13,9 @@ export function TodaysChange({dataPoints}: TodaysChangeProps): JSX.Element {
   const sign = Math.sign(change);
 
   return (
-    // <Stat>
     <StatHelpText fontWeight="medium" fontSize="xl" color={sign === -1 ? 'red.500' : 'green.500'}>
-      <StatArrow type={sign === -1 ? 'decrease' : 'increase'} />
+      <StatArrow data-testid="current-change" type={sign === -1 ? 'decrease' : 'increase'} />
       {Math.abs(change).toFixed(4)} ({percent.toFixed(2)} %)
     </StatHelpText>
-    // </Stat>
   );
 }

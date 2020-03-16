@@ -2,7 +2,7 @@ import {subDays, format} from 'date-fns';
 import {Currencies, Currency, DataPoints} from 'context/types';
 type FomOrTo = 'From' | 'To';
 
-function randomNumber(min: number, max: number, precision = 100): number {
+function numberBetween(min: number, max: number, precision = 100): number {
   return Math.floor(Math.random() * ((max - min) * precision - 1 * precision) + 1 * precision) / (1 * precision);
 }
 
@@ -51,7 +51,7 @@ function getCanSubmit({pocketValueFrom, inputValueFrom}: {pocketValueFrom: numbe
 }
 
 function waait() {
-  const time = randomNumber(1000, 3500, 1);
+  const time = numberBetween(1000, 3500, 1);
   return new Promise((res, rej) => setTimeout(() => res(), time));
 }
 
@@ -83,7 +83,7 @@ export {
   getPocketValue,
   getInputValue,
   waait,
-  randomNumber,
+  numberBetween,
   formatHistoryData,
   getEndAtDay,
   getStartAtDay,

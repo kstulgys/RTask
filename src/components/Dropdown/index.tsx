@@ -59,11 +59,11 @@ export function Dropdown(props: DropdownProps): JSX.Element {
         </Text>
       </Box>
       <Box position="relative" cursor="pointer">
-        <Box onClick={toggleOpen}>
+        <Box onClick={toggleOpen} data-testid={`dropdown-${label.toLowerCase()}`}>
           <Flex alignItems="center" mb="2" height="5">
             <Text fontWeight="medium">{selected?.name}</Text>
             <Flex ml="auto" alignItems="center">
-              <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLocaleLowerCase()}`}>
+              <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLowerCase()}`}>
                 {numeral(pocketValue).format('00,000.00')}
               </Text>
               <Box ml="2" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
