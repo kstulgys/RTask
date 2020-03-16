@@ -36,6 +36,7 @@ it('Dropdown', async () => {
     autoFocus: true,
     handleChange,
   };
+
   const {getByTestId, getByText, queryByTestId, debug} = render(<InputAmount {...props} />);
   const input = getByTestId('input-from');
   user.type(input, '1234.56');
