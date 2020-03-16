@@ -18,7 +18,7 @@ import {
   setInitialData,
 } from 'context/actions';
 import user from '@testing-library/user-event';
-import {InputAmount} from './';
+import {Dropdown} from './';
 import {Label} from 'screens/types';
 afterEach(cleanup);
 
@@ -29,15 +29,33 @@ beforeEach(() => {
 });
 
 it('Dropdown', async () => {
-  const handleChange = jest.fn();
   const props = {
-    inputValue: 0,
+    label: Label.from,
     selected: {name: 'GBP', value: 2000},
-    autoFocus: true,
-    handleChange,
+    pocketValue: 2000,
+    currencies: [],
+    selectCurrency: jest.fn(),
   };
-  const {getByTestId, getByText, queryByTestId, debug} = render(<InputAmount {...props} />);
-  const input = getByTestId('input-from');
-  user.type(input, '1234.56');
-  expect(handleChange).toBeCalledTimes(6);
+  const {getByTestId, getByText, queryByTestId, debug} = render(<Dropdown {...props} />);
+  const dropdownList = queryByTestId('dropdown-list');
+  expect(dropdownList).toBeNull();
+  const dropdownDiv = getByTestId('dropdown-from');
+  debug();
+  user.click(dropdownDiv);
+  expect(getByTestId('dropdown-list')).toBeInTheDocument();
 });
+
+const payload: InitialDataPayload = {
+  pocketValueTo: 1000,
+  pocketValueFrom: 2000,
+  isLoading: false,
+  currencies: [],
+  selectedFrom: {name: 'GBP', value: 2000},
+  selectedTo: {name: 'USD', value: 1000},
+  currentRate: 1.111,
+  dataPoints: [
+    {x: 1, y: 2},
+    {x: 1, y: 2},
+  ],
+  status: StatusTypes.idle,
+};

@@ -73,6 +73,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
         </Box>
         {open && (
           <Box
+            data-testid="dropdown-list"
             as="ul"
             ref={ref}
             zIndex={9999}

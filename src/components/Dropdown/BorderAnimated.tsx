@@ -9,24 +9,26 @@ export default function BorderAnimated({open}: {open: boolean}): JSX.Element {
       <motion.div
         style={{
           height: 2,
-          width: 0,
-          left: 0,
-          top: 0,
+          width: '0px',
+          left: '0px',
+          top: '0px',
           position: 'absolute',
         }}
         initial="close"
         animate={open ? 'open' : 'close'}
+        // theme.colors.revo.blue
         variants={{
           open: {
             zIndex: 9999,
-            background: theme.colors.revo.blue,
+            background: theme.colors['revo']['blue'],
             width: '100%',
             transition: {
               duration: 0.2,
             },
           },
           close: {
-            width: 0,
+            background: 'white',
+            width: '0px',
           },
         }}
       />
