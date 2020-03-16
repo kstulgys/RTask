@@ -142,12 +142,12 @@ async function handleCurencyRateChange(dispatch: CurrencyDispatch, state: Curren
   const inputValueTo = getInputValue('To', state.currentRate, state.inputValueFrom);
   const pocketValueTo = getPocketValue('To', state.selectedTo.value, inputValueTo);
   const canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: state.inputValueFrom});
-  // TODO: handle error
   const dataPoints = await getDataPoints({
     daysAgo: 30,
     selectedTo: state.selectedTo,
     selectedFrom: state.selectedFrom,
   });
+
   const payload: CurrencyRateChangePayload = {
     inputValueTo,
     pocketValueTo,

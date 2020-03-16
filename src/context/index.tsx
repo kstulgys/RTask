@@ -49,8 +49,6 @@ function useCurrencyDispatch() {
 
 export {CurrencyProvider, useCurrencyState, useCurrencyDispatch, CurrencyStateContext, CurrencyDispatchContext};
 
-// const [state, dispatch] = useReducer(reducer, initialState);
-
 function useReducer(reducer: (state: object, action: object) => object, initState: object) {
   const [state, setState] = React.useState(initState);
 
