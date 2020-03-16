@@ -36,7 +36,7 @@ test('app renders after SET_INITIAL_DATA_SUCCESS', () => {
     status: StatusTypes.idle,
   };
   state = appReducer(state, {type: ActionTypes.SET_INITIAL_DATA_SUCCESS, payload});
-  const {debug, getByText, queryByTestId, queryByText, querySelector, getByTestId} = render(<CurrencyExchange />, {
+  const {debug, getByText, queryByTestId} = render(<CurrencyExchange />, {
     state,
   });
   expect(queryByTestId(/loader/i)).toBeNull();

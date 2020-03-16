@@ -15,8 +15,8 @@ test('getSelected', () => {
 });
 
 test('getCanSubmit', () => {
-  expect(getCanSubmit({selectedFromPocketValue: 10000, inputValueFrom: 5000})).toBeTruthy();
-  expect(getCanSubmit({selectedFromPocketValue: -10000, inputValueFrom: 5000})).toBeFalsy();
+  expect(getCanSubmit({pocketValueFrom: 10000, inputValueFrom: 5000})).toBeTruthy();
+  expect(getCanSubmit({pocketValueFrom: -10000, inputValueFrom: 5000})).toBeFalsy();
 });
 
 test('getPocketValue', () => {
