@@ -25,7 +25,7 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
   return (
     <Flex alignItems="baseline" my={[6, 12, 16]} {...rest}>
       <Box display={['none', 'block']} pr="2">
-        <Text pr="1" lineHeight="none" fontSize="110px" fontWeight="lighter">
+        <Text data-testid="currency-symbol" pr="1" lineHeight="none" fontSize="110px" fontWeight="lighter">
           {selected?.name && SYMBOLS[selected.name].symbol_native}
         </Text>
       </Box>

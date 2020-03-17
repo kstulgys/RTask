@@ -18,6 +18,7 @@ export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Eleme
 
   return (
     <Button
+      className="submit-test"
       data-testid="submit-values"
       isLoading={state.isSubmitting}
       isDisabled={!state.canSubmit}

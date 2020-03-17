@@ -1,102 +1,84 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import {render, cleanup} from 'lib/utils/testing-utils';
+import {render, cleanup, loadedState, getByLabelText} from 'lib/utils/testing-utils';
 import {CurrencyExchange} from './CurrencyExchange';
-import {StatusTypes} from 'context/types';
 import {initialState} from 'context';
-import {appReducer} from 'context/reducer';
-import {ActionTypes} from 'context/actionTypes';
-import {
-  handleCurencyRateChange,
-  handleInputValueFromChange,
-  handleInputValueToChange,
-  handleCurrenciesSwapp,
-  InitialDataPayload,
-  setInitialData,
-  handleValuesSubmit,
-} from 'context/actions';
+import {setInitialData} from 'context/actions';
 import user from '@testing-library/user-event';
 
 afterEach(cleanup);
+beforeEach(cleanup);
 jest.mock('context/actions');
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('app renders with spinner', async () => {
-  const {getByTestId} = render(<CurrencyExchange />, {state: initialState});
+function setup(state: any) {
+  return render(<CurrencyExchange />, {state});
+}
+
+it('has loader visible', async () => {
+  const {getByTestId} = setup(initialState);
   expect(getByTestId('loader')).toBeInTheDocument();
 });
 
-const payload: InitialDataPayload = {
-  pocketValueTo: 1000,
-  pocketValueFrom: 2000,
-  isLoading: false,
-  currencies: [],
-  selectedFrom: {name: 'GBP', value: 2000},
-  selectedTo: {name: 'USD', value: 1000},
-  currentRate: 1.111,
-  dataPoints: [
-    {x: 1, y: 2},
-    {x: 1, y: 2},
-  ],
-  status: StatusTypes.idle,
-};
-
-const dispatch = jest.fn();
-const newState = appReducer(initialState, {type: ActionTypes.SET_INITIAL_DATA_SUCCESS, payload});
-it('setInitialData updates state', () => {
-  render(<CurrencyExchange />, {
-    state: newState,
-  });
-  setInitialData(dispatch);
-  expect(setInitialData).toBeCalledWith(dispatch);
-  expect({...initialState, ...newState}).toEqual(newState);
-  expect(handleCurencyRateChange).toBeCalled();
-});
-
-it('renders DOM elements', async () => {
-  const {debug, getByText, queryByTestId, getByTestId} = render(<CurrencyExchange />, {state: newState});
+it('has no loader when data is loaded', async () => {
+  const {queryByTestId, debug} = setup(loadedState);
+  debug();
   expect(queryByTestId(/loader/i)).toBeNull();
-  expect(getByText(/exchange money/i)).toBeInTheDocument();
-  expect(getByTestId('input-from')).toBeInTheDocument();
-  expect(getByTestId('input-to')).toBeInTheDocument();
-  expect(getByTestId('pocket-from')).toBeInTheDocument();
-  expect(getByTestId('pocket-to')).toBeInTheDocument();
-  expect(getByTestId('current-rate')).toBeInTheDocument();
-  expect(getByTestId('current-change')).toBeInTheDocument();
-  expect(getByTestId('button-swap')).toBeInTheDocument();
-  expect(getByTestId('dropdown-from')).toBeInTheDocument();
-  expect(getByTestId('dropdown-to')).toBeInTheDocument();
 });
 
-it('calls handleInputValueFromChange', () => {
-  const newState = appReducer(initialState, {type: ActionTypes.SET_INITIAL_DATA_SUCCESS, payload});
-  const {getByTestId} = render(<CurrencyExchange />, {
-    state: newState,
-  });
-
-  const input = getByTestId('input-from');
-  user.type(input, '1234.56');
-  expect(handleInputValueFromChange).toBeCalled();
+it('setInitialData has been called', () => {
+  setup(initialState);
+  expect(setInitialData).toBeCalled();
 });
 
-it('calls handleInputValueToChange', () => {
-  const newState = appReducer(initialState, {type: ActionTypes.SET_INITIAL_DATA_SUCCESS, payload});
-  const {getByTestId} = render(<CurrencyExchange />, {
-    state: newState,
+describe('Layout', () => {
+  it('has title"', () => {
+    const {getByText} = setup(loadedState);
+    expect(getByText(/exchange money/i)).toBeInTheDocument();
   });
-  const input = getByTestId('input-to');
-  user.type(input, '1234.56');
-  expect(handleInputValueToChange).toBeCalled();
-});
 
-it('calls handleCurrenciesSwapp', () => {
-  const newState = appReducer(initialState, {type: ActionTypes.SET_INITIAL_DATA_SUCCESS, payload});
-  const {getByTestId} = render(<CurrencyExchange />, {
-    state: newState,
+  it('has labels "From" and "to"', () => {
+    const {getByText, getByTestId} = setup(loadedState);
+    expect(getByText('From')).toBeInTheDocument();
+    expect(getByText('To')).toBeInTheDocument();
   });
-  const button = getByTestId('button-swap');
-  user.click(button);
-  expect(handleCurrenciesSwapp).toBeCalled();
+
+  it('has dropdown components"', () => {
+    const {getByTestId} = setup(loadedState);
+    expect(getByTestId('dropdown-from')).toBeInTheDocument();
+    expect(getByTestId('dropdown-to')).toBeInTheDocument();
+  });
+
+  it('has pocket values"', () => {
+    const {getByTestId} = setup(loadedState);
+    expect(getByTestId('pocket-from')).toBeInTheDocument();
+    expect(getByTestId('pocket-to')).toBeInTheDocument();
+  });
+  it('has input fields"', () => {
+    const {getByTestId} = setup(loadedState);
+    expect(getByTestId('input-from')).toBeInTheDocument();
+    expect(getByTestId('input-to')).toBeInTheDocument();
+  });
+  it('has submit/continue button"', () => {
+    const {getByText, getByTitle, container} = setup(loadedState);
+    expect(container.querySelector('.submit-test')).toBeInTheDocument();
+  });
+  it('has current rate"', () => {
+    const {getByTestId} = setup(loadedState);
+    expect(getByTestId('current-rate')).toBeInTheDocument();
+  });
+
+  it('has current change"', () => {
+    const {getByTestId} = setup(loadedState);
+    expect(getByTestId('current-change')).toBeInTheDocument();
+  });
+
+  it('has "swapp" button"', () => {
+    const {getByTestId} = setup(loadedState);
+    expect(getByTestId('button-swap')).toBeInTheDocument();
+  });
 });
