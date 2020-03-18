@@ -25,6 +25,12 @@ import {
 } from 'app/appState';
 import {RootState} from 'app/store';
 import {useNotification} from 'utils/hooks';
+import {Currencies, Currency} from 'app/types';
+
+function getFiltered(array: Currencies, selectedFrom: Currency | null, selectedTo: Currency | null) {
+  console.log('getFiltered');
+  return array.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name);
+}
 
 export default function CurrencyExchange() {
   const {
@@ -37,24 +43,17 @@ export default function CurrencyExchange() {
     inputValueTo,
     currencies,
     dataPoints,
-    currentRate,
-    timesSubmitted,
   } = useSelector((state: RootState) => state.app);
-  const dispatch = useDispatch();
+  useFetchCurrencies();
   useNotification();
-  useCurrentRate();
-  useDataPoints();
+  useHandleUpdates();
+  useCurrencyToUpdates();
 
-  console.log({currencies});
-
-  React.useEffect(() => {
-    dispatch(fetchCurrencies());
-  }, [timesSubmitted]);
-
-  React.useEffect(() => {
-    if (!selectedFrom) return;
-    dispatch(updateSelectedTo());
-  }, [currentRate, selectedFrom]);
+  const filtered = React.useMemo(() => getFiltered(currencies, selectedFrom, selectedTo), [
+    currencies,
+    selectedFrom,
+    selectedTo,
+  ]);
 
   if (isLoading) {
     return <Loader />;
@@ -77,7 +76,7 @@ export default function CurrencyExchange() {
                 label="From"
                 selected={selectedFrom}
                 pocketValue={pocketValueFrom}
-                currencies={currencies.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name)}
+                currencies={filtered}
                 selectCurrency={selectFrom}
               />
               <InputAmount
@@ -96,7 +95,7 @@ export default function CurrencyExchange() {
                 label="To"
                 selected={selectedTo}
                 pocketValue={pocketValueTo}
-                currencies={currencies.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name)}
+                currencies={filtered}
                 selectCurrency={selectTo}
               />
               <InputAmount
@@ -133,11 +132,40 @@ function ContainerInputs(props: ContainerProps): JSX.Element {
   return <Flex flexDir="column" width={['full', 'full', '50%']} {...props} />;
 }
 
-function useCurrentRate() {
+function useCurrencyToUpdates() {
+  const dispatch = useDispatch();
+  const {selectedFrom, currentRate} = useSelector((state: RootState) => state.app);
+
+  React.useEffect(() => {
+    if (!selectedFrom || !currentRate) return;
+    dispatch(updateSelectedTo());
+  }, [currentRate, selectedFrom]);
+}
+
+function useFetchCurrencies() {
+  const dispatch = useDispatch();
+  const {timesSubmitted} = useSelector((state: RootState) => state.app);
+  React.useEffect(() => {
+    dispatch(fetchCurrencies());
+  }, [timesSubmitted]);
+}
+
+function useHandleUpdates() {
   const dispatch = useDispatch();
   const {selectedFrom, selectedTo} = useSelector((state: RootState) => state.app);
 
   React.useEffect(() => {
+    if (!selectedFrom || !selectedTo) return;
+    // get new currentRate
+    dispatch(fetchDataPoints(selectedFrom.name, selectedTo.name));
+    // get new dataPoints
+    dispatch(fetchCurrentRate(selectedFrom.name, selectedTo.name));
+    // save currency names to local storage
+    window.localStorage.setItem(
+      'currencies',
+      JSON.stringify({currencyFrom: selectedFrom.name, currencyTo: selectedTo.name}),
+    );
+    // start new currentRate pooling
     function startPolling(currencyFrom: string, currencyTo: string) {
       dispatch(fetchCurrentRate(currencyFrom, currencyTo));
     }
@@ -145,22 +173,7 @@ function useCurrentRate() {
     timer = setInterval(() => {
       if (!selectedFrom || !selectedTo) return;
       startPolling(selectedFrom.name, selectedTo.name);
-    }, 5000);
-
+    }, 10000);
     return () => clearInterval(timer);
-  }, [selectedFrom, selectedTo]);
-}
-
-function useDataPoints() {
-  const dispatch = useDispatch();
-  const {selectedFrom, selectedTo} = useSelector((state: RootState) => state.app);
-
-  React.useEffect(() => {
-    if (!selectedFrom || !selectedTo) return;
-    dispatch(fetchDataPoints(selectedFrom.name, selectedTo.name));
-    window.localStorage.setItem(
-      'currencies',
-      JSON.stringify({currencyFrom: selectedFrom.name, currencyTo: selectedTo.name}),
-    );
   }, [selectedFrom, selectedTo]);
 }
