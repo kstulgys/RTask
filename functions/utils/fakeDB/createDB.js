@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 function createDB(db) {
-  const updatePockets = async ({from, to}) => {
+  const updatePockets = async ({selectedFrom, selectedTo}) => {
     const pockets = await db.get('pockets').value();
-    if (!pockets[from.currency]) {
+    if (!pockets[selectedFrom.name]) {
       throw Error('Pocket does not exist');
     } else {
-      pockets[from.currency] = +(pockets[from.currency] - from.amount).toFixed(2);
-      if (pockets[from.currency] < 0) {
+      pockets[selectedFrom.name] = +(pockets[selectedFrom.name] - selectedFrom.value).toFixed(2);
+      if (pockets[selectedFrom.name] < 0) {
         throw Error('Not enough money in the pocket');
       }
     }
-    if (!pockets[to.currency]) {
-      pockets[to.currency] = to.amount;
+    if (!pockets[selectedTo.name]) {
+      pockets[selectedTo.name] = selectedTo.value;
     } else {
-      pockets[to.currency] = +(pockets[to.currency] + to.amount).toFixed(2);
+      pockets[selectedTo.name] = +(pockets[selectedTo.name] + selectedTo.value).toFixed(2);
     }
 
     db.set('pockets', pockets).write();
@@ -21,8 +21,7 @@ function createDB(db) {
   };
 
   const getPockets = async () => {
-    const pockets = await db.get('pockets');
-    return pockets;
+    return await db.get('pockets');
   };
 
   return {

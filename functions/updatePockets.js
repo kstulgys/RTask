@@ -4,8 +4,9 @@ const db = require('./utils/fakeDB');
 
 exports.handler = async (event, context) => {
   try {
-    const {from, to} = JSON.parse(event.body);
-    const pockets = await db.updatePockets({from, to});
+    const {selectedFrom, selectedTo} = JSON.parse(event.body);
+    console.log(selectedFrom, selectedTo);
+    const pockets = await db.updatePockets({selectedFrom, selectedTo});
     return {
       statusCode: 200,
       body: JSON.stringify('hello'),

@@ -1,30 +1,27 @@
 import * as React from 'react';
 import {Box, Flex, Text} from '@chakra-ui/core';
 import {FiChevronDown, FiChevronUp} from 'react-icons/fi';
-import {CurrencyDispatch, CurrencyState, Currency, Currencies} from 'context/types';
-import {FromOrTo} from 'screens/types';
-import {useCurrencyState, useCurrencyDispatch} from 'context';
 import BorderAnimated from './BorderAnimated';
 import SearchCurrencyInput from './SearchCurrencyInput';
 import CurrencyItem from './CurrencyItem';
-import {useOnClickOutside} from 'lib/hooks';
-import {getFiltered} from 'lib/utils/helpers';
+import {useOnClickOutside} from 'utils/hooks';
+import {getFiltered} from 'utils/helpers';
 import numeral from 'numeral';
+import {useSelector, useDispatch} from 'react-redux';
+import {Currency, Currencies} from 'app/types';
 
 interface DropdownProps {
-  label: FromOrTo;
+  label: 'To' | 'From';
   selected: Currency | null;
   pocketValue: number;
   currencies: Currencies;
-  selectCurrency: (dispatch: CurrencyDispatch, state: CurrencyState, name: string) => void;
+  selectCurrency: (currency: Currency) => void;
   [key: string]: any;
 }
 
 export function Dropdown(props: DropdownProps): JSX.Element {
   const {label, selected, pocketValue, currencies, selectCurrency, ...rest} = props;
-  const state = useCurrencyState();
-  const dispatch = useCurrencyDispatch();
-
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState<boolean>(false);
   const [filtered, setFiltered] = React.useState<Currencies>(currencies);
   const ref = React.useRef();
@@ -32,7 +29,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
   const toggleOpen = (): void => setOpen(!open);
 
   const handleOnKeySelect = (item: Currency): void => {
-    selectCurrency(dispatch, state, item.name);
+    dispatch(selectCurrency(item));
   };
 
   const handleSelect = (item: Currency): void => {
@@ -90,6 +87,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
           >
             <SearchCurrencyInput handleSearch={handleSearch} />
             {filtered.map((item: Currency) => {
+              // if (selected && item.name !== selected.name) {
               return (
                 <CurrencyItem
                   key={item.name}
@@ -98,6 +96,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
                   item={item}
                 />
               );
+              // return null;
             })}
           </Box>
         )}

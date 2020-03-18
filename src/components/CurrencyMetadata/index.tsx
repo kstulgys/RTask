@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {Box, Flex, Text} from '@chakra-ui/core';
-import {useCurrencyState} from 'context';
 import {TodaysChange} from './TodaysChnage';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState} from 'app/store';
 
 export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Element {
-  const {currentRate, dataPoints} = useCurrencyState();
-
+  const {currentRate, dataPoints = []} = useSelector((state: RootState) => state.app);
   return (
     <Flex {...props}>
       <Box minWidth="20" mr={[10, 12]}>

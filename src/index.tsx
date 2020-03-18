@@ -1,38 +1,20 @@
 import * as React from 'react';
-import {render} from 'react-dom';
-import {CurrencyExchange} from './screens';
-import {CurrencyProvider} from './context';
+import ReactDOM from 'react-dom';
+import App from './app/App';
 import {ThemeProvider, CSSReset} from '@chakra-ui/core';
 import theme from 'theme';
+import {Provider} from 'react-redux';
+import store from './app/store';
 
-function App(): JSX.Element {
-  return (
-    <CurrencyProvider>
+const render = () => {
+  ReactDOM.render(
+    <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CSSReset />
-        <CurrencyExchange />
+        <App />
       </ThemeProvider>
-    </CurrencyProvider>
+    </Provider>,
+    document.getElementById('root'),
   );
-}
-
-const rootElement = document.getElementById('root');
-render(<App />, rootElement);
-
-// const loadAuthenticatedApp = () => import('./authenticated-app')
-// const AuthenticatedApp = React.lazy(loadAuthenticatedApp)
-// const UnauthenticatedApp = React.lazy(() => import('./unauthenticated-app'))
-
-// function App() {
-//   const user = useUser()
-//   // pre-load the authenticated side in the background while the user's
-//   // filling out the login form.
-//   React.useEffect(() => {
-//     loadAuthenticatedApp()
-//   }, [])
-//   return (
-//     <React.Suspense fallback={<FullPageSpinner />}>
-//       {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
-//     </React.Suspense>
-//   )
-// }
+};
+render();

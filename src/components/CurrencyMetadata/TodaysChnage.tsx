@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Stat, StatHelpText, StatArrow, Box} from '@chakra-ui/core';
-import {DataPoints} from 'context/types';
+import {DataPoints} from 'app/types';
 
 interface TodaysChangeProps {
   dataPoints: DataPoints;

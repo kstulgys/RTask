@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Box, Flex, Button, Text} from '@chakra-ui/core';
 import {currencyFlags} from './currencyFlags';
-import {Currency} from 'context/types';
+import {Currency} from 'app/types';
 import numeral from 'numeral';
 
 interface CurrencyItemProps {
