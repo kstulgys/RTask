@@ -29,12 +29,13 @@ export function Dropdown(props: DropdownProps): JSX.Element {
   const toggleOpen = (): void => setOpen(!open);
 
   const handleOnKeySelect = (item: Currency): void => {
+    setOpen(true);
     dispatch(selectCurrency(item));
   };
 
   const handleSelect = (item: Currency): void => {
     setOpen(false);
-    handleOnKeySelect(item);
+    dispatch(selectCurrency(item));
   };
 
   const handleSearch = (searchTerm: string) => {
@@ -87,7 +88,6 @@ export function Dropdown(props: DropdownProps): JSX.Element {
           >
             <SearchCurrencyInput handleSearch={handleSearch} />
             {filtered.map((item: Currency) => {
-              // if (selected && item.name !== selected.name) {
               return (
                 <CurrencyItem
                   key={item.name}
@@ -96,7 +96,6 @@ export function Dropdown(props: DropdownProps): JSX.Element {
                   item={item}
                 />
               );
-              // return null;
             })}
           </Box>
         )}

@@ -21,6 +21,7 @@ import {
   onInputChangeTo,
   selectFrom,
   selectTo,
+  fetchDataPoints,
 } from 'app/appState';
 import {RootState} from 'app/store';
 import {useNotification} from 'utils/hooks';
@@ -38,23 +39,15 @@ export default function CurrencyExchange() {
     dataPoints,
     currentRate,
     timesSubmitted,
-    error,
   } = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
-  useCurrentRate();
   useNotification();
+  useCurrentRate();
+  useDataPoints();
+
+  console.log({currencies});
 
   React.useEffect(() => {
-    if (!selectedFrom || !selectedTo) return;
-    console.log('****************');
-    window.localStorage.setItem(
-      'currencies',
-      JSON.stringify({currencyFrom: selectedFrom.name, currencyTo: selectedTo.name}),
-    );
-  }, [selectedFrom, selectedTo]);
-
-  React.useEffect(() => {
-    console.log({timesSubmitted});
     dispatch(fetchCurrencies());
   }, [timesSubmitted]);
 
@@ -84,7 +77,7 @@ export default function CurrencyExchange() {
                 label="From"
                 selected={selectedFrom}
                 pocketValue={pocketValueFrom}
-                currencies={currencies.filter(c => c.name !== selectedTo?.name)}
+                currencies={currencies.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name)}
                 selectCurrency={selectFrom}
               />
               <InputAmount
@@ -103,7 +96,7 @@ export default function CurrencyExchange() {
                 label="To"
                 selected={selectedTo}
                 pocketValue={pocketValueTo}
-                currencies={currencies.filter(c => c.name !== selectedFrom?.name)}
+                currencies={currencies.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name)}
                 selectCurrency={selectTo}
               />
               <InputAmount
@@ -148,15 +141,26 @@ function useCurrentRate() {
     function startPolling(currencyFrom: string, currencyTo: string) {
       dispatch(fetchCurrentRate(currencyFrom, currencyTo));
     }
-
     let timer: any = null;
-
     timer = setInterval(() => {
       if (!selectedFrom || !selectedTo) return;
       startPolling(selectedFrom.name, selectedTo.name);
     }, 5000);
 
-    console.log({timer});
     return () => clearInterval(timer);
+  }, [selectedFrom, selectedTo]);
+}
+
+function useDataPoints() {
+  const dispatch = useDispatch();
+  const {selectedFrom, selectedTo} = useSelector((state: RootState) => state.app);
+
+  React.useEffect(() => {
+    if (!selectedFrom || !selectedTo) return;
+    dispatch(fetchDataPoints(selectedFrom.name, selectedTo.name));
+    window.localStorage.setItem(
+      'currencies',
+      JSON.stringify({currencyFrom: selectedFrom.name, currencyTo: selectedTo.name}),
+    );
   }, [selectedFrom, selectedTo]);
 }

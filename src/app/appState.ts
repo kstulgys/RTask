@@ -4,7 +4,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AppThunk} from 'app/store';
 import {getCurrencies, getCurrentRate, getDataPoints, updatePockets, UpdatePocketsProps} from 'api/currenciesAPI';
 import {getSelected, getCanSubmit, isValidInput} from 'utils/helpers';
-import {Currencies, CurrencyState, Currency} from 'app/types';
+import {Currencies, CurrencyState, Currency, DataPoints} from 'app/types';
 
 export const initialState: CurrencyState = {
   isLoading: true,
@@ -54,8 +54,11 @@ const appReducer = createSlice({
       state.error = {message: `Something went wrong.`, type: 'warning'};
     },
     // get current rate
-    getCurrentRateSuccess(state, action: PayloadAction<number>) {
-      state.currentRate = action.payload;
+    getCurrentRateSuccess(state, action: PayloadAction<{currentRate: number; dataPoints: DataPoints}>) {
+      const {dataPoints, currentRate} = action.payload;
+      state.currentRate = currentRate;
+      state.dataPoints = dataPoints;
+
       state.error = null;
     },
     getCurrentRateFail(state) {
@@ -186,7 +189,8 @@ export const fetchCurrencies = (): AppThunk => async dispatch => {
 export const fetchCurrentRate = (selectedFrom: string, selectedTo: string): AppThunk => async dispatch => {
   try {
     const currentRate = await getCurrentRate({selectedFrom, selectedTo});
-    dispatch(getCurrentRateSuccess(currentRate));
+    const dataPoints = await getDataPoints({selectedTo, selectedFrom});
+    dispatch(getCurrentRateSuccess({currentRate, dataPoints}));
   } catch (error) {
     dispatch(getCurrentRateFail());
   }
