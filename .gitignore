@@ -1,2 +1,4 @@
 node_modules
 yarn-errors.log
+cypress/videos
+cypress/screenshots
