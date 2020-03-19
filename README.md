@@ -1,6 +1,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/kstulgys/currency-exchanger-app/badge.svg?branch=master)](https://coveralls.io/github/kstulgys/currency-exchanger-app?branch=master)
 
-# Project Title
+# Currency Exchange App
 
 Currency exchange sample app
 
