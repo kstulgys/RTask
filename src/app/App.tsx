@@ -25,12 +25,7 @@ import {
 } from 'app/appState';
 import {RootState} from 'app/store';
 import {useNotification} from 'utils/hooks';
-import {Currencies, Currency} from 'app/types';
-
-function getFiltered(array: Currencies, selectedFrom: Currency | null, selectedTo: Currency | null) {
-  console.log('getFiltered');
-  return array.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name);
-}
+import {getFiltered} from 'utils/helpers';
 
 export default function CurrencyExchange() {
   const {
@@ -62,13 +57,7 @@ export default function CurrencyExchange() {
   return (
     <ContainerScreen>
       <ContainerApp>
-        <ErrorBoundary
-          render={() => (
-            <Text fontSize="3xl" color="revo.gray" textAlign="center">
-              Something went wrong. Please try again later.
-            </Text>
-          )}
-        >
+        <AppErrorBoundary>
           <TextHeader text="Exchange money" />
           <Flex flexDirection={['column', 'column', 'row']} alignItems="start">
             <ContainerInputs>
@@ -111,9 +100,22 @@ export default function CurrencyExchange() {
             </ContainerInputs>
           </Flex>
           <CurrencyChangeChart data={dataPoints} mt="6" />
-        </ErrorBoundary>
+        </AppErrorBoundary>
       </ContainerApp>
     </ContainerScreen>
+  );
+}
+
+function AppErrorBoundary(props: any) {
+  return (
+    <ErrorBoundary
+      render={() => (
+        <Text fontSize="3xl" color="revo.gray" textAlign="center">
+          Something went wrong. Please try again later.
+        </Text>
+      )}
+      {...props}
+    />
   );
 }
 

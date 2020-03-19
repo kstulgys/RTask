@@ -5,13 +5,13 @@ import BorderAnimated from './BorderAnimated';
 import SearchCurrencyInput from './SearchCurrencyInput';
 import CurrencyItem from './CurrencyItem';
 import {useOnClickOutside} from 'utils/hooks';
-import {getFiltered} from 'utils/helpers';
+import {filterList} from 'utils/helpers';
 import numeral from 'numeral';
 import {useSelector, useDispatch} from 'react-redux';
 import {Currency, Currencies} from 'app/types';
 
 interface DropdownProps {
-  label: 'To' | 'From';
+  label: string;
   selected: Currency | null;
   pocketValue: number;
   currencies: Currencies;
@@ -40,7 +40,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
 
   const handleSearch = (searchTerm: string) => {
     if (searchTerm) {
-      const filtered = getFiltered(searchTerm, currencies);
+      const filtered = filterList(searchTerm, currencies);
       setFiltered(filtered);
     } else {
       setFiltered(currencies);

@@ -42,7 +42,7 @@ function getSelected(name: string, currencies: Currencies) {
   return currencies.find(c => c.name === name);
 }
 
-function getFiltered(searchTerm: string, currencies: Currencies) {
+function filterList(searchTerm: string, currencies: Currencies) {
   return currencies.filter(c => c.name.includes(searchTerm.toUpperCase()));
 }
 
@@ -78,7 +78,12 @@ function isValidInput(value: string) {
   return !exceedsDecimalPlace && isNumber && isPositive;
 }
 
+function getFiltered(array: Currencies, selectedFrom: Currency | null, selectedTo: Currency | null) {
+  return array.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name);
+}
+
 export {
+  getFiltered,
   isValidInput,
   getPocketValue,
   getInputValue,
@@ -88,7 +93,7 @@ export {
   getEndAtDay,
   getStartAtDay,
   getSelected,
-  getFiltered,
+  filterList,
   getCanSubmit,
   getTimestamp,
 };
