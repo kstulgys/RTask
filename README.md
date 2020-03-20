@@ -33,7 +33,11 @@ yarn dev or npm dev
 ## Running the tests
 
 ```
-yarn test && yarn cypress
+yarn test
+```
+
+```
+yarn cypress
 ```
 
 ## Authors
