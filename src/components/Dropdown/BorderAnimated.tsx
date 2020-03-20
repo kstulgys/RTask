@@ -27,7 +27,7 @@ export default function BorderAnimated({open}: {open: boolean}): JSX.Element {
             },
           },
           close: {
-            background: 'white',
+            background: '#fff',
             width: '0px',
           },
         }}

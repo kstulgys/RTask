@@ -1,27 +1,28 @@
 import * as React from 'react';
 import App from 'app/App';
 import {render, cleanup, fireEvent} from 'utils/testing';
-import {initialState} from 'app/appState';
+import user from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
+import {filterList, fPocket} from 'utils/helpers';
+import {getCurrenciesSuccess, initialState} from 'app/appState';
+import {getCurrencies} from 'api/currenciesAPI';
 
 beforeEach(cleanup);
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('has loader visible', async () => {
-  const {getByTestId, debug} = render(<App />, {...initialState});
-  debug();
-  expect(getByTestId('loader')).toBeInTheDocument();
-});
-
-it('has no loader when data is loaded', async () => {
-  const {queryByTestId, debug} = render(<App />);
-  debug();
-  expect(queryByTestId(/loader/i)).toBeNull();
-});
-
 describe('Layout', () => {
+  it('has loader visible', async () => {
+    const {getByTestId, debug, store} = render(<App />, {...initialState});
+    expect(getByTestId('loader')).toBeInTheDocument();
+  });
+
+  it('has no loader when data is loaded', async () => {
+    const {queryByTestId, debug} = render(<App />);
+    expect(queryByTestId(/loader/i)).toBeNull();
+  });
+
   it('has title"', () => {
     const {getByText} = render(<App />);
     expect(getByText(/exchange money/i)).toBeInTheDocument();
@@ -50,8 +51,10 @@ describe('Layout', () => {
     expect(getByTestId('input-to')).toBeInTheDocument();
   });
   it('has submit/continue button"', () => {
-    const {getByText, getByTitle, container} = render(<App />);
-    expect(container.querySelector('.submit-test')).toBeInTheDocument();
+    const {getAllByText} = render(<App />);
+    const buttons = getAllByText(/continue/i);
+    // one is hidden for mobile and vice versa
+    expect(buttons).toHaveLength(2);
   });
   it('has current rate"', () => {
     const {getByTestId} = render(<App />);
@@ -68,3 +71,66 @@ describe('Layout', () => {
     expect(getByTestId('button-swap')).toBeInTheDocument();
   });
 });
+
+describe('Input change', () => {
+  const state = {
+    selectedFrom: {name: 'GBP', value: 51234},
+    selectedTo: {name: 'USD', value: 71234},
+    currentRate: 1.1,
+    pocketValueFrom: 51234,
+    pocketValueTo: 71234,
+    inputValueFrom: 0,
+    inputValueTo: 0,
+  };
+
+  let inputFrom, inputTo, pocketFrom, pocketTo, newValue;
+  const setup = () => {
+    const {getByTestId, store} = render(<App />, {...state});
+    inputFrom = getByTestId('input-from');
+    inputTo = getByTestId('input-to');
+    pocketFrom = getByTestId('pocket-from');
+    pocketTo = getByTestId('pocket-to');
+    newValue = '5000';
+    expect(inputFrom.value).toBe('');
+    expect(inputTo.value).toBe('');
+    expect(pocketFrom).toHaveTextContent(fPocket(state.pocketValueFrom));
+    expect(pocketTo).toHaveTextContent(fPocket(state.pocketValueTo));
+    return store;
+  };
+
+  test('on input FROM change - pdates input value FROM, input value TO, pocket value FROM, pocket value TO', () => {
+    const store = setup();
+    user.type(inputFrom, newValue);
+    // updates input FROM value
+    expect(inputFrom.value).toBe(store.getState().app.inputValueFrom + '');
+    // updates input TO value
+    expect(inputTo.value).toBe(store.getState().app.inputValueTo + '');
+    // updates pocket FROM value
+    expect(pocketFrom).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom));
+    // updates pocket TO value
+    expect(pocketTo).toHaveTextContent(fPocket(store.getState().app.pocketValueTo));
+  });
+
+  it('on input TO change - udates input value FROM, input value TO, pocket value FROM, pocket value TO', () => {
+    const store = setup();
+    user.type(inputTo, newValue);
+    // updates input FROM value
+    expect(inputFrom.value).toBe(store.getState().app.inputValueFrom + '');
+    // updates input TO value
+    expect(inputTo.value).toBe(store.getState().app.inputValueTo + '');
+    // updates pocket FROM value
+    expect(pocketFrom).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom));
+    // updates pocket TO value
+    expect(pocketTo).toHaveTextContent(fPocket(store.getState().app.pocketValueTo));
+  });
+});
+
+it('swaps currency FROM with currency TO', () => {});
+
+it('changes input value TO and pocket value TO when currency change', () => {});
+
+it('selects currency FROM', () => {});
+
+it('selects currency TO', () => {});
+
+it('search dropdown list for currencies', () => {});

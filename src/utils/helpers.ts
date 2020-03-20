@@ -1,5 +1,7 @@
 import {subDays, format} from 'date-fns';
 import {Currencies, Currency, DataPoints} from 'app/types';
+import numeral from 'numeral';
+
 type FomOrTo = 'From' | 'To';
 
 function numberBetween(min: number, max: number, precision = 100): number {
@@ -82,7 +84,10 @@ function getFiltered(array: Currencies, selectedFrom: Currency | null, selectedT
   return array.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name);
 }
 
+const fPocket = (value: number) => numeral(value).format('00,000.00');
+
 export {
+  fPocket,
   getFiltered,
   isValidInput,
   getPocketValue,

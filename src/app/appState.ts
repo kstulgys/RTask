@@ -58,7 +58,6 @@ const appReducer = createSlice({
       const {dataPoints, currentRate} = action.payload;
       state.currentRate = currentRate;
       state.dataPoints = dataPoints;
-
       state.error = null;
     },
     getCurrentRateFail(state) {
@@ -205,23 +204,23 @@ export const fetchDataPoints = (selectedFrom: string, selectedTo: string): AppTh
   }
 };
 
-export const updateSelectedTo = (): AppThunk => async dispatch => {
+export const updateSelectedTo = (): AppThunk => dispatch => {
   dispatch(handleStateUpdate());
 };
 
-export const onInputChangeFrom = (value: string): AppThunk => async dispatch => {
+export const onInputChangeFrom = (value: string): AppThunk => dispatch => {
   dispatch(handleInputChangeFrom(value));
 };
 
-export const onInputChangeTo = (value: string): AppThunk => async dispatch => {
+export const onInputChangeTo = (value: string): AppThunk => dispatch => {
   dispatch(handleInputChangeTo(value));
 };
 
-export const selectFrom = (selectedFrom: Currency): AppThunk => async dispatch => {
+export const selectFrom = (selectedFrom: Currency): AppThunk => dispatch => {
   dispatch(handleSelectFrom(selectedFrom));
 };
 
-export const selectTo = (selected: Currency): AppThunk => async dispatch => {
+export const selectTo = (selected: Currency): AppThunk => dispatch => {
   dispatch(handleSelectTo(selected));
 };
 

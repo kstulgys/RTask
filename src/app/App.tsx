@@ -17,11 +17,12 @@ import {
   fetchCurrencies,
   fetchCurrentRate,
   updateSelectedTo,
-  onInputChangeFrom,
-  onInputChangeTo,
   selectFrom,
   selectTo,
   fetchDataPoints,
+  submitValues,
+  onInputChangeFrom,
+  onInputChangeTo,
 } from 'app/appState';
 import {RootState} from 'app/store';
 import {useNotification} from 'utils/hooks';
@@ -43,6 +44,7 @@ export default function CurrencyExchange() {
   useNotification();
   useHandleUpdates();
   useCurrencyToUpdates();
+  const dispatch = useDispatch();
 
   const filtered = React.useMemo(() => getFiltered(currencies, selectedFrom, selectedTo), [
     currencies,
@@ -53,6 +55,22 @@ export default function CurrencyExchange() {
   if (isLoading) {
     return <Loader />;
   }
+
+  const handleSubmit = (): void => {
+    console.log('submit called');
+    if (!selectedFrom || !selectedTo) return;
+    const from = {name: selectedFrom.name, value: inputValueFrom};
+    const to = {name: selectedTo.name, value: inputValueTo};
+    dispatch(submitValues({selectedFrom: from, selectedTo: to}));
+  };
+
+  const handleChangeFrom = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    dispatch(onInputChangeFrom(e.target.value));
+  };
+
+  const handleChangeTo = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    dispatch(onInputChangeTo(e.target.value));
+  };
 
   return (
     <ContainerScreen>
@@ -72,10 +90,10 @@ export default function CurrencyExchange() {
                 autoFocus={true}
                 inputValue={inputValueFrom}
                 selected={selectedFrom}
-                handleChange={onInputChangeFrom}
+                handleChange={handleChangeFrom}
               />
               <Box display={['none', 'none', 'block']}>
-                <ButtonContinue text="Continue" />
+                <ButtonContinue text="Continue" handleSubmit={handleSubmit} />
               </Box>
             </ContainerInputs>
             <IconSwapInputs />
@@ -91,10 +109,10 @@ export default function CurrencyExchange() {
                 autoFocus={false}
                 inputValue={inputValueTo}
                 selected={selectedTo}
-                handleChange={onInputChangeTo}
+                handleChange={handleChangeTo}
               />
               <Box display={['block', 'block', 'none']} mb="12">
-                <ButtonContinue text="Continue" />
+                <ButtonContinue text="Continue" handleSubmit={handleSubmit} />
               </Box>
               <CurrencyMetadata />
             </ContainerInputs>

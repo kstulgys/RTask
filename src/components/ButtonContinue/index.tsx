@@ -3,23 +3,15 @@ import {Button} from '@chakra-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from 'app/store';
 import {submitValues} from 'app/appState';
+
 interface ButtonContinueProps {
   text: string;
+  handleSubmit: () => void;
   [key: string]: any;
 }
 
-export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Element {
-  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo, isSubmitting, canSubmit} = useSelector(
-    (state: RootState) => state.app,
-  );
-  const dispatch = useDispatch();
-
-  const handleSubmit = (): void => {
-    if (!selectedFrom || !selectedTo) return;
-    const from = {name: selectedFrom.name, value: inputValueFrom};
-    const to = {name: selectedTo.name, value: inputValueTo};
-    dispatch(submitValues({selectedFrom: from, selectedTo: to}));
-  };
+export function ButtonContinue({text, handleSubmit, ...props}: ButtonContinueProps): JSX.Element {
+  const {isSubmitting, canSubmit} = useSelector((state: RootState) => state.app);
 
   return (
     <Button

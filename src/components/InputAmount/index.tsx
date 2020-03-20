@@ -1,8 +1,9 @@
 import * as React from 'react';
 import {Box, Flex, Text, Input} from '@chakra-ui/core';
 import {SYMBOLS} from './symbols';
-import {useDispatch} from 'react-redux';
+// import {useDispatch} from 'react-redux';
 import {Currency} from 'app/types';
+import {isInteger} from 'lodash';
 
 interface InputAmountProps {
   [key: string]: any;
@@ -14,11 +15,6 @@ interface InputAmountProps {
 
 export function InputAmount(props: InputAmountProps): JSX.Element {
   const {handleChange, selected, inputValue, autoFocus, ...rest} = props;
-  const dispatch = useDispatch();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    dispatch(handleChange(e.target.value));
-  };
 
   return (
     <Flex alignItems="baseline" my={[6, 12, 16]} {...rest}>
@@ -27,11 +23,12 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
           {selected && SYMBOLS[selected.name].symbol_native}
         </Text>
       </Box>
+
       <Input
         data-testid={autoFocus ? 'input-from' : 'input-to'}
         autoFocus={autoFocus}
-        onChange={handleInputChange}
-        value={inputValue ? inputValue : ''}
+        onChange={handleChange}
+        value={!!inputValue ? inputValue : ''}
         type="number"
         pl="0"
         px={[0]}

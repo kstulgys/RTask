@@ -5,9 +5,6 @@ import '@testing-library/jest-dom/extend-expect';
 import user from '@testing-library/user-event';
 
 beforeEach(cleanup);
-beforeEach(() => {
-  jest.clearAllMocks();
-});
 
 describe('Dropdown', () => {
   const props = {

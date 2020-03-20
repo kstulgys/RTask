@@ -5,8 +5,7 @@ import BorderAnimated from './BorderAnimated';
 import SearchCurrencyInput from './SearchCurrencyInput';
 import CurrencyItem from './CurrencyItem';
 import {useOnClickOutside} from 'utils/hooks';
-import {filterList} from 'utils/helpers';
-import numeral from 'numeral';
+import {filterList, fPocket} from 'utils/helpers';
 import {useSelector, useDispatch} from 'react-redux';
 import {Currency, Currencies} from 'app/types';
 
@@ -62,7 +61,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
             <Text fontWeight="medium">{selected?.name}</Text>
             <Flex ml="auto" alignItems="center">
               <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLowerCase()}`}>
-                {numeral(pocketValue).format('00,000.00')}
+                {fPocket(pocketValue)}
               </Text>
               <Box ml="2" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
             </Flex>

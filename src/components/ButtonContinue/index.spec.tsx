@@ -5,44 +5,37 @@ import '@testing-library/jest-dom/extend-expect';
 import user from '@testing-library/user-event';
 
 beforeEach(cleanup);
-beforeEach(() => {
-  jest.clearAllMocks();
-});
 
-it('renders is in the DOM', () => {
-  const buttonProps = {
-    text: 'Continue',
-  };
-  const {getByText} = render(<ButtonContinue {...buttonProps} />);
-  expect(getByText('Continue')).toBeInTheDocument();
-});
+const handleSubmit = jest.fn();
+const buttonProps = {
+  text: 'Continue',
+  handleSubmit,
+};
+
+const setup = (state = {}) => {
+  const {getByText} = render(<ButtonContinue {...buttonProps} />, {...state});
+  return getByText('Continue');
+};
 
 it('button is disabled', () => {
-  const buttonProps = {
-    text: 'Continue',
-  };
-  const {getByText, debug} = render(<ButtonContinue {...buttonProps} />);
-  debug();
-  const button = getByText('Continue');
+  const button = setup();
   expect(button.disabled).toBeTruthy();
 });
 
 it('button is enabled', () => {
-  const buttonProps = {
-    text: 'Continue',
-  };
-  const {getByText, debug} = render(<ButtonContinue {...buttonProps} />, {canSubmit: true});
-  debug();
-  const button = getByText('Continue');
+  // setup({state: {canSubmit: true}});
+  const button = setup({canSubmit: true});
   expect(button.disabled).toBeFalsy();
 });
 
-it('submitValues is called', () => {
-  const buttonProps = {
-    text: 'Continue',
-  };
-  const {getByText, debug} = render(<ButtonContinue {...buttonProps} />, {canSubmit: true});
-  debug();
-  const button = getByText('Continue');
+it('handleSubmit is not called', () => {
+  const button = setup({canSubmit: false});
   user.click(button);
+  expect(handleSubmit).toBeCalledTimes(0);
+});
+
+it('handleSubmit is called', () => {
+  const button = setup({canSubmit: true});
+  user.click(button);
+  expect(handleSubmit).toBeCalledTimes(1);
 });
