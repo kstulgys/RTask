@@ -12,7 +12,13 @@ git clone ...repo
 
 ### Installing
 
-intall dependencies
+You net to have netlify-cli installed globally
+
+```
+npm install netlify-cli -g
+```
+
+Intall dependencies
 
 ```
 yarn or npm i
@@ -21,7 +27,7 @@ yarn or npm i
 start project
 
 ```
-yarn start or npm start
+yarn dev or npm dev
 ```
 
 ## Running the tests
