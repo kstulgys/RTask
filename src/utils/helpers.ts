@@ -77,7 +77,8 @@ function isValidInput(value: string) {
   const isNumber = typeof value === 'string' && typeof +value === 'number' && isFinite(+value);
   const exceedsDecimalPlace = value[value.length - 4] === '.' || value[value.length - 4] === ',';
   const isPositive = +value >= 0;
-  return !exceedsDecimalPlace && isNumber && isPositive;
+  const isFirstZero = value.length === 2 && value[0] === '0';
+  return !exceedsDecimalPlace && isNumber && isPositive && !isFirstZero;
 }
 
 function getFiltered(array: Currencies, selectedFrom: Currency | null, selectedTo: Currency | null) {
@@ -86,7 +87,27 @@ function getFiltered(array: Currencies, selectedFrom: Currency | null, selectedT
 
 const fPocket = (value: number) => numeral(value).format('00,000.00');
 
+function getCurrenciesFromStorage(): any {
+  const result = window.localStorage.getItem('currencies');
+  if (!result) return {currencyFrom: null, currencyTo: null};
+  const {currencyFrom, currencyTo} = JSON.parse(result);
+  return {currencyFrom, currencyTo};
+}
+const getInputValueTo = (inputValueFrom: string, currentRate: number) => {
+  return !inputValueFrom ? '' : (+inputValueFrom * currentRate).toFixed(2);
+};
+const getInputValueFrom = (inputValueTo: string, currentRate: number) => (+inputValueTo / currentRate).toFixed(2);
+const getPocketValueTo = (selectedToValue: number, inputValueTo: string) =>
+  +(selectedToValue + +inputValueTo).toFixed(2);
+const getPocketValueFrom = (selectedValueFrom: number, inputValueTo: string) =>
+  +(selectedValueFrom - +inputValueTo).toFixed(2);
+
 export {
+  getInputValueTo,
+  getInputValueFrom,
+  getPocketValueTo,
+  getPocketValueFrom,
+  getCurrenciesFromStorage,
   fPocket,
   getFiltered,
   isValidInput,

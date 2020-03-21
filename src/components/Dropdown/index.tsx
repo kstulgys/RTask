@@ -51,7 +51,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
   return (
     <Box {...rest}>
       <Box>
-        <Text mb="2" fontWeight="bold" color="revo.gray" fontSize="xs">
+        <Text data-testid={`selected-${label.toLowerCase()}`} mb="2" fontWeight="bold" color="revo.gray" fontSize="xs">
           {label}
         </Text>
       </Box>
@@ -70,7 +70,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
         </Box>
         {open && (
           <Box
-            data-testid="dropdown-list"
+            data-testid={`dropdown-list-${label.toLowerCase()}`}
             as="ul"
             ref={ref}
             zIndex={9999}

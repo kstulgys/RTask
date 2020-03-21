@@ -57,14 +57,14 @@ export default function CurrencyExchange() {
   }
 
   const handleSubmit = (): void => {
-    console.log('submit called');
     if (!selectedFrom || !selectedTo) return;
-    const from = {name: selectedFrom.name, value: inputValueFrom};
-    const to = {name: selectedTo.name, value: inputValueTo};
+    const from = {name: selectedFrom.name, value: +inputValueFrom};
+    const to = {name: selectedTo.name, value: +inputValueTo};
     dispatch(submitValues({selectedFrom: from, selectedTo: to}));
   };
 
   const handleChangeFrom = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    console.log(e);
     dispatch(onInputChangeFrom(e.target.value));
   };
 

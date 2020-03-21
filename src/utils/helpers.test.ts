@@ -6,6 +6,10 @@ import {
   isValidInput,
   formatHistoryData,
   getTimestamp,
+  getInputValueTo,
+  getInputValueFrom,
+  getPocketValueTo,
+  getPocketValueFrom,
   getEndAtDay,
   getStartAtDay,
   getFiltered,
@@ -85,5 +89,22 @@ describe('formatHistoryData and getTimestamp', () => {
       {x: getTimestamp('12-01-2013'), y: 1.1},
     ];
     expect(formatHistoryData({data, selectedTo})).toEqual(expected);
+  });
+
+  test('getInputValueTo', () => {
+    const result = getInputValueTo('100.12', 1.1234);
+    expect(result).toBe('112.47');
+  });
+  test('getInputValueFrom', () => {
+    const result = getInputValueFrom('100.12', 1.1234);
+    expect(result).toBe('89.12');
+  });
+  test('getPocketValueTo', () => {
+    const result = getPocketValueTo(100.12, '100.12');
+    expect(result).toBe(200.24);
+  });
+  test('getPocketValueFrom', () => {
+    const result = getPocketValueFrom(100.12, '100.12');
+    expect(result).toBe(0);
   });
 });

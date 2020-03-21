@@ -20,7 +20,7 @@ async function getCurrencies(): Promise<Currencies> {
     }
   });
 
-  return formatted.sort((a, b) => b.value - a.value);
+  return formatted.sort((a, b) => +b.value - +a.value);
 }
 
 async function getMyPockets(): Promise<{[key: string]: number}> {

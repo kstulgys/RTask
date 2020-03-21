@@ -1,13 +1,22 @@
 import * as React from 'react';
-import {Box, Flex, Text, Input} from '@chakra-ui/core';
+import {
+  Box,
+  Flex,
+  Text,
+  Input,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+} from '@chakra-ui/core';
 import {SYMBOLS} from './symbols';
 // import {useDispatch} from 'react-redux';
 import {Currency} from 'app/types';
-import {isInteger} from 'lodash';
 
 interface InputAmountProps {
   [key: string]: any;
-  inputValue: number;
+  inputValue: number | string;
   selected: Currency | null;
   autoFocus: boolean;
   handleChange: any;
@@ -23,28 +32,29 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
           {selected && SYMBOLS[selected.name].symbol_native}
         </Text>
       </Box>
-
-      <Input
-        data-testid={autoFocus ? 'input-from' : 'input-to'}
-        autoFocus={autoFocus}
-        onChange={handleChange}
-        value={!!inputValue ? inputValue : ''}
-        type="number"
-        pl="0"
-        px={[0]}
-        zIndex={1}
-        border="none"
-        height="110px"
-        fontSize={[80, 110]}
-        fontWeight="lighter"
-        placeholder="0"
-        _focus={{
-          boxShadow: 'none',
-        }}
-        _placeholder={{
-          color: 'revo.lightGray',
-        }}
-      />
+      <NumberInput>
+        <NumberInputField
+          data-testid={autoFocus ? 'input-from' : 'input-to'}
+          autoFocus={autoFocus}
+          onChange={handleChange}
+          value={!!inputValue ? +inputValue : ''}
+          type="number"
+          pl="0"
+          px={[0]}
+          zIndex={1}
+          border="none"
+          height="110px"
+          fontSize={[80, 110]}
+          fontWeight="lighter"
+          placeholder="0"
+          _focus={{
+            boxShadow: 'none',
+          }}
+          _placeholder={{
+            color: 'revo.lightGray',
+          }}
+        />
+      </NumberInput>
     </Flex>
   );
 }

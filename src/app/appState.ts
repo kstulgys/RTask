@@ -3,7 +3,16 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AppThunk} from 'app/store';
 import {getCurrencies, getCurrentRate, getDataPoints, updatePockets, UpdatePocketsProps} from 'api/currenciesAPI';
-import {getSelected, getCanSubmit, isValidInput} from 'utils/helpers';
+import {
+  getSelected,
+  getCanSubmit,
+  isValidInput,
+  getCurrenciesFromStorage,
+  getInputValueTo,
+  getInputValueFrom,
+  getPocketValueTo,
+  getPocketValueFrom,
+} from 'utils/helpers';
 import {Currencies, CurrencyState, Currency, DataPoints} from 'app/types';
 
 export const initialState: CurrencyState = {
@@ -17,8 +26,8 @@ export const initialState: CurrencyState = {
   currencies: [],
   dataPoints: [],
   currentRate: null,
-  inputValueFrom: 0,
-  inputValueTo: 0,
+  inputValueFrom: '',
+  inputValueTo: '',
   error: null,
   timesSubmitted: 0,
 };
@@ -46,14 +55,19 @@ const appReducer = createSlice({
       state.dataPoints = dataPoints;
       state.isLoading = false;
       state.error = null;
-      state.pocketValueFrom = selectedFrom.value;
-      state.pocketValueTo = selectedTo.value;
+      state.pocketValueFrom = +selectedFrom.value;
+      state.pocketValueTo = +selectedTo.value;
+      state.inputValueFrom = '';
+      state.inputValueTo = '';
     },
     getCurrenciesFail(state) {
       state.isLoading = false;
       state.error = {message: `Something went wrong.`, type: 'warning'};
     },
     // get current rate
+    getCurrentRateStart(state) {
+      state.currentRate = null;
+    },
     getCurrentRateSuccess(state, action: PayloadAction<{currentRate: number; dataPoints: DataPoints}>) {
       const {dataPoints, currentRate} = action.payload;
       state.currentRate = currentRate;
@@ -77,27 +91,25 @@ const appReducer = createSlice({
     // handle update
     handleStateUpdate(state) {
       if (!state.selectedTo || !state.currentRate) return;
-      state.inputValueTo = +(state.inputValueFrom * state.currentRate).toFixed(2);
-      state.pocketValueTo = +(state.selectedTo.value + state.inputValueTo).toFixed(2);
+      state.inputValueTo = getInputValueTo(state.inputValueFrom, state.currentRate);
+      state.pocketValueTo = getPocketValueTo(state.selectedTo.value, state.inputValueTo);
     },
     // handle change
     handleInputChangeFrom(state, action: PayloadAction<string>) {
       if (!state.selectedFrom || !state.selectedTo || !state.currentRate || !isValidInput(action.payload)) return;
-      const input = +action.payload;
-      state.inputValueFrom = input;
-      state.inputValueTo = +(state.inputValueFrom * state.currentRate).toFixed(2);
-      state.pocketValueFrom = +(state.selectedFrom.value - input).toFixed(2);
-      state.pocketValueTo = +(state.selectedTo.value + state.inputValueTo).toFixed(2);
-      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: state.inputValueFrom});
+      state.inputValueTo = getInputValueTo(action.payload, state.currentRate);
+      state.pocketValueFrom = getPocketValueFrom(state.selectedFrom.value, action.payload);
+      state.pocketValueTo = getPocketValueTo(state.selectedTo.value, state.inputValueTo);
+      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: +action.payload});
+      state.inputValueFrom = action.payload;
     },
     handleInputChangeTo(state, action: PayloadAction<string>) {
       if (!state.selectedTo || !state.selectedFrom || !state.currentRate || !isValidInput(action.payload)) return;
-      const input = +action.payload;
-      state.inputValueTo = input;
-      state.inputValueFrom = +(state.inputValueTo / state.currentRate).toFixed(2);
-      state.pocketValueTo = +(state.selectedTo.value + input).toFixed(2);
-      state.pocketValueFrom = +(state.selectedFrom.value - state.inputValueFrom).toFixed(2);
-      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: state.inputValueFrom});
+      state.inputValueTo = action.payload;
+      state.inputValueFrom = getInputValueFrom(state.inputValueTo, state.currentRate);
+      state.pocketValueTo = getPocketValueTo(state.selectedTo.value, action.payload);
+      state.pocketValueFrom = getPocketValueFrom(state.selectedFrom.value, state.inputValueFrom);
+      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: +state.inputValueFrom});
     },
     // handle swap
     handleCurrenciesSwapp(state, action: PayloadAction<number>) {
@@ -107,22 +119,22 @@ const appReducer = createSlice({
       state.selectedTo = selectedTo;
       state.selectedFrom = selectedFrom;
       state.inputValueFrom = state.inputValueTo;
-      state.pocketValueFrom = +(state.selectedFrom.value - state.inputValueTo).toFixed(2);
+      state.pocketValueFrom = getPocketValueFrom(state.selectedFrom.value, state.inputValueFrom);
       state.currentRate = action.payload;
-      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: state.inputValueFrom});
+      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: +state.inputValueFrom});
     },
     handleSelectFrom(state, action: PayloadAction<Currency>) {
       if (!state.selectedTo) return;
       state.selectedFrom = action.payload;
-      state.pocketValueFrom = +(state.selectedFrom.value - state.inputValueFrom).toFixed(2);
+      state.pocketValueFrom = getPocketValueFrom(state.selectedFrom.value, state.inputValueFrom);
       state.canSubmit = getCanSubmit({
         pocketValueFrom: state.pocketValueFrom,
-        inputValueFrom: state.inputValueFrom,
+        inputValueFrom: +state.inputValueFrom,
       });
     },
     handleSelectTo(state, action: PayloadAction<Currency>) {
       state.selectedTo = action.payload;
-      state.pocketValueTo = +(state.selectedTo.value - state.inputValueTo).toFixed(2);
+      state.pocketValueTo = getPocketValueTo(state.selectedTo.value, state.inputValueTo);
     },
     // handle submit
     handleCurrenciesSubmitStart(state) {
@@ -133,8 +145,6 @@ const appReducer = createSlice({
       state.error = {message: `Success.`, type: 'success'};
       state.timesSubmitted = state.timesSubmitted + 1;
       state.isSubmitting = false;
-      state.inputValueFrom = 0;
-      state.inputValueTo = 0;
       state.canSubmit = false;
     },
     handleCurrenciesSubmitFail(state) {
@@ -248,10 +258,3 @@ export const submitValues = ({selectedFrom, selectedTo}: UpdatePocketsProps): Ap
     dispatch(handleCurrenciesSubmitFail());
   }
 };
-
-function getCurrenciesFromStorage(): any {
-  const result = window.localStorage.getItem('currencies');
-  if (!result) return {currencyFrom: null, currencyTo: null};
-  const {currencyFrom, currencyTo} = JSON.parse(result);
-  return {currencyFrom, currencyTo};
-}

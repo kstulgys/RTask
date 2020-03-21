@@ -9,8 +9,10 @@ import '@testing-library/jest-dom/extend-expect';
 import {rootReducer} from 'app/store';
 
 const currencies = [
-  {name: 'GBP', value: 20000.99},
-  {name: 'USD', value: 10000.33},
+  {name: 'GBP', value: 10000.99},
+  {name: 'USD', value: 20000.33},
+  {name: 'AUD', value: 30000.99},
+  {name: 'LTU', value: 40000.33},
 ];
 const preloadedState = {
   isLoading: false,

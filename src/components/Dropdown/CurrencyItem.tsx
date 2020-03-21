@@ -14,6 +14,7 @@ export default function CurrencyItem({handleSelect, handleOnKeySelect, item}: Cu
   return (
     <Box as="li" my="1">
       <Button
+        data-testid={`item-${item.name}`}
         height="12"
         py="auto"
         px="8"

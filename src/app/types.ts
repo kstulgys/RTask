@@ -16,8 +16,8 @@ export type CurrencyState = {
   currencies: Currencies;
   dataPoints: DataPoints;
   currentRate: number | null;
-  inputValueFrom: number;
-  inputValueTo: number;
+  inputValueFrom: string;
+  inputValueTo: string;
   error: Error;
   timesSubmitted: number;
 };

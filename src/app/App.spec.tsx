@@ -1,6 +1,6 @@
 import * as React from 'react';
 import App from 'app/App';
-import {render, cleanup, fireEvent} from 'utils/testing';
+import {render, cleanup, fireEvent, act, wait, waitForElement, queryByTestId} from 'utils/testing';
 import user from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import {filterList, fPocket} from 'utils/helpers';
@@ -8,9 +8,6 @@ import {getCurrenciesSuccess, initialState} from 'app/appState';
 import {getCurrencies} from 'api/currenciesAPI';
 
 beforeEach(cleanup);
-beforeEach(() => {
-  jest.clearAllMocks();
-});
 
 describe('Layout', () => {
   it('has loader visible', async () => {
@@ -61,7 +58,7 @@ describe('Layout', () => {
     expect(getByTestId('current-rate')).toBeInTheDocument();
   });
 
-  it('has current change"', () => {
+  it('has current change"', async () => {
     const {getByTestId} = render(<App />);
     expect(getByTestId('current-change')).toBeInTheDocument();
   });
@@ -79,8 +76,8 @@ describe('Input change', () => {
     currentRate: 1.1,
     pocketValueFrom: 51234,
     pocketValueTo: 71234,
-    inputValueFrom: 0,
-    inputValueTo: 0,
+    inputValueFrom: '',
+    inputValueTo: '',
   };
 
   let inputFrom, inputTo, pocketFrom, pocketTo, newValue;
@@ -90,7 +87,7 @@ describe('Input change', () => {
     inputTo = getByTestId('input-to');
     pocketFrom = getByTestId('pocket-from');
     pocketTo = getByTestId('pocket-to');
-    newValue = '5000';
+    newValue = '5000.43';
     expect(inputFrom.value).toBe('');
     expect(inputTo.value).toBe('');
     expect(pocketFrom).toHaveTextContent(fPocket(state.pocketValueFrom));
@@ -102,9 +99,9 @@ describe('Input change', () => {
     const store = setup();
     user.type(inputFrom, newValue);
     // updates input FROM value
-    expect(inputFrom.value).toBe(store.getState().app.inputValueFrom + '');
+    expect(inputFrom.value).toBe(store.getState().app.inputValueFrom);
     // updates input TO value
-    expect(inputTo.value).toBe(store.getState().app.inputValueTo + '');
+    expect(inputTo.value).toBe(store.getState().app.inputValueTo);
     // updates pocket FROM value
     expect(pocketFrom).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom));
     // updates pocket TO value
@@ -115,9 +112,9 @@ describe('Input change', () => {
     const store = setup();
     user.type(inputTo, newValue);
     // updates input FROM value
-    expect(inputFrom.value).toBe(store.getState().app.inputValueFrom + '');
+    expect(inputFrom.value).toBe(store.getState().app.inputValueFrom);
     // updates input TO value
-    expect(inputTo.value).toBe(store.getState().app.inputValueTo + '');
+    expect(inputTo.value).toBe(store.getState().app.inputValueTo);
     // updates pocket FROM value
     expect(pocketFrom).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom));
     // updates pocket TO value
@@ -125,12 +122,58 @@ describe('Input change', () => {
   });
 });
 
+const currencies = [
+  {name: 'GBP', value: 10000.99},
+  {name: 'USD', value: 20000.33},
+  {name: 'AUD', value: 30000.99},
+  {name: 'LTU', value: 40000.33},
+];
+describe('select currency', () => {
+  const props = {
+    pocketValueFrom: currencies[0].value,
+    pocketValueTo: currencies[1].value,
+    selectedFrom: currencies[0],
+    selectedTo: currencies[1],
+    currencies: currencies,
+  };
+  test('select currency FROM', () => {
+    const {getByTestId, queryByTestId, debug, store} = render(<App />, {...props});
+    const dropdownList = queryByTestId('dropdown-list-from');
+    expect(dropdownList).toBeNull();
+    const dropdownDiv = getByTestId('dropdown-from');
+    user.click(dropdownDiv);
+    expect(getByTestId('dropdown-list-from')).toBeInTheDocument();
+    const listItem = getByTestId('item-AUD');
+    debug();
+    user.click(listItem);
+    // store has expected state
+    expect(dropdownDiv).toHaveTextContent(store.getState().app.selectedFrom!.name);
+    expect(getByTestId('pocket-from')).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom));
+    // renders expected UI
+    expect(store.getState().app.selectedFrom!.name).toBe(currencies[2].name);
+    expect(store.getState().app.pocketValueFrom).toBe(currencies[2].value);
+  });
+
+  test('select currency TO', () => {
+    const {getByTestId, queryByTestId, store} = render(<App />, {...props});
+    const dropdownList = queryByTestId('dropdown-list-to');
+    expect(dropdownList).toBeNull();
+    const dropdownDiv = getByTestId('dropdown-to');
+    user.click(dropdownDiv);
+    expect(getByTestId('dropdown-list-to')).toBeInTheDocument();
+    const listItem = getByTestId('item-AUD');
+    user.click(listItem);
+    // store has expected state
+    expect(dropdownDiv).toHaveTextContent(store.getState().app.selectedTo!.name);
+    expect(getByTestId('pocket-to')).toHaveTextContent(fPocket(store.getState().app.pocketValueTo));
+    // renders expected UI
+    expect(store.getState().app.selectedTo!.name).toBe(currencies[2].name);
+    expect(store.getState().app.pocketValueTo).toBe(currencies[2].value);
+  });
+});
+
 it('swaps currency FROM with currency TO', () => {});
 
 it('changes input value TO and pocket value TO when currency change', () => {});
-
-it('selects currency FROM', () => {});
-
-it('selects currency TO', () => {});
 
 it('search dropdown list for currencies', () => {});
