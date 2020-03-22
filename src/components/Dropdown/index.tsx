@@ -5,9 +5,10 @@ import BorderAnimated from './BorderAnimated';
 import SearchCurrencyInput from './SearchCurrencyInput';
 import CurrencyItem from './CurrencyItem';
 import {useOnClickOutside} from 'utils/hooks';
-import {filterList, fPocket} from 'utils/helpers';
+import {filterList, fPocket, getFiltered} from 'utils/helpers';
 import {useSelector, useDispatch} from 'react-redux';
 import {Currency, Currencies} from 'app/types';
+import {RootState} from 'app/store';
 
 interface DropdownProps {
   label: string;
@@ -19,12 +20,17 @@ interface DropdownProps {
 }
 
 export function Dropdown(props: DropdownProps): JSX.Element {
-  const {label, selected, pocketValue, currencies, selectCurrency, ...rest} = props;
+  const {label, selected, pocketValue, selectCurrency, ...rest} = props;
+  const {selectedFrom, selectedTo, currencies} = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState<boolean>(false);
-  const [filtered, setFiltered] = React.useState<Currencies>(currencies);
+  const filteredCurrenciesOnChange = React.useMemo(() => getFiltered(currencies, selectedFrom, selectedTo), [
+    currencies,
+    selectedFrom,
+    selectedTo,
+  ]);
+  const [filtered, setFiltered] = React.useState<Currencies>(filteredCurrenciesOnChange);
   const [searchTerm, setSearchTerm] = React.useState<string>('');
-
   const ref = React.useRef();
   useOnClickOutside(ref, () => setOpen(false));
   const {colorMode} = useColorMode();
@@ -32,6 +38,16 @@ export function Dropdown(props: DropdownProps): JSX.Element {
     light: 'revo.gray',
     dark: 'revo.lightGray',
   };
+
+  const bg = {
+    light: 'white',
+    dark: 'gray.800',
+  };
+
+  React.useEffect(() => {
+    setFiltered(filteredCurrenciesOnChange);
+    setSearchTerm('');
+  }, [filteredCurrenciesOnChange]);
 
   const toggleOpen = (): void => setOpen(!open);
 
@@ -47,16 +63,16 @@ export function Dropdown(props: DropdownProps): JSX.Element {
 
   const handleSearch = (searchTerm: string) => {
     if (searchTerm) {
-      const filtered = filterList(searchTerm, currencies);
+      const filtered = filterList(searchTerm, filteredCurrenciesOnChange);
       setFiltered(filtered);
       setSearchTerm(searchTerm);
     } else {
-      setFiltered(currencies);
-      setSearchTerm(searchTerm);
+      setFiltered(filteredCurrenciesOnChange);
+      setSearchTerm('');
     }
   };
 
-  const pocketValueColor = Math.sign(pocketValue) === -1 ? 'revo.red' : 'revo.gray';
+  const pocketValueColor = Math.sign(pocketValue) === -1 ? 'red.400' : 'revo.gray';
 
   return (
     <Box {...rest}>
@@ -81,7 +97,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
               <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLowerCase()}`}>
                 {fPocket(pocketValue)}
               </Text>
-              <Box ml="2" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
+              <Box ml="2" size="20px" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
             </Flex>
           </Flex>
           <BorderAnimated open={open} />
@@ -98,7 +114,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
             listStyleType="none"
             boxShadow="2xl"
             width="full"
-            bg="white"
+            bg={bg[colorMode]}
             borderRadius="sm"
             height="315px"
             overflowY="scroll"

@@ -10,7 +10,7 @@ function Header({text}: {text: string}): JSX.Element {
     dark: 'revo.lightGray',
   };
   return (
-    <Box mx="auto" textAlign="center" my="20">
+    <Box mx="auto" textAlign="center" my={[10, 20]}>
       <Text as="h1" fontSize="2xl" color={color[colorMode]}>
         {text}
       </Text>

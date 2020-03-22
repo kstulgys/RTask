@@ -67,7 +67,6 @@ function isValidInput(value: string) {
 
 function getFiltered(array: Currencies, selectedFrom: Currency | undefined, selectedTo: Currency | undefined) {
   if (!selectedFrom || !selectedTo || !array.length) return [];
-  console.log(selectedFrom.name, selectedTo.name);
   return array.filter(c => c.name !== selectedFrom.name && c.name !== selectedTo.name);
 }
 

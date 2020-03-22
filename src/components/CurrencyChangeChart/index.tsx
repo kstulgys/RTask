@@ -1,9 +1,10 @@
+/* eslint-disable react/display-name */
 import * as React from 'react';
 import {Text, Flex} from '@chakra-ui/core';
 import {LineSeries, FlexibleWidthXYPlot, Hint} from 'react-vis';
 import '../../..//node_modules/react-vis/dist/style.css';
 
-export function CurrencyChangeChart({data, ...props}: any): JSX.Element {
+function Chart({data, ...props}: any): JSX.Element {
   const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null);
   return (
     <Flex {...props} height="175px" ml="-30px" my="16">
@@ -17,12 +18,19 @@ export function CurrencyChangeChart({data, ...props}: any): JSX.Element {
             setHoveredNode(value);
           }}
         />
-        {hoveredNode && (
-          <Hint value={hoveredNode}>
-            <Text color="gray.400">{hoveredNode.y.toFixed(4)}</Text>
-          </Hint>
-        )}
+        <Node hoveredNode={hoveredNode} />
       </FlexibleWidthXYPlot>
     </Flex>
   );
 }
+
+const Node = React.memo(
+  ({hoveredNode}: any) =>
+    hoveredNode && (
+      <Hint value={hoveredNode}>
+        <Text color="gray.400">{hoveredNode.y.toFixed(4)}</Text>
+      </Hint>
+    ),
+);
+
+export const CurrencyChangeChart = React.memo(Chart);
