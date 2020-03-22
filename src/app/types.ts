@@ -11,11 +11,11 @@ export type CurrencyState = {
   pocketValueTo: number;
   canSubmit: boolean;
   isLoading: boolean;
-  selectedFrom: Currency | null;
-  selectedTo: Currency | null;
+  selectedFrom: Currency | undefined;
+  selectedTo: Currency | undefined;
   currencies: Currencies;
   dataPoints: DataPoints;
-  currentRate: number | null;
+  currentRate: number | undefined;
   inputValueFrom: string;
   inputValueTo: string;
   error: Error;

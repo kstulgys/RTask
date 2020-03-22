@@ -21,11 +21,11 @@ export const initialState: CurrencyState = {
   pocketValueFrom: 0,
   pocketValueTo: 0,
   canSubmit: false,
-  selectedFrom: null,
-  selectedTo: null,
+  selectedFrom: undefined,
+  selectedTo: undefined,
   currencies: [],
   dataPoints: [],
-  currentRate: null,
+  currentRate: undefined,
   inputValueFrom: '',
   inputValueTo: '',
   error: null,
@@ -66,7 +66,7 @@ const appReducer = createSlice({
     },
     // get current rate
     getCurrentRateStart(state) {
-      state.currentRate = null;
+      state.currentRate = undefined;
     },
     getCurrentRateSuccess(state, action: PayloadAction<{currentRate: number; dataPoints: DataPoints}>) {
       const {dataPoints, currentRate} = action.payload;
@@ -76,7 +76,7 @@ const appReducer = createSlice({
     },
     getCurrentRateFail(state) {
       if (!state.selectedTo) return;
-      state.currentRate = null;
+      state.currentRate = undefined;
       state.error = {message: `Could not get ${state.selectedTo.name} current rate.`, type: 'warning'};
     },
     // get data points

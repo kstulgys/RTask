@@ -1,8 +1,8 @@
+/* eslint-disable react/display-name */
 import * as React from 'react';
-import {Button} from '@chakra-ui/core';
-import {useSelector, useDispatch} from 'react-redux';
+import {Button as BaseButton} from '@chakra-ui/core';
+import {useSelector} from 'react-redux';
 import {RootState} from 'app/store';
-import {submitValues} from 'app/appState';
 
 interface ButtonContinueProps {
   text: string;
@@ -14,7 +14,7 @@ export function ButtonContinue({text, handleSubmit, ...props}: ButtonContinuePro
   const {isSubmitting, canSubmit} = useSelector((state: RootState) => state.app);
 
   return (
-    <Button
+    <BaseButton
       className="submit-test"
       isLoading={isSubmitting}
       isDisabled={!canSubmit}
@@ -30,6 +30,6 @@ export function ButtonContinue({text, handleSubmit, ...props}: ButtonContinuePro
       {...props}
     >
       {text}
-    </Button>
+    </BaseButton>
   );
 }

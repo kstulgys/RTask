@@ -1,7 +1,5 @@
 import {
   getSelected,
-  getPocketValue,
-  getInputValue,
   getCanSubmit,
   isValidInput,
   formatHistoryData,
@@ -13,7 +11,6 @@ import {
   getEndAtDay,
   getStartAtDay,
   getFiltered,
-  randomNumber,
   waait,
 } from 'utils/helpers';
 import '@testing-library/jest-dom/extend-expect';
@@ -35,30 +32,10 @@ test('getCanSubmit', () => {
   expect(getCanSubmit({pocketValueFrom: -10000, inputValueFrom: 5000})).toBeFalsy();
 });
 
-test('getPocketValue', () => {
-  expect(getPocketValue('From', 2000, 1000)).toBe(1000);
-  expect(getPocketValue('From', -2000, 1000)).toBe(-3000);
-  expect(getPocketValue('To', 2000, 1000)).toBe(3000);
-  expect(getPocketValue('To', -2000, 1000)).toBe(-1000);
-});
-
-test('getInputValue', () => {
-  const currentRate = 1.145;
-  const result1 = getInputValue('From', currentRate, '1000.33');
-  const result2 = getInputValue('From', currentRate, 1000.33);
-  expect(result1).toEqual(result2);
-
-  const result3 = getInputValue('To', currentRate, '1000.33');
-  const result4 = getInputValue('To', currentRate, 1000.33);
-  expect(result3).toEqual(result4);
-});
-
 test('getCanSubmit', () => {
-  expect(isValidInput(-1234)).toBeFalsy();
-  expect(isValidInput(-1234.123)).toBeFalsy();
-  expect(isValidInput(1234.123)).toBeFalsy();
-  expect(isValidInput(Infinity)).toBeFalsy();
-  expect(isValidInput(-Infinity)).toBeFalsy();
+  expect(isValidInput('-1234')).toBeFalsy();
+  expect(isValidInput('-1234.123')).toBeFalsy();
+  expect(isValidInput('1234.123')).toBeFalsy();
   expect(isValidInput('1234.123')).toBeFalsy();
   expect(isValidInput('Infinity')).toBeFalsy();
   expect(isValidInput('-1234.123')).toBeFalsy();
@@ -68,12 +45,6 @@ test('getCanSubmit', () => {
 });
 
 describe('formatHistoryData and getTimestamp', () => {
-  test('empty', () => {
-    const data = {rates: {}};
-    const selectedTo = [];
-    expect(formatHistoryData({data, selectedTo})).toEqual([]);
-  });
-
   test('not empty', () => {
     const data = {
       rates: {

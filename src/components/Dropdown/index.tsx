@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Box, Flex, Text} from '@chakra-ui/core';
+import {Box, Flex, Text, useColorMode} from '@chakra-ui/core';
 import {FiChevronDown, FiChevronUp} from 'react-icons/fi';
 import BorderAnimated from './BorderAnimated';
 import SearchCurrencyInput from './SearchCurrencyInput';
@@ -11,7 +11,7 @@ import {Currency, Currencies} from 'app/types';
 
 interface DropdownProps {
   label: string;
-  selected: Currency | null;
+  selected: Currency | undefined;
   pocketValue: number;
   currencies: Currencies;
   selectCurrency: (currency: Currency) => void;
@@ -23,8 +23,16 @@ export function Dropdown(props: DropdownProps): JSX.Element {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState<boolean>(false);
   const [filtered, setFiltered] = React.useState<Currencies>(currencies);
+  const [searchTerm, setSearchTerm] = React.useState<string>('');
+
   const ref = React.useRef();
   useOnClickOutside(ref, () => setOpen(false));
+  const {colorMode} = useColorMode();
+  const color = {
+    light: 'revo.gray',
+    dark: 'revo.lightGray',
+  };
+
   const toggleOpen = (): void => setOpen(!open);
 
   const handleOnKeySelect = (item: Currency): void => {
@@ -41,8 +49,10 @@ export function Dropdown(props: DropdownProps): JSX.Element {
     if (searchTerm) {
       const filtered = filterList(searchTerm, currencies);
       setFiltered(filtered);
+      setSearchTerm(searchTerm);
     } else {
       setFiltered(currencies);
+      setSearchTerm(searchTerm);
     }
   };
 
@@ -51,14 +61,22 @@ export function Dropdown(props: DropdownProps): JSX.Element {
   return (
     <Box {...rest}>
       <Box>
-        <Text data-testid={`selected-${label.toLowerCase()}`} mb="2" fontWeight="bold" color="revo.gray" fontSize="xs">
+        <Text
+          data-testid={`selected-${label.toLowerCase()}`}
+          mb="2"
+          fontWeight="bold"
+          color={color[colorMode]}
+          fontSize="xs"
+        >
           {label}
         </Text>
       </Box>
       <Box position="relative" cursor="pointer">
         <Box onClick={toggleOpen} data-testid={`dropdown-${label.toLowerCase()}`}>
           <Flex alignItems="center" mb="2" height="5">
-            <Text fontWeight="medium">{selected?.name}</Text>
+            <Text fontWeight="medium" color="revo.gray">
+              {selected?.name}
+            </Text>
             <Flex ml="auto" alignItems="center">
               <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLowerCase()}`}>
                 {fPocket(pocketValue)}
@@ -85,11 +103,11 @@ export function Dropdown(props: DropdownProps): JSX.Element {
             height="315px"
             overflowY="scroll"
           >
-            <SearchCurrencyInput handleSearch={handleSearch} />
-            {filtered.map((item: Currency) => {
+            <SearchCurrencyInput handleSearch={handleSearch} searchTerm={searchTerm} />
+            {filtered.map((item: Currency, idx: number) => {
               return (
                 <CurrencyItem
-                  key={item.name}
+                  key={`${item.name}-${idx}`}
                   handleSelect={handleSelect}
                   handleOnKeySelect={handleOnKeySelect}
                   item={item}

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import * as React from 'react';
-import {Box, Flex, Text} from '@chakra-ui/core';
+import {Box, Flex, Text, Button, useColorMode, IconButton} from '@chakra-ui/core';
 import {
   CurrencyChangeChart,
   Dropdown,
@@ -11,6 +11,7 @@ import {
   IconSwapInputs,
   Loader,
   ErrorBoundary,
+  ToggleTheme,
 } from 'components';
 import {useSelector, useDispatch} from 'react-redux';
 import {
@@ -52,25 +53,24 @@ export default function CurrencyExchange() {
     selectedTo,
   ]);
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  const handleSubmit = (): void => {
+  const handleSubmit = React.useCallback((): void => {
     if (!selectedFrom || !selectedTo) return;
     const from = {name: selectedFrom.name, value: +inputValueFrom};
     const to = {name: selectedTo.name, value: +inputValueTo};
     dispatch(submitValues({selectedFrom: from, selectedTo: to}));
-  };
+  }, [inputValueFrom, inputValueTo]);
 
-  const handleChangeFrom = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    console.log(e);
+  const handleChangeFrom = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
     dispatch(onInputChangeFrom(e.target.value));
-  };
+  }, []);
 
-  const handleChangeTo = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChangeTo = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
     dispatch(onInputChangeTo(e.target.value));
-  };
+  }, []);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <ContainerScreen>
@@ -141,7 +141,26 @@ interface ContainerProps {
   [key: string]: any;
 }
 function ContainerScreen(props: ContainerProps): JSX.Element {
-  return <Flex as="main" minHeight="100vh" bg="white" width="full" flexDirection="column" {...props} />;
+  const {colorMode} = useColorMode();
+  const bg = {
+    light: 'white',
+    dark: 'gray.800',
+  };
+
+  return (
+    <Flex
+      as="main"
+      minHeight="100vh"
+      bg={bg[colorMode]}
+      width="full"
+      flexDirection="column"
+      position="relative"
+      {...props}
+    >
+      <ToggleTheme />
+      {props.children}
+    </Flex>
+  );
 }
 function ContainerApp(props: ContainerProps): JSX.Element {
   return (
@@ -173,7 +192,6 @@ function useFetchCurrencies() {
 function useHandleUpdates() {
   const dispatch = useDispatch();
   const {selectedFrom, selectedTo} = useSelector((state: RootState) => state.app);
-
   React.useEffect(() => {
     if (!selectedFrom || !selectedTo) return;
     // get new currentRate
@@ -185,7 +203,7 @@ function useHandleUpdates() {
       'currencies',
       JSON.stringify({currencyFrom: selectedFrom.name, currencyTo: selectedTo.name}),
     );
-    // start new currentRate pooling
+    // start new currentRate polling
     function startPolling(currencyFrom: string, currencyTo: string) {
       dispatch(fetchCurrentRate(currencyFrom, currencyTo));
     }
@@ -194,6 +212,7 @@ function useHandleUpdates() {
       if (!selectedFrom || !selectedTo) return;
       startPolling(selectedFrom.name, selectedTo.name);
     }, 10000);
+    // unsubscribe from previous rate polling
     return () => clearInterval(timer);
   }, [selectedFrom, selectedTo]);
 }

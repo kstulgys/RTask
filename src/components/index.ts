@@ -8,3 +8,4 @@ export * from './CurrencyChangeChart';
 export * from './IconSwapInputs';
 export * from './Loader';
 export * from './ErrorBoundary';
+export * from './ToggleTheme';

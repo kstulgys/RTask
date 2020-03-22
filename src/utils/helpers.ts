@@ -57,22 +57,6 @@ function waait() {
   return new Promise((res, rej) => setTimeout(() => res(), time));
 }
 
-function getPocketValue(type: FomOrTo, currentValue: number, input: string | number) {
-  const valueNumber = +input;
-  if (type === 'To') {
-    return +(currentValue + valueNumber).toFixed(2);
-  }
-  return +(currentValue - valueNumber).toFixed(2);
-}
-
-function getInputValue(type: FomOrTo, currentRate: number, input: string | number) {
-  const valueNumber = +input;
-  if (type === 'To') {
-    return +(currentRate * valueNumber).toFixed(2);
-  }
-  return +(valueNumber / currentRate).toFixed(2);
-}
-
 function isValidInput(value: string) {
   const isNumber = typeof value === 'string' && typeof +value === 'number' && isFinite(+value);
   const exceedsDecimalPlace = value[value.length - 4] === '.' || value[value.length - 4] === ',';
@@ -81,8 +65,10 @@ function isValidInput(value: string) {
   return !exceedsDecimalPlace && isNumber && isPositive && !isFirstZero;
 }
 
-function getFiltered(array: Currencies, selectedFrom: Currency | null, selectedTo: Currency | null) {
-  return array.filter(c => c.name !== selectedFrom?.name && c.name !== selectedTo?.name);
+function getFiltered(array: Currencies, selectedFrom: Currency | undefined, selectedTo: Currency | undefined) {
+  if (!selectedFrom || !selectedTo || !array.length) return [];
+  console.log(selectedFrom.name, selectedTo.name);
+  return array.filter(c => c.name !== selectedFrom.name && c.name !== selectedTo.name);
 }
 
 const fPocket = (value: number) => numeral(value).format('00,000.00');
@@ -111,8 +97,6 @@ export {
   fPocket,
   getFiltered,
   isValidInput,
-  getPocketValue,
-  getInputValue,
   waait,
   numberBetween,
   formatHistoryData,
