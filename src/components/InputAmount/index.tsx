@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import * as React from 'react';
 import {
   Box,
@@ -11,10 +12,12 @@ import {
   NumberDecrementStepper,
   useColorMode,
   PseudoBox,
+  IconButton,
 } from '@chakra-ui/core';
 import {SYMBOLS} from './symbols';
 // import {useDispatch} from 'react-redux';
 import {Currency} from 'app/types';
+import {FiPlus, FiMinus} from 'react-icons/fi';
 
 interface InputAmountProps {
   [key: string]: any;
@@ -22,22 +25,14 @@ interface InputAmountProps {
   selected: Currency | undefined;
   autoFocus: boolean;
   handleChange: any;
+  label: 'From' | 'To';
 }
 
 export function InputAmount(props: InputAmountProps): JSX.Element {
-  const {handleChange, selected, inputValue, autoFocus, ...rest} = props;
+  const {handleChange, selected, inputValue, autoFocus, label, ...rest} = props;
   const {colorMode} = useColorMode();
-  const color = {
-    light: 'gray.800',
-    dark: 'revo.lightGray',
-  };
 
-  const bgInput = {
-    light: 'white',
-    dark: 'gray.800',
-  };
-
-  // const handleFocus = () => {};
+  const sign = label === 'From' ? FiMinus : FiPlus;
 
   return (
     <Flex alignItems="center" my={[6, 12, 16]} {...rest}>
@@ -53,6 +48,15 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
           {selected && SYMBOLS[selected.name].symbol_native}
         </Text>
       </Box>
+      {!!inputValue && (
+        <Box>
+          {/* <Text lineHeight="0" fontSize="80px" color={color[colorMode]}>
+            {sign}
+          </Text> */}
+
+          <IconButton data-testid="button-swap" aria-label="swap currencies" as={sign} color="revo.blue" bg="none" />
+        </Box>
+      )}
       <NumberInput>
         <NumberInputField
           // type="number"
@@ -61,13 +65,12 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
           data-testid={autoFocus ? 'input-from' : 'input-to'}
           autoFocus={autoFocus}
           onChange={handleChange}
-          value={!!inputValue ? +inputValue : ''}
+          value={!!inputValue ? inputValue : ''}
           pl="0"
           px="0"
           py={[10, 12]}
           zIndex={1}
           border="none"
-          // height="110px"
           fontSize={[80, 110]}
           fontWeight="lighter"
           placeholder="0"
@@ -75,10 +78,25 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
             boxShadow: 'none',
           }}
           _placeholder={{
-            color: colorMode === 'light' ? 'revo.lightGray' : 'gray.600',
+            color: colorPl[colorMode],
           }}
         />
       </NumberInput>
     </Flex>
   );
 }
+
+const color = {
+  light: 'gray.800',
+  dark: 'revo.lightGray',
+};
+
+const bgInput = {
+  light: 'white',
+  dark: 'gray.800',
+};
+
+const colorPl = {
+  light: 'revo.lightGray',
+  dark: 'gray.600',
+};

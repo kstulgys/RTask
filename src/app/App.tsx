@@ -87,6 +87,7 @@ export default function CurrencyExchange() {
                 selectCurrency={selectFrom}
               />
               <InputAmount
+                label="From"
                 autoFocus={true}
                 inputValue={inputValueFrom}
                 selected={selectedFrom}
@@ -106,12 +107,13 @@ export default function CurrencyExchange() {
                 selectCurrency={selectTo}
               />
               <InputAmount
+                label="To"
                 autoFocus={false}
                 inputValue={inputValueTo}
                 selected={selectedTo}
                 handleChange={handleChangeTo}
               />
-              <Box display={['block', 'block', 'none']} mb="12">
+              <Box display={['block', 'block', 'none']} mb="12" mt="2">
                 <ButtonContinue text="Continue" handleSubmit={handleSubmit} />
               </Box>
               <CurrencyMetadata />

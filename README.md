@@ -4,7 +4,7 @@
 
 # Currency Exchange App
 
-Currency exchange sample app
+visit live at https://exchangeme.netlify.com/
 
 ## Getting Started
 
@@ -12,7 +12,7 @@ git clone ...repo
 
 ### Installing
 
-You net to have netlify-cli installed globally
+Install netlify-cli
 
 ```
 npm install netlify-cli -g

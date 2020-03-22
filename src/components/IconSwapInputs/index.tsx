@@ -21,7 +21,7 @@ export function IconSwapInputs(): JSX.Element {
 
   return (
     <Box height="auto" mx={['auto', 'auto', 12]} mt={[0, 0, 6]} mb={[8, 12, 0]}>
-      <MemoizedRotate key={count}>
+      <Rotate key={count}>
         <IconButton
           data-testid="button-swap"
           aria-label="swap currencies"
@@ -35,22 +35,19 @@ export function IconSwapInputs(): JSX.Element {
             bg: 'none',
           }}
         />
-      </MemoizedRotate>
+      </Rotate>
     </Box>
   );
 }
 
-function Rotate({children}: any) {
+function Rotate(props: any) {
   return (
     <motion.div
       animate={{
         scale: 1.1,
         rotate: 180,
       }}
-    >
-      {children}
-    </motion.div>
+      {...props}
+    />
   );
 }
-
-const MemoizedRotate = React.memo(Rotate);
