@@ -18,19 +18,14 @@ function Chart({data, ...props}: any): JSX.Element {
             setHoveredNode(value);
           }}
         />
-        <Node hoveredNode={hoveredNode} />
+        {hoveredNode && (
+          <Hint value={hoveredNode}>
+            <Text color="gray.400">{hoveredNode.y.toFixed(4)}</Text>
+          </Hint>
+        )}
       </FlexibleWidthXYPlot>
     </Flex>
   );
 }
-
-const Node = React.memo(
-  ({hoveredNode}: any) =>
-    hoveredNode && (
-      <Hint value={hoveredNode}>
-        <Text color="gray.400">{hoveredNode.y.toFixed(4)}</Text>
-      </Hint>
-    ),
-);
 
 export const CurrencyChangeChart = React.memo(Chart);

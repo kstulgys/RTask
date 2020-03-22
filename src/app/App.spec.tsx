@@ -144,7 +144,6 @@ describe('select currency', () => {
     user.click(dropdownDiv);
     expect(getByTestId('dropdown-list-from')).toBeInTheDocument();
     const listItem = getByTestId('item-AUD');
-    debug();
     user.click(listItem);
     // store has expected state
     expect(dropdownDiv).toHaveTextContent(store.getState().app.selectedFrom!.name);

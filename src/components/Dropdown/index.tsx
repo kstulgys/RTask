@@ -88,8 +88,8 @@ export function Dropdown(props: DropdownProps): JSX.Element {
         </Text>
       </Box>
       <Box position="relative" cursor="pointer">
-        <Box data-testid={`dropdown-${label.toLowerCase()}`}>
-          <Flex onClick={toggleOpen} alignItems="center" mb="2" height="5">
+        <Box onClick={toggleOpen} data-testid={`dropdown-${label.toLowerCase()}`}>
+          <Flex alignItems="center" mb="2" height="5">
             <Text fontWeight="medium" color="revo.gray">
               {selected?.name}
             </Text>
