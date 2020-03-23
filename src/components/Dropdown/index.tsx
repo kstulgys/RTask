@@ -115,7 +115,7 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
   );
 }
 
-function useDropdown(label: string, ref: any) {
+function useDropdown(label: 'From' | 'To', ref: any) {
   const dispatch = useDispatch();
   const {selectedFrom, selectedTo, currencies, pocketValueFrom, pocketValueTo} = useSelector(
     (state: RootState) => state.app,
