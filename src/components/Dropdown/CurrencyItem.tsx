@@ -6,11 +6,11 @@ import numeral from 'numeral';
 
 interface CurrencyItemProps {
   handleSelect: (item: Currency) => void;
-  handleOnKeySelect: (item: Currency) => void;
+  // handleOnKeySelect: (item: Currency) => void;
   item: Currency;
 }
 
-export default function CurrencyItem({handleSelect, handleOnKeySelect, item}: CurrencyItemProps): JSX.Element {
+export default function CurrencyItem({handleSelect, item}: CurrencyItemProps): JSX.Element {
   const {colorMode} = useColorMode();
 
   const color = {
@@ -33,7 +33,7 @@ export default function CurrencyItem({handleSelect, handleOnKeySelect, item}: Cu
         borderRadius="none"
         bg={bg[colorMode]}
         onClick={(): void => handleSelect(item)}
-        onKeyUp={(): void => handleOnKeySelect(item)}
+        // onKeyUp={(): void => handleOnKeySelect(item)}
       >
         <Flex width="full" alignItems="center">
           <Flex mr="auto" alignItems="center">

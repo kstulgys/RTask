@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import * as React from 'react';
-import {Box, Flex, Text, Button, useColorMode, IconButton} from '@chakra-ui/core';
+import {Flex, Text, useColorMode} from '@chakra-ui/core';
 import {
   CurrencyChangeChart,
   Dropdown,
@@ -14,59 +14,16 @@ import {
   ToggleTheme,
 } from 'components';
 import {useSelector, useDispatch} from 'react-redux';
-import {
-  fetchCurrencies,
-  fetchCurrentRate,
-  updateSelectedTo,
-  selectFrom,
-  selectTo,
-  fetchDataPoints,
-  submitValues,
-  onInputChangeFrom,
-  onInputChangeTo,
-} from 'app/appState';
+import {fetchCurrencies, fetchCurrentRate, updateSelectedTo, fetchDataPoints} from 'app/appState';
 import {RootState} from 'app/store';
 import {useNotification} from 'utils/hooks';
-import {getFiltered} from 'utils/helpers';
 
 export default function CurrencyExchange() {
-  const {
-    isLoading,
-    selectedFrom,
-    selectedTo,
-    pocketValueFrom,
-    pocketValueTo,
-    inputValueFrom,
-    inputValueTo,
-    currencies,
-    dataPoints,
-  } = useSelector((state: RootState) => state.app);
+  const {isLoading} = useSelector((state: RootState) => state.app);
   useFetchCurrencies();
   useNotification();
   useHandleUpdates();
   useCurrencyToUpdates();
-  const dispatch = useDispatch();
-
-  const filtered = React.useMemo(() => getFiltered(currencies, selectedFrom, selectedTo), [
-    currencies,
-    selectedFrom,
-    selectedTo,
-  ]);
-
-  const handleSubmit = React.useCallback((): void => {
-    if (!selectedFrom || !selectedTo) return;
-    const from = {name: selectedFrom.name, value: +inputValueFrom};
-    const to = {name: selectedTo.name, value: +inputValueTo};
-    dispatch(submitValues({selectedFrom: from, selectedTo: to}));
-  }, [inputValueFrom, inputValueTo]);
-
-  const handleChangeFrom = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    dispatch(onInputChangeFrom(e.target.value));
-  }, []);
-
-  const handleChangeTo = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    dispatch(onInputChangeTo(e.target.value));
-  }, []);
 
   if (isLoading) {
     return <Loader />;
@@ -79,47 +36,19 @@ export default function CurrencyExchange() {
           <TextHeader text="Exchange money" />
           <Flex flexDirection={['column', 'column', 'row']} alignItems="start">
             <ContainerInputs>
-              <Dropdown
-                label="From"
-                selected={selectedFrom}
-                pocketValue={pocketValueFrom}
-                currencies={filtered}
-                selectCurrency={selectFrom}
-              />
-              <InputAmount
-                label="From"
-                autoFocus={true}
-                inputValue={inputValueFrom}
-                selected={selectedFrom}
-                handleChange={handleChangeFrom}
-              />
-              <Box display={['none', 'none', 'block']}>
-                <ButtonContinue text="Continue" handleSubmit={handleSubmit} />
-              </Box>
+              <Dropdown label="From" />
+              <InputAmount label="From" autoFocus={true} />
+              <ButtonContinue display={['none', 'none', 'block']} text="Continue" />
             </ContainerInputs>
             <IconSwapInputs />
             <ContainerInputs>
-              <Dropdown
-                label="To"
-                selected={selectedTo}
-                pocketValue={pocketValueTo}
-                currencies={filtered}
-                selectCurrency={selectTo}
-              />
-              <InputAmount
-                label="To"
-                autoFocus={false}
-                inputValue={inputValueTo}
-                selected={selectedTo}
-                handleChange={handleChangeTo}
-              />
-              <Box display={['block', 'block', 'none']} mb="12" mt="2">
-                <ButtonContinue text="Continue" handleSubmit={handleSubmit} />
-              </Box>
+              <Dropdown label="To" />
+              <InputAmount label="To" autoFocus={false} />
+              <ButtonContinue display={['block', 'block', 'none']} mb="12" mt="2" text="Continue" />
               <CurrencyMetadata />
             </ContainerInputs>
           </Flex>
-          <CurrencyChangeChart data={dataPoints} mt="6" />
+          <CurrencyChangeChart mt="6" />
         </AppErrorBoundary>
       </ContainerApp>
     </ContainerScreen>
@@ -142,6 +71,7 @@ function AppErrorBoundary(props: any) {
 interface ContainerProps {
   [key: string]: any;
 }
+
 function ContainerScreen(props: ContainerProps): JSX.Element {
   const {colorMode} = useColorMode();
   const bg = {
@@ -164,6 +94,7 @@ function ContainerScreen(props: ContainerProps): JSX.Element {
     </Flex>
   );
 }
+
 function ContainerApp(props: ContainerProps): JSX.Element {
   return (
     <Flex width={['full', 'full', 'full', '60%']} flexDirection="column" mx="auto" mt={[0, 16]} px="4" {...props} />
@@ -176,7 +107,6 @@ function ContainerInputs(props: ContainerProps): JSX.Element {
 function useCurrencyToUpdates() {
   const dispatch = useDispatch();
   const {selectedFrom, currentRate} = useSelector((state: RootState) => state.app);
-
   React.useEffect(() => {
     if (!selectedFrom || !currentRate) return;
     dispatch(updateSelectedTo());

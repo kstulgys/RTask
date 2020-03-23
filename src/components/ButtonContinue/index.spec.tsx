@@ -27,15 +27,3 @@ it('button is enabled', () => {
   const button = setup({canSubmit: true});
   expect(button.disabled).toBeFalsy();
 });
-
-it('handleSubmit is not called', () => {
-  const button = setup({canSubmit: false});
-  user.click(button);
-  expect(handleSubmit).toBeCalledTimes(0);
-});
-
-it('handleSubmit is called', () => {
-  const button = setup({canSubmit: true});
-  user.click(button);
-  expect(handleSubmit).toBeCalledTimes(1);
-});

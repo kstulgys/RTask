@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import * as React from 'react';
 import {Box, Flex, Text, useColorMode} from '@chakra-ui/core';
 import {FiChevronDown, FiChevronUp} from 'react-icons/fi';
@@ -9,30 +10,35 @@ import {filterList, fPocket, getFiltered} from 'utils/helpers';
 import {useSelector, useDispatch} from 'react-redux';
 import {Currency, Currencies} from 'app/types';
 import {RootState} from 'app/store';
+import {selectTo, selectFrom} from 'app/appState';
 
 interface DropdownProps {
   label: string;
-  selected: Currency | undefined;
-  pocketValue: number;
-  currencies: Currencies;
-  selectCurrency: (currency: Currency) => void;
   [key: string]: any;
 }
 
-export function Dropdown(props: DropdownProps): JSX.Element {
-  const {label, selected, pocketValue, selectCurrency, ...rest} = props;
-  const {selectedFrom, selectedTo, currencies} = useSelector((state: RootState) => state.app);
-  const dispatch = useDispatch();
-  const [open, setOpen] = React.useState<boolean>(false);
-  const filteredCurrenciesOnChange = React.useMemo(() => getFiltered(currencies, selectedFrom, selectedTo), [
-    currencies,
-    selectedFrom,
-    selectedTo,
-  ]);
-  const [filtered, setFiltered] = React.useState<Currencies>(filteredCurrenciesOnChange);
-  const [searchTerm, setSearchTerm] = React.useState<string>('');
+export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
   const ref = React.useRef();
-  useOnClickOutside(ref, () => setOpen(false));
+  const {isOpen, toggleOpen, handleSelect, currenciesList, pocketValue, selected} = useDropdown(label, ref);
+
+  const [filtered, setFiltered] = React.useState<Currencies>(currenciesList);
+  const [searchTerm, setSearchTerm] = React.useState<string>('');
+
+  React.useEffect(() => {
+    setFiltered(currenciesList);
+    setSearchTerm('');
+  }, [currenciesList]);
+
+  const handleSearch = (searchTerm: string) => {
+    if (searchTerm) {
+      setFiltered(filterList(searchTerm, currenciesList));
+      setSearchTerm(searchTerm);
+    } else {
+      setFiltered(currenciesList);
+      setSearchTerm('');
+    }
+  };
+
   const {colorMode} = useColorMode();
   const color = {
     light: 'revo.gray',
@@ -42,34 +48,6 @@ export function Dropdown(props: DropdownProps): JSX.Element {
   const bg = {
     light: 'white',
     dark: 'gray.800',
-  };
-
-  React.useEffect(() => {
-    setFiltered(filteredCurrenciesOnChange);
-    setSearchTerm('');
-  }, [filteredCurrenciesOnChange]);
-
-  const toggleOpen = (): void => setOpen(!open);
-
-  const handleOnKeySelect = (item: Currency): void => {
-    dispatch(selectCurrency(item));
-    setOpen(true);
-  };
-
-  const handleSelect = (item: Currency): void => {
-    setOpen(false);
-    dispatch(selectCurrency(item));
-  };
-
-  const handleSearch = (searchTerm: string) => {
-    if (searchTerm) {
-      const filtered = filterList(searchTerm, filteredCurrenciesOnChange);
-      setFiltered(filtered);
-      setSearchTerm(searchTerm);
-    } else {
-      setFiltered(filteredCurrenciesOnChange);
-      setSearchTerm('');
-    }
   };
 
   const pocketValueColor = Math.sign(pocketValue) === -1 ? 'red.400' : 'revo.gray';
@@ -97,12 +75,12 @@ export function Dropdown(props: DropdownProps): JSX.Element {
               <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLowerCase()}`}>
                 {fPocket(pocketValue)}
               </Text>
-              <Box ml="2" size="20px" as={open ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
+              <Box ml="2" size="20px" as={isOpen ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
             </Flex>
           </Flex>
-          <BorderAnimated open={open} />
+          <BorderAnimated open={isOpen} />
         </Box>
-        {open && (
+        {isOpen && (
           <Box
             data-testid={`dropdown-list-${label.toLowerCase()}`}
             as="ul"
@@ -123,9 +101,9 @@ export function Dropdown(props: DropdownProps): JSX.Element {
             {filtered.map((item: Currency, idx: number) => {
               return (
                 <CurrencyItem
+                  // handleOnKeySelect={handleOnKeySelect}
                   key={`${item.name}-${idx}`}
                   handleSelect={handleSelect}
-                  handleOnKeySelect={handleOnKeySelect}
                   item={item}
                 />
               );
@@ -135,4 +113,33 @@ export function Dropdown(props: DropdownProps): JSX.Element {
       </Box>
     </Box>
   );
+}
+
+function useDropdown(label: string, ref: any) {
+  const dispatch = useDispatch();
+  const {selectedFrom, selectedTo, currencies, pocketValueFrom, pocketValueTo} = useSelector(
+    (state: RootState) => state.app,
+  );
+  const [isOpen, setOpen] = React.useState<boolean>(false);
+  const [currenciesList, setList] = React.useState<Currencies>(getFiltered(currencies, selectedFrom, selectedTo));
+
+  useOnClickOutside(ref, () => setOpen(false));
+
+  const toggleOpen = (): void => setOpen(!isOpen);
+
+  const selected = label === 'From' ? selectedFrom : selectedTo;
+  const pocketValue = label === 'From' ? pocketValueFrom : pocketValueTo;
+  const onSelect = label === 'From' ? selectFrom : selectTo;
+
+  const handleSelect = (item: Currency): void => {
+    dispatch(onSelect(item));
+    setOpen(false);
+  };
+
+  React.useEffect(() => {
+    if (!selectedFrom || !selectedTo || !currencies.length) return;
+    setList(getFiltered(currencies, selectedFrom, selectedTo));
+  }, [currencies, selectedFrom?.name, selectedTo?.name]);
+
+  return {isOpen, toggleOpen, handleSelect, currenciesList, pocketValue, selected};
 }
