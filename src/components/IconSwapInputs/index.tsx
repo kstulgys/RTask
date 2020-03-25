@@ -2,15 +2,14 @@
 import * as React from 'react';
 import {IconButton, Box} from '@chakra-ui/core';
 import {FiRepeat} from 'react-icons/fi';
-import {swapCurrencies} from 'app/appState';
+import {swapCurrencies, stateSelector} from 'app/appState';
 import {useDispatch, useSelector} from 'react-redux';
-import {RootState} from 'app/store';
 import {debounce} from 'debounce';
 import {motion} from 'framer-motion';
 
 export function IconSwapInputs(): JSX.Element {
   const [count, setCount] = React.useState(0);
-  const {selectedFrom, selectedTo} = useSelector((state: RootState) => state.app);
+  const {selectedFrom, selectedTo} = useSelector(stateSelector);
   const dispatch = useDispatch();
 
   const handleSwap = debounce(() => {

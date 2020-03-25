@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import * as React from 'react';
-import {Box, Flex, Text, Input, NumberInput, NumberInputField, useColorMode, IconButton} from '@chakra-ui/core';
+import {Box, Flex, Text, NumberInput, NumberInputField, useColorMode, IconButton} from '@chakra-ui/core';
 import {SYMBOLS} from './symbols';
 import {FiPlus, FiMinus} from 'react-icons/fi';
-import {onInputChangeFrom, onInputChangeTo} from 'app/appState';
-import {RootState} from 'app/store';
+import {onInputChangeFrom, onInputChangeTo, stateSelector} from 'app/appState';
 import {useDispatch, useSelector} from 'react-redux';
 
 interface InputAmountProps {
   label: 'From' | 'To';
-  autoFocus: boolean;
+  autoFocus?: boolean;
   [key: string]: any;
 }
 
@@ -91,7 +90,7 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
 }
 
 function useInputAmount(label: 'To' | 'From') {
-  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector((state: RootState) => state.app);
+  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(stateSelector);
   const dispatch = useDispatch();
 
   const onChnage = label === 'From' ? onInputChangeFrom : onInputChangeTo;

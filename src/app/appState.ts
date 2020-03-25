@@ -14,6 +14,7 @@ import {
   getPocketValueFrom,
 } from 'utils/helpers';
 import {Currencies, CurrencyState, Currency, DataPoints} from 'app/types';
+import {RootState} from './store';
 
 export const initialState: CurrencyState = {
   isLoading: true,
@@ -258,3 +259,5 @@ export const submitValues = ({selectedFrom, selectedTo}: UpdatePocketsProps): Ap
     dispatch(handleCurrenciesSubmitFail());
   }
 };
+
+export const stateSelector = (state: RootState) => state.app;

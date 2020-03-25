@@ -4,8 +4,8 @@ import {render, cleanup, fireEvent, act, wait, waitForElement, queryByTestId} fr
 import user from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import {filterList, fPocket} from 'utils/helpers';
-import {getCurrenciesSuccess, initialState} from 'app/appState';
-import {getCurrencies} from 'api/currenciesAPI';
+import {getCurrenciesSuccess, initialState, submitValues} from 'app/appState';
+// import {getCurrencies} from 'api/currenciesAPI';
 
 beforeEach(cleanup);
 
@@ -80,7 +80,11 @@ describe('Input change', () => {
     inputValueTo: '',
   };
 
-  let inputFrom, inputTo, pocketFrom, pocketTo, newValue;
+  let inputFrom: HTMLInputElement;
+  let inputTo: HTMLInputElement;
+  let pocketFrom: HTMLElement;
+  let pocketTo: HTMLElement;
+  let newValue: string;
   const setup = () => {
     const {getByTestId, store} = render(<App />, {...state});
     inputFrom = getByTestId('input-from');
@@ -168,6 +172,22 @@ describe('select currency', () => {
     // renders expected UI
     expect(store.getState().app.selectedTo!.name).toBe(currencies[2].name);
     expect(store.getState().app.pocketValueTo).toBe(currencies[2].value);
+  });
+});
+
+describe('button enabled/disabled', () => {
+  it('button is disabled', () => {
+    const {getAllByText} = render(<App />, {canSubmit: false});
+    const allBtn = getAllByText(/continue/i);
+    const button = allBtn[0];
+    expect(button.disabled).toBeTruthy();
+  });
+
+  it('button is enabled', () => {
+    const {getAllByText} = render(<App />, {canSubmit: true});
+    const allBtn = getAllByText(/continue/i);
+    const button = allBtn[0];
+    expect(button.disabled).toBeFalsy();
   });
 });
 

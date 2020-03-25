@@ -1,21 +1,12 @@
-/* eslint-disable react/display-name */
 import * as React from 'react';
 import {Button as BaseButton, Box} from '@chakra-ui/core';
-import {useSelector} from 'react-redux';
-import {RootState} from 'app/store';
-import {submitValues} from 'app/appState';
-import {useDispatch} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import {submitValues, stateSelector} from 'app/appState';
 
-interface ButtonContinueProps {
-  text: string;
-  [key: string]: any;
-}
-
-export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Element {
-  const {isSubmitting, canSubmit, selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(
-    (state: RootState) => state.app,
-  );
+export function ButtonContinue(props: {[key: string]: any}): JSX.Element {
   const dispatch = useDispatch();
+  const {isSubmitting, canSubmit, selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(stateSelector);
+
   const handleSubmit = React.useCallback((): void => {
     if (!selectedFrom || !selectedTo) return;
     const from = {name: selectedFrom.name, value: +inputValueFrom};
@@ -27,7 +18,6 @@ export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Eleme
     <Box {...props}>
       <BaseButton
         onClick={handleSubmit}
-        className="submit-test"
         isLoading={isSubmitting}
         isDisabled={!canSubmit}
         type="submit"
@@ -39,7 +29,7 @@ export function ButtonContinue({text, ...props}: ButtonContinueProps): JSX.Eleme
         color="white"
         _hover={{bg: 'revo.red'}}
       >
-        {text}
+        Continue
       </BaseButton>
     </Box>
   );

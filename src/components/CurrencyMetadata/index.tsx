@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {Box, Flex, Text, useColorMode, StatHelpText, StatArrow} from '@chakra-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from 'app/store';
 import {motion, AnimatePresence} from 'framer-motion';
+import {stateSelector} from 'app/appState';
 
 export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Element {
   return (
@@ -14,8 +14,7 @@ export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Eleme
 }
 
 function TodaysChange(props: any) {
-  const {dataPoints = []} = useSelector((state: RootState) => state.app);
-
+  const {dataPoints} = useSelector(stateSelector);
   if (dataPoints.length < 2) return null;
   const change: number = dataPoints[dataPoints.length - 1].y - dataPoints[dataPoints.length - 2].y;
   const percent = (change * 100) / dataPoints[dataPoints.length - 1].y;
@@ -45,7 +44,7 @@ function TodaysChange(props: any) {
 }
 
 function CurrentRate(props: any) {
-  const {currentRate} = useSelector((state: RootState) => state.app);
+  const {currentRate} = useSelector(stateSelector);
   const {colorMode} = useColorMode();
   const color = {
     light: 'gray.800',

@@ -1,17 +1,19 @@
-/* eslint-disable react/display-name */
 import * as React from 'react';
 import {Text, Flex} from '@chakra-ui/core';
 import {LineSeries, FlexibleWidthXYPlot, Hint} from 'react-vis';
+import {useSelector, useDispatch} from 'react-redux';
 import '../../..//node_modules/react-vis/dist/style.css';
+import {stateSelector} from 'app/appState';
 
-function Chart({data, ...props}: any): JSX.Element {
+export function CurrencyChangeChart(props: any): JSX.Element {
+  const {dataPoints} = useSelector(stateSelector);
   const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null);
   return (
     <Flex {...props} height="175px" ml="-30px" my="16">
       <FlexibleWidthXYPlot height={175} onMouseLeave={() => setHoveredNode(null)}>
         <LineSeries
           color="#0075EB"
-          data={data}
+          data={dataPoints}
           animation
           onNearestXY={(value: any) => {
             console.log({value});
@@ -27,5 +29,3 @@ function Chart({data, ...props}: any): JSX.Element {
     </Flex>
   );
 }
-
-export const CurrencyChangeChart = React.memo(Chart);

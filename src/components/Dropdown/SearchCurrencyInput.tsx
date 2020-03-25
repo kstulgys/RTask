@@ -6,17 +6,17 @@ interface SearchCurrencyInputProps {
   searchTerm: string;
 }
 
+const color = {
+  light: 'revo.gray',
+  dark: 'revo.lightGray',
+};
+const bg = {
+  light: 'white',
+  dark: 'gray.800',
+};
+
 export default function SearchCurrencyInput({handleSearch, searchTerm}: SearchCurrencyInputProps): JSX.Element {
   const {colorMode} = useColorMode();
-  const color = {
-    light: 'revo.gray',
-    dark: 'revo.lightGray',
-  };
-
-  const bg = {
-    light: 'white',
-    dark: 'gray.800',
-  };
 
   const handleInputChange = (e: any): void => {
     handleSearch(e.target.value);

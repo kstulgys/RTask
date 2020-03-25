@@ -38,13 +38,13 @@ export default function CurrencyExchange() {
             <ContainerInputs>
               <Dropdown label="From" />
               <InputAmount label="From" autoFocus={true} />
-              <ButtonContinue display={['none', 'none', 'block']} text="Continue" />
+              <ButtonContinue display={['none', 'none', 'block']} />
             </ContainerInputs>
             <IconSwapInputs />
             <ContainerInputs>
               <Dropdown label="To" />
-              <InputAmount label="To" autoFocus={false} />
-              <ButtonContinue display={['block', 'block', 'none']} mb="12" mt="2" text="Continue" />
+              <InputAmount label="To" />
+              <ButtonContinue display={['block', 'block', 'none']} mb="12" mt="2" />
               <CurrencyMetadata />
             </ContainerInputs>
           </Flex>

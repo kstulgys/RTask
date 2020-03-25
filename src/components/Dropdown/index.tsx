@@ -9,13 +9,22 @@ import {useOnClickOutside} from 'utils/hooks';
 import {filterList, fPocket, getFiltered} from 'utils/helpers';
 import {useSelector, useDispatch} from 'react-redux';
 import {Currency, Currencies} from 'app/types';
-import {RootState} from 'app/store';
-import {selectTo, selectFrom} from 'app/appState';
+import {selectTo, selectFrom, stateSelector} from 'app/appState';
 
 interface DropdownProps {
-  label: string;
+  label: 'From' | 'To';
   [key: string]: any;
 }
+
+const color = {
+  light: 'revo.gray',
+  dark: 'revo.lightGray',
+};
+
+const bg = {
+  light: 'white',
+  dark: 'gray.800',
+};
 
 export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
   const ref = React.useRef();
@@ -23,6 +32,7 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
 
   const [filtered, setFiltered] = React.useState<Currencies>(currenciesList);
   const [searchTerm, setSearchTerm] = React.useState<string>('');
+  const {colorMode} = useColorMode();
 
   React.useEffect(() => {
     setFiltered(currenciesList);
@@ -37,17 +47,6 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
       setFiltered(currenciesList);
       setSearchTerm('');
     }
-  };
-
-  const {colorMode} = useColorMode();
-  const color = {
-    light: 'revo.gray',
-    dark: 'revo.lightGray',
-  };
-
-  const bg = {
-    light: 'white',
-    dark: 'gray.800',
   };
 
   const pocketValueColor = Math.sign(pocketValue) === -1 ? 'red.400' : 'revo.gray';
@@ -117,9 +116,7 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
 
 function useDropdown(label: 'From' | 'To', ref: any) {
   const dispatch = useDispatch();
-  const {selectedFrom, selectedTo, currencies, pocketValueFrom, pocketValueTo} = useSelector(
-    (state: RootState) => state.app,
-  );
+  const {selectedFrom, selectedTo, currencies, pocketValueFrom, pocketValueTo} = useSelector(stateSelector);
   const [isOpen, setOpen] = React.useState<boolean>(false);
   const [currenciesList, setList] = React.useState<Currencies>(getFiltered(currencies, selectedFrom, selectedTo));
 
