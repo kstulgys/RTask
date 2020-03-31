@@ -81,8 +81,8 @@
     "eject": "react-scripts eject",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "test:coverage": "npm run test -- --watchAll false --coverage",
-    "cypress": "node_modules/.bin/cypress open",
-    "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls"
+    "cypress": "cypress open",
+    "coveralls": "coveralls"
   },
   "husky": {
     "hooks": {
