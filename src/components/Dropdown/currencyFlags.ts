@@ -32,6 +32,6 @@ const currencyFlags: {[key: string]: string} = {
   ILS: '🇮🇱',
   KRW: '🇰🇷',
   MYR: '🇲🇾',
-};
+}
 
-export {currencyFlags};
+export {currencyFlags}

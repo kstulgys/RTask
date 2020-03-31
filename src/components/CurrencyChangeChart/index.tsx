@@ -1,13 +1,13 @@
-import * as React from 'react';
-import {Text, Flex} from '@chakra-ui/core';
-import {LineSeries, FlexibleWidthXYPlot, Hint} from 'react-vis';
-import {useSelector, useDispatch} from 'react-redux';
-import '../../..//node_modules/react-vis/dist/style.css';
-import {stateSelector} from 'app/appState';
+import * as React from 'react'
+import {Text, Flex} from '@chakra-ui/core'
+import {LineSeries, FlexibleWidthXYPlot, Hint} from 'react-vis'
+import {useSelector, useDispatch} from 'react-redux'
+import {stateSelector} from 'app/appState'
+import '../../..//node_modules/react-vis/dist/style.css'
 
 export function CurrencyChangeChart(props: any): JSX.Element {
-  const {dataPoints} = useSelector(stateSelector);
-  const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null);
+  const {dataPoints} = useSelector(stateSelector)
+  const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null)
   return (
     <Flex {...props} height="175px" ml="-30px" my="16">
       <FlexibleWidthXYPlot height={175} onMouseLeave={() => setHoveredNode(null)}>
@@ -16,8 +16,8 @@ export function CurrencyChangeChart(props: any): JSX.Element {
           data={dataPoints}
           animation
           onNearestXY={(value: any) => {
-            console.log({value});
-            setHoveredNode(value);
+            console.log({value})
+            setHoveredNode(value)
           }}
         />
         {hoveredNode && (
@@ -27,5 +27,5 @@ export function CurrencyChangeChart(props: any): JSX.Element {
         )}
       </FlexibleWidthXYPlot>
     </Flex>
-  );
+  )
 }

@@ -1,10 +1,10 @@
-import * as React from 'react';
-import ReactDOM from 'react-dom';
-import App from './app/App';
-import {ThemeProvider, CSSReset, ColorModeProvider} from '@chakra-ui/core';
-import theme from 'theme';
-import {Provider} from 'react-redux';
-import store from './app/store';
+import * as React from 'react'
+import ReactDOM from 'react-dom'
+import App from './app/App'
+import {ThemeProvider, CSSReset, ColorModeProvider} from '@chakra-ui/core'
+import theme from 'theme'
+import {Provider} from 'react-redux'
+import store from './app/store'
 
 const render = () => {
   ReactDOM.render(
@@ -17,6 +17,6 @@ const render = () => {
       </ThemeProvider>
     </Provider>,
     document.getElementById('root'),
-  );
-};
-render();
+  )
+}
+render()

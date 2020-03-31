@@ -1,26 +1,26 @@
-import * as React from 'react';
-import {Input, InputGroup, InputLeftElement, Icon, useColorMode} from '@chakra-ui/core';
+import * as React from 'react'
+import {Input, InputGroup, InputLeftElement, Icon, useColorMode} from '@chakra-ui/core'
 
 interface SearchCurrencyInputProps {
-  handleSearch: (searchTerm: string) => void;
-  searchTerm: string;
+  handleSearch: (searchTerm: string) => void
+  searchTerm: string
 }
 
 const color = {
   light: 'revo.gray',
   dark: 'revo.lightGray',
-};
+}
 const bg = {
   light: 'white',
   dark: 'gray.800',
-};
+}
 
 export default function SearchCurrencyInput({handleSearch, searchTerm}: SearchCurrencyInputProps): JSX.Element {
-  const {colorMode} = useColorMode();
+  const {colorMode} = useColorMode()
 
   const handleInputChange = (e: any): void => {
-    handleSearch(e.target.value);
-  };
+    handleSearch(e.target.value)
+  }
 
   return (
     <InputGroup my="1">
@@ -42,5 +42,5 @@ export default function SearchCurrencyInput({handleSearch, searchTerm}: SearchCu
         }}
       />
     </InputGroup>
-  );
+  )
 }

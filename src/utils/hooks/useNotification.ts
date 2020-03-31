@@ -1,14 +1,14 @@
-import * as React from 'react';
-import {useToast} from '@chakra-ui/core';
-import {useSelector} from 'react-redux';
-import {RootState} from 'app/store';
+import * as React from 'react'
+import {useToast} from '@chakra-ui/core'
+import {useSelector} from 'react-redux'
+import {RootState} from 'app/store'
 
 export function useNotification(): any {
-  const {error} = useSelector((state: RootState) => state.app);
+  const {error} = useSelector((state: RootState) => state.app)
 
-  const toast = useToast();
+  const toast = useToast()
   React.useEffect(() => {
-    if (!error) return;
+    if (!error) return
     toast({
       title: error.message,
       description: error.type,
@@ -16,6 +16,6 @@ export function useNotification(): any {
       position: 'top',
       duration: 5000,
       isClosable: true,
-    });
-  }, [error]);
+    })
+  }, [error])
 }

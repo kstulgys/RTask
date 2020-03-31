@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import * as React from 'react';
-import {Box, Flex, Text, NumberInput, NumberInputField, useColorMode, IconButton} from '@chakra-ui/core';
-import {SYMBOLS} from './symbols';
-import {FiPlus, FiMinus} from 'react-icons/fi';
-import {onInputChangeFrom, onInputChangeTo, stateSelector} from 'app/appState';
-import {useDispatch, useSelector} from 'react-redux';
+import * as React from 'react'
+import {Box, Flex, Text, NumberInput, NumberInputField, useColorMode, IconButton} from '@chakra-ui/core'
+import {SYMBOLS} from './symbols'
+import {FiPlus, FiMinus} from 'react-icons/fi'
+import {onInputChangeFrom, onInputChangeTo, stateSelector} from 'app/appState'
+import {useDispatch, useSelector} from 'react-redux'
 
 interface InputAmountProps {
-  label: 'From' | 'To';
-  autoFocus?: boolean;
-  [key: string]: any;
+  label: 'From' | 'To'
+  autoFocus?: boolean
+  [key: string]: any
 }
 
 const style = {
@@ -25,12 +25,12 @@ const style = {
     light: 'revo.lightGray',
     dark: 'gray.600',
   },
-};
+}
 
 export function InputAmount(props: InputAmountProps): JSX.Element {
-  const {autoFocus, label, ...rest} = props;
-  const {inputValue, handleChange, symbol, sign} = useInputAmount(label);
-  const {colorMode} = useColorMode();
+  const {autoFocus, label, ...rest} = props
+  const {inputValue, handleChange, symbol, sign} = useInputAmount(label)
+  const {colorMode} = useColorMode()
 
   return (
     <Flex alignItems="center" my={[6, 12, 16]} {...rest}>
@@ -86,22 +86,22 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
         />
       </NumberInput>
     </Flex>
-  );
+  )
 }
 
 function useInputAmount(label: 'To' | 'From') {
-  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(stateSelector);
-  const dispatch = useDispatch();
+  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(stateSelector)
+  const dispatch = useDispatch()
 
-  const onChnage = label === 'From' ? onInputChangeFrom : onInputChangeTo;
-  const selected = label === 'From' ? selectedFrom : selectedTo;
-  const inputValue = label === 'From' ? inputValueFrom : inputValueTo;
-  const symbol = selected && SYMBOLS[selected.name].symbol_native;
-  const sign = label === 'From' ? FiMinus : FiPlus;
+  const onChnage = label === 'From' ? onInputChangeFrom : onInputChangeTo
+  const selected = label === 'From' ? selectedFrom : selectedTo
+  const inputValue = label === 'From' ? inputValueFrom : inputValueTo
+  const symbol = selected && SYMBOLS[selected.name].symbol_native
+  const sign = label === 'From' ? FiMinus : FiPlus
 
   const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    dispatch(onChnage(e.target.value));
-  }, []);
+    dispatch(onChnage(e.target.value))
+  }, [])
 
-  return {inputValue, handleChange, symbol, sign};
+  return {inputValue, handleChange, symbol, sign}
 }

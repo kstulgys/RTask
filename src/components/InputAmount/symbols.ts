@@ -1071,6 +1071,6 @@ const SYMBOLS: {[key: string]: {[key: string]: any}} = {
     code: 'ZWL',
     name_plural: 'Zimbabwean Dollar',
   },
-};
+}
 
-export {SYMBOLS};
+export {SYMBOLS}

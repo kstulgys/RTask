@@ -1,7 +1,7 @@
-import * as React from 'react';
-import {Box, Flex} from '@chakra-ui/core';
-import {motion} from 'framer-motion';
-import theme from 'theme';
+import * as React from 'react'
+import {Box, Flex} from '@chakra-ui/core'
+import {motion} from 'framer-motion'
+import theme from 'theme'
 
 export default function BorderAnimated({open}: {open: boolean}): JSX.Element {
   return (
@@ -34,5 +34,5 @@ export default function BorderAnimated({open}: {open: boolean}): JSX.Element {
       />
       <Flex mt="3" height="2px" bg="revo.lightGray" />
     </Box>
-  );
+  )
 }

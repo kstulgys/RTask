@@ -1,19 +1,19 @@
-import React from 'react';
-import {ThemeProvider, CSSReset} from '@chakra-ui/core';
-import theme from 'theme';
-import {Provider} from 'react-redux';
+import React from 'react'
+import {ThemeProvider, CSSReset} from '@chakra-ui/core'
+import theme from 'theme'
+import {Provider} from 'react-redux'
 // import configureStore from 'redux-mock-store';
-import {getDefaultMiddleware, configureStore} from '@reduxjs/toolkit';
-import {render} from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import {rootReducer} from 'app/store';
+import {getDefaultMiddleware, configureStore} from '@reduxjs/toolkit'
+import {render} from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import {rootReducer} from 'app/store'
 
 const currencies = [
   {name: 'GBP', value: 10000.99},
   {name: 'USD', value: 20000.33},
   {name: 'AUD', value: 30000.99},
   {name: 'LTU', value: 40000.33},
-];
+]
 const preloadedState = {
   isLoading: false,
   isSubmitting: false,
@@ -32,7 +32,7 @@ const preloadedState = {
   inputValueTo: 0,
   error: null,
   timesSubmitted: 0,
-};
+}
 
 function customRender(ui: any, partialState?: any) {
   // const mockStore = configureStore([...getDefaultMiddleware()]);
@@ -42,7 +42,7 @@ function customRender(ui: any, partialState?: any) {
     reducer: rootReducer,
     preloadedState: {app: {...preloadedState, ...partialState}},
     middleware: [...getDefaultMiddleware()],
-  });
+  })
   return {
     ...render(
       <Provider store={store}>
@@ -50,11 +50,11 @@ function customRender(ui: any, partialState?: any) {
       </Provider>,
     ),
     store,
-  };
+  }
 }
 
 // re-export everything
-export * from '@testing-library/react';
+export * from '@testing-library/react'
 
 // override render method
-export {customRender as render, preloadedState};
+export {customRender as render, preloadedState}

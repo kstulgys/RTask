@@ -1,8 +1,8 @@
-import * as React from 'react';
-import {Box, Flex, Text, useColorMode, StatHelpText, StatArrow} from '@chakra-ui/core';
-import {useSelector, useDispatch} from 'react-redux';
-import {motion, AnimatePresence} from 'framer-motion';
-import {stateSelector} from 'app/appState';
+import * as React from 'react'
+import {Box, Flex, Text, useColorMode, StatHelpText, StatArrow} from '@chakra-ui/core'
+import {useSelector, useDispatch} from 'react-redux'
+import {motion, AnimatePresence} from 'framer-motion'
+import {stateSelector} from 'app/appState'
 
 export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Element {
   return (
@@ -10,15 +10,15 @@ export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Eleme
       <CurrentRate minWidth="20" mr={[10, 12]} />
       <TodaysChange width="full" />
     </Flex>
-  );
+  )
 }
 
 function TodaysChange(props: any) {
-  const {dataPoints} = useSelector(stateSelector);
-  if (dataPoints.length < 2) return null;
-  const change: number = dataPoints[dataPoints.length - 1].y - dataPoints[dataPoints.length - 2].y;
-  const percent = (change * 100) / dataPoints[dataPoints.length - 1].y;
-  const sign = Math.sign(change);
+  const {dataPoints} = useSelector(stateSelector)
+  if (dataPoints.length < 2) return null
+  const change: number = dataPoints[dataPoints.length - 1].y - dataPoints[dataPoints.length - 2].y
+  const percent = (change * 100) / dataPoints[dataPoints.length - 1].y
+  const sign = Math.sign(change)
 
   return (
     <Box {...props}>
@@ -40,16 +40,16 @@ function TodaysChange(props: any) {
         </AnimatePresence>
       </StatHelpText>
     </Box>
-  );
+  )
 }
 
 function CurrentRate(props: any) {
-  const {currentRate} = useSelector(stateSelector);
-  const {colorMode} = useColorMode();
+  const {currentRate} = useSelector(stateSelector)
+  const {colorMode} = useColorMode()
   const color = {
     light: 'gray.800',
     dark: 'revo.lightGray',
-  };
+  }
   return (
     <Box {...props}>
       <Text fontSize="xs" color="revo.gray" fontWeight="medium">
@@ -59,7 +59,7 @@ function CurrentRate(props: any) {
         <AnimateChange change={currentRate}>{!!currentRate && currentRate}</AnimateChange>
       </Text>
     </Box>
-  );
+  )
 }
 
 function AnimateChange({children, change}: any) {
@@ -75,5 +75,5 @@ function AnimateChange({children, change}: any) {
         {children}
       </motion.span>
     </AnimatePresence>
-  );
+  )
 }

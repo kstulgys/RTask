@@ -1,2 +1,2 @@
-export * from './useNotification';
-export * from './useOnClickOutside';
+export * from './useNotification'
+export * from './useOnClickOutside'

@@ -1,22 +1,22 @@
 /* eslint-disable react/display-name */
-import * as React from 'react';
-import {IconButton, Box} from '@chakra-ui/core';
-import {FiRepeat} from 'react-icons/fi';
-import {swapCurrencies, stateSelector} from 'app/appState';
-import {useDispatch, useSelector} from 'react-redux';
-import {debounce} from 'debounce';
-import {motion} from 'framer-motion';
+import * as React from 'react'
+import {IconButton, Box} from '@chakra-ui/core'
+import {FiRepeat} from 'react-icons/fi'
+import {swapCurrencies, stateSelector} from 'app/appState'
+import {useDispatch, useSelector} from 'react-redux'
+import {debounce} from 'debounce'
+import {motion} from 'framer-motion'
 
 export function IconSwapInputs(): JSX.Element {
-  const [count, setCount] = React.useState(0);
-  const {selectedFrom, selectedTo} = useSelector(stateSelector);
-  const dispatch = useDispatch();
+  const [count, setCount] = React.useState(0)
+  const {selectedFrom, selectedTo} = useSelector(stateSelector)
+  const dispatch = useDispatch()
 
   const handleSwap = debounce(() => {
-    if (!selectedFrom || !selectedTo) return;
-    dispatch(swapCurrencies({selectedFrom: selectedTo.name, selectedTo: selectedFrom.name}));
-    setCount(count + 1);
-  }, 250);
+    if (!selectedFrom || !selectedTo) return
+    dispatch(swapCurrencies({selectedFrom: selectedTo.name, selectedTo: selectedFrom.name}))
+    setCount(count + 1)
+  }, 250)
 
   return (
     <Box height="auto" mx={['auto', 'auto', 12]} mt={[0, 0, 6]} mb={[8, 12, 0]}>
@@ -36,7 +36,7 @@ export function IconSwapInputs(): JSX.Element {
         />
       </Rotate>
     </Box>
-  );
+  )
 }
 
 function Rotate(props: any) {
@@ -48,5 +48,5 @@ function Rotate(props: any) {
       }}
       {...props}
     />
-  );
+  )
 }

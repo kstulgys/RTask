@@ -1,37 +1,37 @@
-import * as React from 'react';
+import * as React from 'react'
 
 declare global {
   interface Window {
-    Bugsnag: any;
-    render: any;
+    Bugsnag: any
+    render: any
   }
 }
 
 type MyState = {
-  hasError: boolean;
-  error: any;
-  errorInfo: any;
-};
+  hasError: boolean
+  error: any
+  errorInfo: any
+}
 export class ErrorBoundary extends React.Component<{render: any}, MyState> {
   state = {
     hasError: false,
     error: null,
     errorInfo: null,
-  };
+  }
 
   componentDidCatch(error: any, errorInfo: any) {
-    this.setState({hasError: true, error, errorInfo});
+    this.setState({hasError: true, error, errorInfo})
 
     // if we have Bugsnag in this environment, we can notify our error tracker
     if (window.Bugsnag) {
-      window.Bugsnag.notify(error);
+      window.Bugsnag.notify(error)
     }
   }
 
   render() {
     if (this.state.hasError) {
-      return this.props.render(this.state.error, this.state.errorInfo);
+      return this.props.render(this.state.error, this.state.errorInfo)
     }
-    return this.props.children;
+    return this.props.children
   }
 }

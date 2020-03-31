@@ -1,27 +1,27 @@
-import * as React from 'react';
-import {Box, Flex, Button, Text, useColorMode} from '@chakra-ui/core';
-import {currencyFlags} from './currencyFlags';
-import {Currency} from 'app/types';
-import numeral from 'numeral';
+import * as React from 'react'
+import {Box, Flex, Button, Text, useColorMode} from '@chakra-ui/core'
+import {currencyFlags} from './currencyFlags'
+import {Currency} from 'app/types'
+import numeral from 'numeral'
 
 interface CurrencyItemProps {
-  handleSelect: (item: Currency) => void;
+  handleSelect: (item: Currency) => void
   // handleOnKeySelect: (item: Currency) => void;
-  item: Currency;
+  item: Currency
 }
 
 export default function CurrencyItem({handleSelect, item}: CurrencyItemProps): JSX.Element {
-  const {colorMode} = useColorMode();
+  const {colorMode} = useColorMode()
 
   const color = {
     light: 'gray.800',
     dark: 'revo.lightGray',
-  };
+  }
 
   const bg = {
     light: 'white',
     dark: 'gray.800',
-  };
+  }
   return (
     <Box as="li" my="1">
       <Button
@@ -52,5 +52,5 @@ export default function CurrencyItem({handleSelect, item}: CurrencyItemProps): J
         </Flex>
       </Button>
     </Box>
-  );
+  )
 }
