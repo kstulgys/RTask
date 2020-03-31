@@ -77,12 +77,11 @@
     "dev": "netlify dev",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom --coverage",
+    "test": "react-scripts test --env=jsdom --coverage && coveralls < coverage/lcov.info",
     "eject": "react-scripts eject",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "test:coverage": "npm run test -- --watchAll false --coverage",
-    "cypress": "cypress open",
-    "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls"
+    "cypress": "cypress open"
   },
   "husky": {
     "hooks": {
