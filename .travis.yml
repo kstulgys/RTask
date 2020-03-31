@@ -19,6 +19,7 @@ branches:
   only:
     - master
 script:
-  - npm run test
+  - npm run lint
+  - npm run test:coveralls
 after_success:
   - npx codecov
