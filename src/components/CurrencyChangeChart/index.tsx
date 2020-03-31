@@ -16,7 +16,6 @@ export function CurrencyChangeChart(props: any): JSX.Element {
           data={dataPoints}
           animation
           onNearestXY={(value: any) => {
-            console.log({value})
             setHoveredNode(value)
           }}
         />

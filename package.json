@@ -82,7 +82,7 @@
     "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "test:coverage": "npm run test -- --watchAll false --coverage",
     "cypress": "cypress open",
-    "coveralls": "coveralls"
+    "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls"
   },
   "husky": {
     "hooks": {

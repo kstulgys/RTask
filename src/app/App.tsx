@@ -14,7 +14,7 @@ import {
   ToggleTheme,
 } from 'components'
 import {useSelector, useDispatch} from 'react-redux'
-import {fetchCurrencies, fetchCurrentRate, updateSelectedTo, fetchDataPoints} from 'app/appState'
+import {fetchCurrencies, fetchCurrentRate, updateSelectedTo, fetchDataPoints, stateSelector} from 'app/appState'
 import {RootState} from 'app/store'
 import {useNotification} from 'utils/hooks'
 
@@ -106,7 +106,7 @@ function ContainerInputs(props: ContainerProps): JSX.Element {
 
 function useCurrencyToUpdates() {
   const dispatch = useDispatch()
-  const {selectedFrom, currentRate} = useSelector((state: RootState) => state.app)
+  const {selectedFrom, currentRate} = useSelector(stateSelector)
   React.useEffect(() => {
     if (!selectedFrom || !currentRate) return
     dispatch(updateSelectedTo())
@@ -115,7 +115,7 @@ function useCurrencyToUpdates() {
 
 function useFetchCurrencies() {
   const dispatch = useDispatch()
-  const {timesSubmitted} = useSelector((state: RootState) => state.app)
+  const {timesSubmitted} = useSelector(stateSelector)
   React.useEffect(() => {
     dispatch(fetchCurrencies())
   }, [timesSubmitted])
@@ -123,13 +123,13 @@ function useFetchCurrencies() {
 
 function useHandleUpdates() {
   const dispatch = useDispatch()
-  const {selectedFrom, selectedTo} = useSelector((state: RootState) => state.app)
+  const {selectedFrom, selectedTo} = useSelector(stateSelector)
   React.useEffect(() => {
     if (!selectedFrom || !selectedTo) return
-    // get new currentRate
-    dispatch(fetchDataPoints(selectedFrom.name, selectedTo.name))
     // get new dataPoints
-    dispatch(fetchCurrentRate(selectedFrom.name, selectedTo.name))
+    dispatch(fetchDataPoints({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name}))
+    // get new currentRate
+    dispatch(fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name}))
     // save currency names to local storage
     window.localStorage.setItem(
       'currencies',
@@ -138,9 +138,10 @@ function useHandleUpdates() {
         currencyTo: selectedTo.name,
       }),
     )
+
     // start new currentRate polling
     function startPolling(currencyFrom: string, currencyTo: string) {
-      dispatch(fetchCurrentRate(currencyFrom, currencyTo))
+      dispatch(fetchCurrentRate({selectedFrom: currencyFrom, selectedTo: currencyTo}))
     }
     let timer: any = null
     timer = setInterval(() => {

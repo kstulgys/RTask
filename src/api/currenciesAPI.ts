@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import axios from 'axios'
-import {formatHistoryData, getEndAtDay, getStartAtDay} from 'utils/helpers'
+import {formatHistoryData, getEndAtDay, getStartAtDay, waait} from 'utils/helpers'
 import {Currency, Currencies} from 'app/types'
 const baseUrl = 'https://api.exchangeratesapi.io'
 
@@ -68,7 +68,7 @@ async function updatePockets({selectedFrom, selectedTo}: UpdatePocketsProps): Pr
     selectedFrom,
     selectedTo,
   })
-
+  await waait()
   return data
 }
 

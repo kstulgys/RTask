@@ -1,45 +1,15 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit'
-import {AppThunk} from 'app/store'
-import {getCurrencies, getCurrentRate, getDataPoints, updatePockets, UpdatePocketsProps} from 'api/currenciesAPI'
+import {createSlice, PayloadAction} from '@reduxjs/toolkit'
+import {fetchDataPoints, fetchCurrentRate, fetchCurrencies, submitValues, swapCurrencies} from 'app/asyncActions'
+import {Currencies, CurrencyState, Currency, DataPoints} from 'app/types'
+import {AppThunk, RootState} from 'app/store'
 import {
-  getSelected,
   getCanSubmit,
   isValidInput,
-  getCurrenciesFromStorage,
   getInputValueTo,
   getInputValueFrom,
   getPocketValueTo,
   getPocketValueFrom,
 } from 'utils/helpers'
-import {Currencies, CurrencyState, Currency, DataPoints} from 'app/types'
-import {RootState} from './store'
-
-export const fetchCurrencies: any = createAsyncThunk('app/fetchCurrenciesStatus', async (userId, thunkAPI) => {
-  const defaultFrom = 'GBP'
-  const defaultTo = 'USD'
-
-  const {currencyFrom, currencyTo} = getCurrenciesFromStorage()
-  const currencies = await getCurrencies()
-  const currentRate = await getCurrentRate({
-    selectedFrom: currencyFrom ? currencyFrom : defaultFrom,
-    selectedTo: currencyTo ? currencyTo : defaultTo,
-  })
-  const dataPoints = await getDataPoints({
-    selectedFrom: currencyFrom ? currencyFrom : defaultFrom,
-    selectedTo: currencyTo ? currencyTo : defaultTo,
-  })
-  const selectedFrom = getSelected(currencyFrom ? currencyFrom : defaultFrom, currencies)
-  const selectedTo = getSelected(currencyTo ? currencyTo : defaultTo, currencies)
-
-  return {
-    currencies,
-    currentRate,
-    dataPoints,
-    selectedFrom,
-    selectedTo,
-  }
-})
 
 export const initialState: CurrencyState = {
   isLoading: true,
@@ -70,29 +40,6 @@ const appReducer = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    getCurrentRateStart(state) {
-      state.currentRate = undefined
-    },
-    getCurrentRateSuccess(state, action: PayloadAction<{currentRate: number; dataPoints: DataPoints}>) {
-      const {dataPoints, currentRate} = action.payload
-      state.currentRate = currentRate
-      state.dataPoints = dataPoints
-      state.error = null
-    },
-    getCurrentRateFail(state) {
-      if (!state.selectedTo) return
-      state.currentRate = undefined
-      state.error = {message: `Could not get ${state.selectedTo.name} current rate.`, type: 'warning'}
-    },
-    // get data points
-    getDataPointsSuccess(state, action: PayloadAction<{x: number; y: number}[]>) {
-      state.dataPoints = action.payload
-    },
-    getDataPointsFail(state) {
-      if (!state.selectedTo) return
-      state.dataPoints = []
-      state.error = {message: `Could not get ${state.selectedTo.name} history data.`, type: 'warning'}
-    },
     // handle update
     handleStateUpdate(state) {
       if (!state.selectedTo || !state.currentRate) return
@@ -116,18 +63,6 @@ const appReducer = createSlice({
       state.pocketValueFrom = getPocketValueFrom(state.selectedFrom.value, state.inputValueFrom)
       state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: +state.inputValueFrom})
     },
-    // handle swap
-    handleCurrenciesSwapp(state, action: PayloadAction<number>) {
-      if (!state.selectedFrom || !state.selectedTo) return
-      const selectedTo = state.selectedFrom
-      const selectedFrom = state.selectedTo
-      state.selectedTo = selectedTo
-      state.selectedFrom = selectedFrom
-      state.inputValueFrom = state.inputValueTo
-      state.pocketValueFrom = getPocketValueFrom(state.selectedFrom.value, state.inputValueFrom)
-      state.currentRate = action.payload
-      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: +state.inputValueFrom})
-    },
     handleSelectFrom(state, action: PayloadAction<Currency>) {
       if (!state.selectedTo) return
       state.selectedFrom = action.payload
@@ -141,104 +76,82 @@ const appReducer = createSlice({
       state.selectedTo = action.payload
       state.pocketValueTo = getPocketValueTo(state.selectedTo.value, state.inputValueTo)
     },
-    // handle submit
-    handleCurrenciesSubmitStart(state) {
-      if (!state.canSubmit) return
-      state.isSubmitting = true
-    },
-    handleCurrenciesSubmitSuccess(state) {
-      state.error = {message: `Success.`, type: 'success'}
-      state.timesSubmitted = state.timesSubmitted + 1
-      state.isSubmitting = false
-      state.canSubmit = false
-    },
-    handleCurrenciesSubmitFail(state) {
-      state.error = {message: `Something went wrong. Try again later.`, type: 'warning'}
-    },
   },
   extraReducers: {
     [fetchCurrencies.fulfilled]: (state, action: PayloadAction<GetCurrenciesSuccessPayload>) => {
       const {currencies, currentRate, dataPoints, selectedFrom, selectedTo} = action.payload
       if (!selectedFrom || !selectedTo) return
-      state.currencies = currencies
-      state.selectedFrom = selectedFrom
-      state.selectedTo = selectedTo
-      state.currentRate = currentRate
-      state.dataPoints = dataPoints
-      state.isLoading = false
-      state.error = null
-      state.pocketValueFrom = +selectedFrom.value
-      state.pocketValueTo = +selectedTo.value
-      state.inputValueFrom = ''
-      state.inputValueTo = ''
+      state = {
+        ...initialState,
+        currencies,
+        currentRate,
+        dataPoints,
+        selectedFrom,
+        selectedTo,
+        isLoading: false,
+        pocketValueFrom: +selectedFrom.value,
+        pocketValueTo: +selectedTo.value,
+      }
+      return state
     },
     [fetchCurrencies.rejected]: (state, action) => {
       state.isLoading = false
       state.error = {message: `Something went wrong.`, type: 'warning'}
     },
+    [fetchCurrentRate.fulfilled]: (state, action: PayloadAction<{currentRate: number; dataPoints: DataPoints}>) => {
+      const {dataPoints, currentRate} = action.payload
+      state.currentRate = currentRate
+      state.dataPoints = dataPoints
+      state.error = null
+    },
+    [fetchCurrentRate.rejected]: (state, action) => {
+      if (!state.selectedTo) return
+      state.currentRate = undefined
+      state.error = {message: `Could not get ${state.selectedTo.name} current rate.`, type: 'warning'}
+    },
+    [fetchDataPoints.fulfilled]: (state, action: PayloadAction<{x: number; y: number}[]>) => {
+      state.dataPoints = action.payload
+    },
+    [fetchDataPoints.rejected]: (state, action) => {
+      if (!state.selectedTo) return
+      state.dataPoints = []
+      state.error = {message: `Could not get ${state.selectedTo.name} history data.`, type: 'warning'}
+    },
+    [submitValues.pending]: (state, action) => {
+      if (!state.canSubmit) return
+      state.isSubmitting = true
+    },
+    [submitValues.fulfilled]: (state, action) => {
+      state.error = {message: `Success.`, type: 'success'}
+      state.timesSubmitted = state.timesSubmitted + 1
+      state.isSubmitting = false
+      state.canSubmit = false
+    },
+    [submitValues.rejected]: (state, action) => {
+      state.error = {message: `Something went wrong. Try again later.`, type: 'warning'}
+    },
+    [swapCurrencies.fulfilled]: (state, action: PayloadAction<number>) => {
+      if (!state.selectedFrom || !state.selectedTo) return
+      const selectedTo = state.selectedFrom
+      const selectedFrom = state.selectedTo
+      state.selectedTo = selectedTo
+      state.selectedFrom = selectedFrom
+      state.inputValueFrom = state.inputValueTo
+      state.pocketValueFrom = getPocketValueFrom(state.selectedFrom.value, state.inputValueFrom)
+      state.currentRate = action.payload
+      state.canSubmit = getCanSubmit({pocketValueFrom: state.pocketValueFrom, inputValueFrom: +state.inputValueFrom})
+    },
   },
 })
 
 export const {
-  // getCurrenciesSuccess,
-  // getCurrenciesFail,
-  getCurrentRateSuccess,
   handleInputChangeTo,
   handleInputChangeFrom,
   handleStateUpdate,
-  getDataPointsSuccess,
-  handleCurrenciesSwapp,
-  getCurrentRateFail,
-  getDataPointsFail,
-  handleCurrenciesSubmitStart,
-  handleCurrenciesSubmitSuccess,
-  handleCurrenciesSubmitFail,
   handleSelectFrom,
   handleSelectTo,
 } = appReducer.actions
 export default appReducer.reducer
-
-// export const fetchCurrencies = (): AppThunk => async dispatch => {
-//   const defaultFrom = 'GBP'
-//   const defaultTo = 'USD'
-
-//   try {
-//     const {currencyFrom, currencyTo} = getCurrenciesFromStorage()
-//     const currencies = await getCurrencies()
-//     const currentRate = await getCurrentRate({
-//       selectedFrom: currencyFrom ? currencyFrom : defaultFrom,
-//       selectedTo: currencyTo ? currencyTo : defaultTo,
-//     })
-//     const dataPoints = await getDataPoints({
-//       selectedFrom: currencyFrom ? currencyFrom : defaultFrom,
-//       selectedTo: currencyTo ? currencyTo : defaultTo,
-//     })
-//     const selectedFrom = getSelected(currencyFrom ? currencyFrom : defaultFrom, currencies)
-//     const selectedTo = getSelected(currencyTo ? currencyTo : defaultTo, currencies)
-//     dispatch(getCurrenciesSuccess({currencies, currentRate, dataPoints, selectedFrom, selectedTo}))
-//   } catch (error) {
-//     dispatch(getCurrenciesFail())
-//   }
-// }
-
-export const fetchCurrentRate = (selectedFrom: string, selectedTo: string): AppThunk => async dispatch => {
-  try {
-    const currentRate = await getCurrentRate({selectedFrom, selectedTo})
-    const dataPoints = await getDataPoints({selectedTo, selectedFrom})
-    dispatch(getCurrentRateSuccess({currentRate, dataPoints}))
-  } catch (error) {
-    dispatch(getCurrentRateFail())
-  }
-}
-
-export const fetchDataPoints = (selectedFrom: string, selectedTo: string): AppThunk => async dispatch => {
-  try {
-    const datapoints = await getDataPoints({selectedTo, selectedFrom})
-    dispatch(getDataPointsSuccess(datapoints))
-  } catch (error) {
-    dispatch(getDataPointsFail())
-  }
-}
 
 export const updateSelectedTo = (): AppThunk => dispatch => {
   dispatch(handleStateUpdate())
@@ -260,29 +173,5 @@ export const selectTo = (selected: Currency): AppThunk => dispatch => {
   dispatch(handleSelectTo(selected))
 }
 
-export const swapCurrencies = ({
-  selectedFrom,
-  selectedTo,
-}: {
-  selectedFrom: string
-  selectedTo: string
-}): AppThunk => async dispatch => {
-  try {
-    const currentRate = await getCurrentRate({selectedFrom, selectedTo})
-    dispatch(handleCurrenciesSwapp(currentRate))
-  } catch (error) {
-    dispatch(getCurrentRateFail())
-  }
-}
-
-export const submitValues = ({selectedFrom, selectedTo}: UpdatePocketsProps): AppThunk => async dispatch => {
-  dispatch(handleCurrenciesSubmitStart())
-  try {
-    await updatePockets({selectedFrom, selectedTo})
-    dispatch(handleCurrenciesSubmitSuccess())
-  } catch (error) {
-    dispatch(handleCurrenciesSubmitFail())
-  }
-}
-
+export {fetchDataPoints, fetchCurrentRate, fetchCurrencies, submitValues, swapCurrencies}
 export const stateSelector = (state: RootState) => state.app
