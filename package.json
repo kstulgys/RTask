@@ -77,11 +77,11 @@
     "dev": "netlify dev",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --coverage",
+    "test": "react-scripts test --env=jsdom --coverage",
     "eject": "react-scripts eject",
-    "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "cypress": "cypress open",
-    "coveralls": "react-scripts test --coverage && coveralls < coverage/lcov.info"
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls"
   },
   "husky": {
     "hooks": {
@@ -98,8 +98,7 @@
     "collectCoverageFrom": [
       "src/**/*.js",
       "!<rootDir>/node_modules/**/*",
-      "!<rootDir>/src/test/**/*",
-      "!<rootDir>/src/dev-tools/**/*"
+      "!<rootDir>/functions/**/*"
     ]
   },
   "browserslist": {
