@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import axios from 'axios'
 import {formatHistoryData, getEndAtDay, getStartAtDay, waait} from 'utils/helpers'
-import {Currency, Currencies} from 'app/types'
+import {Currency, Currencies, DataPoints} from 'app/types'
 const baseUrl = 'https://api.exchangeratesapi.io'
 
 type Rates = {[key: string]: number}
@@ -44,11 +44,7 @@ interface GetHistoryData {
   daysAgo?: 10 | 7 | 30 | 90 | 180 | 360 | 1800
 }
 
-async function getDataPoints({
-  daysAgo = 30,
-  selectedTo,
-  selectedFrom,
-}: GetHistoryData): Promise<{x: number; y: number}[]> {
+async function getDataPoints({daysAgo = 30, selectedTo, selectedFrom}: GetHistoryData): Promise<DataPoints> {
   const {data} = await axios.get<{rates: {[key: string]: {[key: string]: number}}}>(
     `${baseUrl}/history?start_at=${getStartAtDay(
       daysAgo,

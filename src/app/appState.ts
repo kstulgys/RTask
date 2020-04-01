@@ -26,12 +26,10 @@ export const initialState: CurrencyState = {
     message: null,
   },
   dataPoints: {
-    isLoading: true,
     value: [],
     message: null,
   },
   currentRate: {
-    isLoading: true,
     value: 0,
     message: null,
   },
@@ -125,33 +123,20 @@ const appReducer = createSlice({
       state.currencies.message = {text: `Could not get currency list. Try again later.`, type: 'warning'}
     },
     // CURRENT RATE
-    [fetchCurrentRate.pending]: (state, action) => {
-      state.currentRate.isLoading = true
-      state.currentRate.message = null
-    },
     [fetchCurrentRate.fulfilled]: (state, action: PayloadAction<number>) => {
       state.currentRate.value = action.payload
       state.currentRate.message = null
-      state.currentRate.isLoading = false
     },
     [fetchCurrentRate.rejected]: (state, action) => {
-      state.currentRate.isLoading = false
       state.currentRate.value = 0
       state.currentRate.message = {text: `Could not get current rate.`, type: 'warning'}
     },
     // DATA POINTS
-    [fetchDataPoints.pending]: (state, action) => {
-      state.dataPoints.isLoading = true
-      // state.dataPoints.value = []
-      state.dataPoints.message = null
-    },
     [fetchDataPoints.fulfilled]: (state, action: PayloadAction<DataPoints>) => {
-      state.dataPoints.isLoading = false
       state.dataPoints.value = action.payload
       state.dataPoints.message = null
     },
     [fetchDataPoints.rejected]: (state, action) => {
-      state.dataPoints.isLoading = false
       state.dataPoints.value = []
       state.dataPoints.message = {text: `Could not get current rate.`, type: 'warning'}
     },

@@ -6,7 +6,10 @@ const fetchCurrencies: any = createAsyncThunk('app/fetchCurrenciesStatus', async
   const defaultFrom = 'GBP'
   const defaultTo = 'USD'
 
-  const {currencyFrom, currencyTo} = getCurrenciesFromStorage()
+  // const {currencyFrom, currencyTo} = getCurrenciesFromStorage()
+  const currencyFrom = null
+  const currencyTo = null
+
   const currencies = await getCurrencies()
   const currentRate = await getCurrentRate({
     selectedFrom: currencyFrom ? currencyFrom : defaultFrom,
@@ -50,13 +53,5 @@ const submitValues: any = createAsyncThunk(
     await updatePockets({selectedFrom, selectedTo})
   },
 )
-
-// const swapCurrencies: any = createAsyncThunk(
-//   'app/swapCurrenciesStatus',
-//   async ({selectedFrom, selectedTo}: {selectedFrom: string; selectedTo: string}, thunkAPI) => {
-//     const currentRate = await getCurrentRate({selectedFrom, selectedTo})
-//     return currentRate
-//   },
-// )
 
 export {fetchDataPoints, fetchCurrentRate, fetchCurrencies, submitValues}

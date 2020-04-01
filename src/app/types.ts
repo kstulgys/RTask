@@ -20,12 +20,10 @@ export type CurrencyState = {
     message: Message
   }
   dataPoints: {
-    isLoading: boolean
     value: DataPoints
     message: Message
   }
   currentRate: {
-    isLoading: boolean
     value: number
     message: Message
   }
