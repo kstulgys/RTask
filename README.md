@@ -1,7 +1,5 @@
 [![Coverage Status](https://coveralls.io/repos/github/kstulgys/currency-exchanger-app/badge.svg?branch=master)](https://coveralls.io/github/kstulgys/currency-exchanger-app?branch=master)
 
-[![Travis CI](https://travis-ci.com/kstulgys/currency-exchanger-app.svg?branch=master)](https://travis-ci.com/kstulgys/currency-exchanger-app.svg?branch=master)
-
 # Currency Exchange App
 
 visit live at https://exchangeme.netlify.com/
