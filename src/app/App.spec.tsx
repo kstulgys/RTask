@@ -4,7 +4,7 @@ import {render, cleanup, fireEvent, act, wait, waitForElement, queryByTestId} fr
 import user from '@testing-library/user-event'
 import '@testing-library/jest-dom/extend-expect'
 import {filterList, fPocket} from 'utils/helpers'
-import {initialState, submitValues} from 'app/appState'
+import {initialState, submitValues} from 'app/appSlice'
 // import {getCurrencies} from 'api/currenciesAPI';
 
 beforeEach(cleanup)

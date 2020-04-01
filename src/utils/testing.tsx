@@ -37,10 +37,11 @@ const preloadedState = {
 function customRender(ui: any, partialState?: any) {
   // const mockStore = configureStore([...getDefaultMiddleware()]);
   // const store = mockStore({app: {...preloadedState, ...partialState}});
+  // preloadedState: {app: {...preloadedState, ...partialState}},
 
   const store = configureStore({
     reducer: rootReducer,
-    preloadedState: {app: {...preloadedState, ...partialState}},
+    preloadedState: {},
     middleware: [...getDefaultMiddleware()],
   })
   return {

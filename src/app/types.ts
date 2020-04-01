@@ -7,15 +7,15 @@ export type Error = {message: string; type: 'success' | 'warning'} | null
 
 export type CurrencyState = {
   isSubmitting: boolean
-  pocketValueFrom: number
-  pocketValueTo: number
+  pocketValueFrom: string
+  pocketValueTo: string
   canSubmit: boolean
-  isLoading: boolean
+  // isLoading: boolean
   selectedFrom: Currency | undefined
   selectedTo: Currency | undefined
-  currencies: Currencies
-  dataPoints: DataPoints
-  currentRate: number | undefined
+  // currencies: Currencies
+  // dataPoints: DataPoints
+  // currentRate: number | undefined
   inputValueFrom: string
   inputValueTo: string
   error: Error

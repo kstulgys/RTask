@@ -3,8 +3,9 @@ import * as React from 'react'
 import {Box, Flex, Text, NumberInput, NumberInputField, useColorMode, IconButton} from '@chakra-ui/core'
 import {SYMBOLS} from './symbols'
 import {FiPlus, FiMinus} from 'react-icons/fi'
-import {onInputChangeFrom, onInputChangeTo, stateSelector} from 'app/appState'
 import {useDispatch, useSelector} from 'react-redux'
+import {selectCurrencySelector, inputChangeSelector, currentRateSelector} from 'app/store'
+import {onInputChangeFrom, onInputChangeTo} from 'app/features/inputChange/inputChangeSlice'
 
 interface InputAmountProps {
   label: 'From' | 'To'
@@ -27,7 +28,7 @@ const style = {
   },
 }
 
-export function InputAmount(props: InputAmountProps): JSX.Element {
+export function InputAmount(props: InputAmountProps) {
   const {autoFocus, label, ...rest} = props
   const {inputValue, handleChange, symbol, sign} = useInputAmount(label)
   const {colorMode} = useColorMode()
@@ -46,7 +47,7 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
           {symbol}
         </Text>
       </Box>
-      {!!inputValue && (
+      {!!+inputValue && (
         <Flex flexDirection="column" height="full">
           <IconButton
             my="auto"
@@ -68,7 +69,7 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
           data-testid={autoFocus ? 'input-from' : 'input-to'}
           autoFocus={autoFocus}
           onChange={handleChange}
-          value={!!inputValue ? inputValue : ''}
+          value={!!+inputValue ? inputValue : ''}
           pl="0"
           px="0"
           height="full"
@@ -90,7 +91,10 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
 }
 
 function useInputAmount(label: 'To' | 'From') {
-  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(stateSelector)
+  const {selectedFrom, selectedTo} = useSelector(selectCurrencySelector)
+  const {inputValueFrom, inputValueTo} = useSelector(inputChangeSelector)
+  const {currentRate} = useSelector(currentRateSelector)
+
   const dispatch = useDispatch()
 
   const onChnage = label === 'From' ? onInputChangeFrom : onInputChangeTo
@@ -100,7 +104,15 @@ function useInputAmount(label: 'To' | 'From') {
   const sign = label === 'From' ? FiMinus : FiPlus
 
   const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    dispatch(onChnage(e.target.value))
+    if (!selectedFrom || !selectedTo) return
+    dispatch(
+      onChnage({
+        inputValue: e.target.value,
+        selectedFromValue: selectedFrom.value.toString(),
+        selectedToValue: selectedTo.value.toString(),
+        currentRate,
+      }),
+    )
   }, [])
 
   return {inputValue, handleChange, symbol, sign}
