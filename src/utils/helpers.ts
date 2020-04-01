@@ -48,8 +48,8 @@ function filterList(searchTerm: string, currencies: Currencies) {
   return currencies.filter(c => c.name.includes(searchTerm.toUpperCase()))
 }
 
-function getCanSubmit({pocketValueFrom, inputValueFrom}: {pocketValueFrom: number; inputValueFrom: number}) {
-  return Math.sign(pocketValueFrom) !== -1 && !!inputValueFrom
+function getCanSubmit({pocketValueFrom, inputValueFrom}: {pocketValueFrom: string; inputValueFrom: string}) {
+  return Math.sign(parseInt(pocketValueFrom)) !== -1 && !!inputValueFrom
 }
 
 function waait() {
@@ -79,13 +79,28 @@ function getCurrenciesFromStorage(): any {
   return {currencyFrom, currencyTo}
 }
 const getInputValueTo = (inputValueFrom: string, currentRate: number) => {
-  return !inputValueFrom ? '' : (+inputValueFrom * currentRate).toFixed(2)
+  if (!inputValueFrom) return ''
+  return numeral(inputValueFrom)
+    .multiply(currentRate)
+    .format('0.00')
 }
-const getInputValueFrom = (inputValueTo: string, currentRate: number) => (+inputValueTo / currentRate).toFixed(2)
-const getPocketValueTo = (selectedToValue: number, inputValueTo: string) =>
-  +(selectedToValue + +inputValueTo).toFixed(2)
-const getPocketValueFrom = (selectedValueFrom: number, inputValueTo: string) =>
-  +(selectedValueFrom - +inputValueTo).toFixed(2)
+
+const getInputValueFrom = (inputValueTo: string, currentRate: number) => {
+  if (!inputValueTo) return ''
+  return numeral(inputValueTo)
+    .divide(currentRate)
+    .format('0.00')
+}
+const getPocketValueTo = (selectedValueTo: number, inputValueTo: string) => {
+  return numeral(selectedValueTo)
+    .add(inputValueTo)
+    .format('00,000.00')
+}
+const getPocketValueFrom = (selectedValueFrom: number, inputValueTo: string) => {
+  return numeral(selectedValueFrom)
+    .subtract(inputValueTo)
+    .format('00,000.00')
+}
 
 export {
   getInputValueTo,

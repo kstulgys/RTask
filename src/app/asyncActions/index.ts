@@ -32,11 +32,7 @@ const fetchCurrentRate: any = createAsyncThunk(
   'app/fetchCurrentRateStatus',
   async ({selectedFrom, selectedTo}: {selectedFrom: string; selectedTo: string}, thunkAPI) => {
     const currentRate = await getCurrentRate({selectedFrom, selectedTo})
-    const dataPoints = await getDataPoints({selectedTo, selectedFrom})
-    return {
-      currentRate,
-      dataPoints,
-    }
+    return currentRate
   },
 )
 
@@ -55,12 +51,12 @@ const submitValues: any = createAsyncThunk(
   },
 )
 
-const swapCurrencies: any = createAsyncThunk(
-  'app/swapCurrenciesStatus',
-  async ({selectedFrom, selectedTo}: {selectedFrom: string; selectedTo: string}, thunkAPI) => {
-    const currentRate = await getCurrentRate({selectedFrom, selectedTo})
-    return currentRate
-  },
-)
+// const swapCurrencies: any = createAsyncThunk(
+//   'app/swapCurrenciesStatus',
+//   async ({selectedFrom, selectedTo}: {selectedFrom: string; selectedTo: string}, thunkAPI) => {
+//     const currentRate = await getCurrentRate({selectedFrom, selectedTo})
+//     return currentRate
+//   },
+// )
 
-export {fetchDataPoints, fetchCurrentRate, fetchCurrencies, submitValues, swapCurrencies}
+export {fetchDataPoints, fetchCurrentRate, fetchCurrencies, submitValues}

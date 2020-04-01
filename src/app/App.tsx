@@ -15,17 +15,16 @@ import {
 } from 'components'
 import {useSelector, useDispatch} from 'react-redux'
 import {fetchCurrencies, fetchCurrentRate, updateSelectedTo, fetchDataPoints, stateSelector} from 'app/appState'
-import {RootState} from 'app/store'
 import {useNotification} from 'utils/hooks'
 
 export default function CurrencyExchange() {
-  const {isLoading} = useSelector((state: RootState) => state.app)
+  const {currencies} = useSelector(stateSelector)
   useFetchCurrencies()
   useNotification()
   useHandleUpdates()
   useCurrencyToUpdates()
 
-  if (isLoading) {
+  if (currencies.isLoading) {
     return <Loader />
   }
 
@@ -108,17 +107,16 @@ function useCurrencyToUpdates() {
   const dispatch = useDispatch()
   const {selectedFrom, currentRate} = useSelector(stateSelector)
   React.useEffect(() => {
-    if (!selectedFrom || !currentRate) return
+    if (!selectedFrom || !currentRate.value) return
     dispatch(updateSelectedTo())
-  }, [currentRate, selectedFrom])
+  }, [currentRate.value, selectedFrom])
 }
 
 function useFetchCurrencies() {
   const dispatch = useDispatch()
-  const {timesSubmitted} = useSelector(stateSelector)
   React.useEffect(() => {
     dispatch(fetchCurrencies())
-  }, [timesSubmitted])
+  }, [])
 }
 
 function useHandleUpdates() {
@@ -140,14 +138,14 @@ function useHandleUpdates() {
     )
 
     // start new currentRate polling
-    function startPolling(currencyFrom: string, currencyTo: string) {
-      dispatch(fetchCurrentRate({selectedFrom: currencyFrom, selectedTo: currencyTo}))
-    }
     let timer: any = null
     timer = setInterval(() => {
       if (!selectedFrom || !selectedTo) return
       startPolling(selectedFrom.name, selectedTo.name)
     }, 10000)
+    function startPolling(currencyFrom: string, currencyTo: string) {
+      dispatch(fetchCurrentRate({selectedFrom: currencyFrom, selectedTo: currencyTo}))
+    }
     // unsubscribe from previous rate polling
     return () => clearInterval(timer)
   }, [selectedFrom, selectedTo])

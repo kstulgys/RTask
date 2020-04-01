@@ -14,7 +14,7 @@ export function IconSwapInputs(): JSX.Element {
 
   const handleSwap = debounce(() => {
     if (!selectedFrom || !selectedTo) return
-    dispatch(swapCurrencies({selectedFrom: selectedTo.name, selectedTo: selectedFrom.name}))
+    dispatch(swapCurrencies())
     setCount(count + 1)
   }, 250)
 

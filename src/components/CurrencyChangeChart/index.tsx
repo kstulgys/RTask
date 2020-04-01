@@ -5,15 +5,18 @@ import {useSelector, useDispatch} from 'react-redux'
 import {stateSelector} from 'app/appState'
 import '../../..//node_modules/react-vis/dist/style.css'
 
-export function CurrencyChangeChart(props: any): JSX.Element {
+export function CurrencyChangeChart(props: any) {
   const {dataPoints} = useSelector(stateSelector)
   const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null)
+
+  if (!dataPoints.value.length) return null
+
   return (
     <Flex {...props} height="175px" ml="-30px" my="16">
       <FlexibleWidthXYPlot height={175} onMouseLeave={() => setHoveredNode(null)}>
         <LineSeries
           color="#0075EB"
-          data={dataPoints}
+          data={dataPoints.value}
           animation
           onNearestXY={(value: any) => {
             setHoveredNode(value)

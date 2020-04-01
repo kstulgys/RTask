@@ -73,9 +73,8 @@ describe('Input change', () => {
   const state = {
     selectedFrom: {name: 'GBP', value: 51234},
     selectedTo: {name: 'USD', value: 71234},
-    currentRate: 1.1,
-    pocketValueFrom: 51234,
-    pocketValueTo: 71234,
+    pocketValueFrom: fPocket(51234),
+    pocketValueTo: fPocket(71234),
     inputValueFrom: '',
     inputValueTo: '',
   }
@@ -91,12 +90,12 @@ describe('Input change', () => {
     newValue = '5000.43'
     expect(inputFrom.value).toBe('')
     expect(inputTo.value).toBe('')
-    expect(pocketFrom).toHaveTextContent(fPocket(state.pocketValueFrom))
-    expect(pocketTo).toHaveTextContent(fPocket(state.pocketValueTo))
+    expect(pocketFrom).toHaveTextContent(state.pocketValueFrom)
+    expect(pocketTo).toHaveTextContent(state.pocketValueTo)
     return store
   }
 
-  test('on input FROM change - pdates input value FROM, input value TO, pocket value FROM, pocket value TO', () => {
+  test('on input FROM change - updates input value FROM, input value TO, pocket value FROM, pocket value TO', () => {
     const store = setup()
     user.type(inputFrom, newValue)
     // updates input FROM value
@@ -104,12 +103,12 @@ describe('Input change', () => {
     // updates input TO value
     expect(inputTo.value).toBe(store.getState().app.inputValueTo)
     // updates pocket FROM value
-    expect(pocketFrom).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom))
+    expect(pocketFrom).toHaveTextContent(store.getState().app.pocketValueFrom)
     // updates pocket TO value
-    expect(pocketTo).toHaveTextContent(fPocket(store.getState().app.pocketValueTo))
+    expect(pocketTo).toHaveTextContent(store.getState().app.pocketValueTo)
   })
 
-  it('on input TO change - udates input value FROM, input value TO, pocket value FROM, pocket value TO', () => {
+  it('on input TO change - updates input value FROM, input value TO, pocket value FROM, pocket value TO', () => {
     const store = setup()
     user.type(inputTo, newValue)
     // updates input FROM value
@@ -117,9 +116,9 @@ describe('Input change', () => {
     // updates input TO value
     expect(inputTo.value).toBe(store.getState().app.inputValueTo)
     // updates pocket FROM value
-    expect(pocketFrom).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom))
+    expect(pocketFrom).toHaveTextContent(store.getState().app.pocketValueFrom)
     // updates pocket TO value
-    expect(pocketTo).toHaveTextContent(fPocket(store.getState().app.pocketValueTo))
+    expect(pocketTo).toHaveTextContent(store.getState().app.pocketValueTo)
   })
 })
 
@@ -131,11 +130,11 @@ const currencies = [
 ]
 describe('select currency', () => {
   const props = {
-    pocketValueFrom: currencies[0].value,
-    pocketValueTo: currencies[1].value,
+    pocketValueFrom: currencies[0].value.toString(),
+    pocketValueTo: currencies[1].value.toString(),
     selectedFrom: currencies[0],
     selectedTo: currencies[1],
-    currencies: currencies,
+    currencies: {isLoading: false, value: currencies, message: null},
   }
   test('select currency FROM', () => {
     const {getByTestId, queryByTestId, debug, store} = render(<App />, {
@@ -150,10 +149,10 @@ describe('select currency', () => {
     user.click(listItem)
     // store has expected state
     expect(dropdownDiv).toHaveTextContent(store.getState().app.selectedFrom!.name)
-    expect(getByTestId('pocket-from')).toHaveTextContent(fPocket(store.getState().app.pocketValueFrom))
+    expect(getByTestId('pocket-from')).toHaveTextContent(store.getState().app.pocketValueFrom)
     // renders expected UI
     expect(store.getState().app.selectedFrom!.name).toBe(currencies[2].name)
-    expect(store.getState().app.pocketValueFrom).toBe(currencies[2].value)
+    expect(store.getState().app.pocketValueFrom).toBe(fPocket(currencies[2].value))
   })
 
   test('select currency TO', () => {
@@ -167,10 +166,10 @@ describe('select currency', () => {
     user.click(listItem)
     // store has expected state
     expect(dropdownDiv).toHaveTextContent(store.getState().app.selectedTo!.name)
-    expect(getByTestId('pocket-to')).toHaveTextContent(fPocket(store.getState().app.pocketValueTo))
+    expect(getByTestId('pocket-to')).toHaveTextContent(store.getState().app.pocketValueTo)
     // renders expected UI
     expect(store.getState().app.selectedTo!.name).toBe(currencies[2].name)
-    expect(store.getState().app.pocketValueTo).toBe(currencies[2].value)
+    expect(store.getState().app.pocketValueTo).toBe(fPocket(currencies[2].value))
   })
 })
 

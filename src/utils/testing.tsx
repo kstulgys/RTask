@@ -15,23 +15,33 @@ const currencies = [
   {name: 'LTU', value: 40000.33},
 ]
 const preloadedState = {
-  isLoading: false,
   isSubmitting: false,
-  pocketValueFrom: currencies[0].value,
-  pocketValueTo: currencies[1].value,
+  pocketValueFrom: currencies[0].value.toString(),
+  pocketValueTo: currencies[1].value.toString(),
+  inputValueFrom: '',
+  inputValueTo: '',
   canSubmit: false,
   selectedFrom: currencies[0],
   selectedTo: currencies[1],
-  currencies: currencies,
-  dataPoints: [
-    {x: 1, y: 1},
-    {x: 2, y: 2},
-  ],
-  currentRate: 1.1234,
-  inputValueFrom: 0,
-  inputValueTo: 0,
-  error: null,
-  timesSubmitted: 0,
+  currencies: {
+    isLoading: false,
+    value: currencies,
+    message: null,
+  },
+  dataPoints: {
+    isLoading: false,
+    value: [
+      {x: 1, y: 1},
+      {x: 2, y: 2},
+    ],
+    message: null,
+  },
+  currentRate: {
+    isLoading: false,
+    value: 1.1234,
+    message: null,
+  },
+  message: null,
 }
 
 function customRender(ui: any, partialState?: any) {

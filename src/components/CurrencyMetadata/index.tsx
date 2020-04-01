@@ -15,9 +15,10 @@ export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Eleme
 
 function TodaysChange(props: any) {
   const {dataPoints} = useSelector(stateSelector)
-  if (dataPoints.length < 2) return null
-  const change: number = dataPoints[dataPoints.length - 1].y - dataPoints[dataPoints.length - 2].y
-  const percent = (change * 100) / dataPoints[dataPoints.length - 1].y
+  if (dataPoints.value.length < 2) return null
+  const change: number =
+    dataPoints.value[dataPoints.value.length - 1].y - dataPoints.value[dataPoints.value.length - 2].y
+  const percent = (change * 100) / dataPoints.value[dataPoints.value.length - 1].y
   const sign = Math.sign(change)
 
   return (
@@ -56,7 +57,7 @@ function CurrentRate(props: any) {
         Current rate
       </Text>
       <Text color={color[colorMode]} data-testid="current-rate" fontWeight="medium" fontSize="xl">
-        <AnimateChange change={currentRate}>{!!currentRate && currentRate}</AnimateChange>
+        <AnimateChange change={currentRate.value}>{!!currentRate.value && currentRate.value}</AnimateChange>
       </Text>
     </Box>
   )

@@ -3,21 +3,31 @@ export type Currencies = Currency[]
 export type DataPoint = {x: number; y: number}
 export type DataPoints = DataPoint[]
 
-export type Error = {message: string; type: 'success' | 'warning'} | null
+export type Message = {text?: string; type?: 'success' | 'warning'} | null
 
 export type CurrencyState = {
   isSubmitting: boolean
-  pocketValueFrom: number
-  pocketValueTo: number
-  canSubmit: boolean
-  isLoading: boolean
-  selectedFrom: Currency | undefined
-  selectedTo: Currency | undefined
-  currencies: Currencies
-  dataPoints: DataPoints
-  currentRate: number | undefined
+  pocketValueFrom: string
+  pocketValueTo: string
   inputValueFrom: string
   inputValueTo: string
-  error: Error
-  timesSubmitted: number
+  canSubmit: boolean
+  selectedFrom: Currency | undefined
+  selectedTo: Currency | undefined
+  currencies: {
+    isLoading: boolean
+    value: Currencies
+    message: Message
+  }
+  dataPoints: {
+    isLoading: boolean
+    value: DataPoints
+    message: Message
+  }
+  currentRate: {
+    isLoading: boolean
+    value: number
+    message: Message
+  }
+  message: Message
 }

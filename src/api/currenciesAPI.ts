@@ -10,8 +10,8 @@ async function getCurrencies(): Promise<Currencies> {
   const {data} = await axios.get<{rates: Rates; base: string}>(`${baseUrl}/latest`)
   const myPockets = await getMyPockets()
   const names = [...Object.keys(data.rates), data.base]
-  const formatted: Currencies = []
 
+  const formatted: Currencies = []
   names.forEach(name => {
     if (myPockets[name]) {
       formatted.push({name, value: myPockets[name]})
@@ -20,7 +20,7 @@ async function getCurrencies(): Promise<Currencies> {
     }
   })
 
-  return formatted.sort((a, b) => +b.value - +a.value)
+  return formatted.sort((a, b) => b.value - a.value)
 }
 
 async function getMyPockets(): Promise<{[key: string]: number}> {
