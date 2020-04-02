@@ -6,21 +6,17 @@ const fetchCurrencies: any = createAsyncThunk('app/fetchCurrenciesStatus', async
   const defaultFrom = 'GBP'
   const defaultTo = 'USD'
 
-  // const {currencyFrom, currencyTo} = getCurrenciesFromStorage()
-  const currencyFrom = null
-  const currencyTo = null
-
   const currencies = await getCurrencies()
   const currentRate = await getCurrentRate({
-    selectedFrom: currencyFrom ? currencyFrom : defaultFrom,
-    selectedTo: currencyTo ? currencyTo : defaultTo,
+    selectedFrom: defaultFrom,
+    selectedTo: defaultTo,
   })
   const dataPoints = await getDataPoints({
-    selectedFrom: currencyFrom ? currencyFrom : defaultFrom,
-    selectedTo: currencyTo ? currencyTo : defaultTo,
+    selectedFrom: defaultFrom,
+    selectedTo: defaultTo,
   })
-  const selectedFrom = getSelected(currencyFrom ? currencyFrom : defaultFrom, currencies)
-  const selectedTo = getSelected(currencyTo ? currencyTo : defaultTo, currencies)
+  const selectedFrom = getSelected(defaultFrom, currencies)
+  const selectedTo = getSelected(defaultTo, currencies)
 
   return {
     currencies,
