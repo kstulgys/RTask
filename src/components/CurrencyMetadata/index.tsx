@@ -1,10 +1,9 @@
 import * as React from 'react'
 import {Box, Flex, Text, useColorMode, StatHelpText, StatArrow} from '@chakra-ui/core'
-import {useSelector, useDispatch} from 'react-redux'
 import {motion, AnimatePresence} from 'framer-motion'
-import {stateSelector} from 'app/appState'
+import useStore from 'app/store'
 
-export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Element {
+export function CurrencyMetadata({...props}: {[key: string]: string}) {
   return (
     <Flex {...props}>
       <CurrentRate minWidth="20" mr={[10, 12]} />
@@ -14,11 +13,10 @@ export function CurrencyMetadata({...props}: {[key: string]: string}): JSX.Eleme
 }
 
 function TodaysChange(props: any) {
-  const {dataPoints} = useSelector(stateSelector)
-  if (dataPoints.value.length < 2) return null
-  const change: number =
-    dataPoints.value[dataPoints.value.length - 1].y - dataPoints.value[dataPoints.value.length - 2].y
-  const percent = (change * 100) / dataPoints.value[dataPoints.value.length - 1].y
+  const dataPoints = useStore(state => state.dataPoints.value)
+  if (dataPoints.length < 2) return null
+  const change: number = dataPoints[dataPoints.length - 1].y - dataPoints[dataPoints.length - 2].y
+  const percent = (change * 100) / dataPoints[dataPoints.length - 1].y
   const sign = Math.sign(change)
 
   return (
@@ -45,7 +43,7 @@ function TodaysChange(props: any) {
 }
 
 function CurrentRate(props: any) {
-  const {currentRate} = useSelector(stateSelector)
+  const currentRate = useStore(state => state.currentRate.value)
   const {colorMode} = useColorMode()
   const color = {
     light: 'gray.800',
@@ -57,7 +55,7 @@ function CurrentRate(props: any) {
         Current rate
       </Text>
       <Text color={color[colorMode]} data-testid="current-rate" fontWeight="medium" fontSize="xl">
-        <AnimateChange change={currentRate.value}>{!!currentRate.value && currentRate.value}</AnimateChange>
+        <AnimateChange change={currentRate}>{currentRate}</AnimateChange>
       </Text>
     </Box>
   )

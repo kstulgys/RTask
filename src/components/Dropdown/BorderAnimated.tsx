@@ -16,7 +16,6 @@ export default function BorderAnimated({open}: {open: boolean}): JSX.Element {
         }}
         initial="close"
         animate={open ? 'open' : 'close'}
-        // theme.colors.revo.blue
         variants={{
           open: {
             zIndex: 9999,

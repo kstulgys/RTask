@@ -1,23 +1,23 @@
 import * as React from 'react'
 import {Button as BaseButton, Box} from '@chakra-ui/core'
-import {useSelector, useDispatch} from 'react-redux'
-import {submitValues, stateSelector} from 'app/appState'
+import useStore from 'app/store'
 
-export function ButtonContinue(props: {[key: string]: any}): JSX.Element {
-  const dispatch = useDispatch()
-  const {isSubmitting, canSubmit, selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(stateSelector)
+interface ButtonContinueProps {
+  // canSubmit: boolean
+  // isSubmitting: boolean
+  // handleSubmitValues: () => void
+  [key: string]: any
+}
 
-  const handleSubmit = React.useCallback((): void => {
-    if (!selectedFrom || !selectedTo) return
-    const from = {name: selectedFrom.name, value: +inputValueFrom}
-    const to = {name: selectedTo.name, value: +inputValueTo}
-    dispatch(submitValues({selectedFrom: from, selectedTo: to}))
-  }, [inputValueFrom, inputValueTo])
+export function ButtonContinue(props: ButtonContinueProps) {
+  const canSubmit = useStore(state => state.canSubmit)
+  const isSubmitting = useStore(state => state.submitValues.isSubmitting)
+  const handleSubmitValues = useStore(state => state.actions.handleSubmitValues)
 
   return (
     <Box {...props}>
       <BaseButton
-        onClick={handleSubmit}
+        onClick={handleSubmitValues}
         isLoading={isSubmitting}
         isDisabled={!canSubmit}
         type="submit"
@@ -34,3 +34,21 @@ export function ButtonContinue(props: {[key: string]: any}): JSX.Element {
     </Box>
   )
 }
+
+// function withStore(WrappedComponent: any, ownProps?: any) {
+//   const canSubmit = useStore(state => state.canSubmit)
+//   const isSubmitting = useStore(state => state.submitValues.isSubmitting)
+//   const handleSubmitValues = useStore(state => state.actions.handleSubmitValues)
+
+//   const props = {
+//     canSubmit,
+//     isSubmitting,
+//     handleSubmitValues,
+//   }
+
+//   // ... and renders the wrapped component with the fresh data!
+//   // Notice that we pass through any additional props
+//   return <WrappedComponent {...props} {...ownProps} />
+// }
+
+// export const EnhancedComponent = withStore(ButtonContinue)

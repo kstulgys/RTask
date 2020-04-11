@@ -3,8 +3,8 @@ import * as React from 'react'
 import {Box, Flex, Text, NumberInput, NumberInputField, useColorMode, IconButton} from '@chakra-ui/core'
 import {SYMBOLS} from './symbols'
 import {FiPlus, FiMinus} from 'react-icons/fi'
-import {onInputChangeFrom, onInputChangeTo, stateSelector} from 'app/appState'
-import {useDispatch, useSelector} from 'react-redux'
+import useStore from 'app/store'
+import {filterList, fPocket, getFiltered} from 'utils/helpers'
 
 interface InputAmountProps {
   label: 'From' | 'To'
@@ -27,7 +27,7 @@ const style = {
   },
 }
 
-export function InputAmount(props: InputAmountProps): JSX.Element {
+export function InputAmount(props: InputAmountProps) {
   const {autoFocus, label, ...rest} = props
   const {inputValue, handleChange, symbol, sign} = useInputAmount(label)
   const {colorMode} = useColorMode()
@@ -90,18 +90,23 @@ export function InputAmount(props: InputAmountProps): JSX.Element {
 }
 
 function useInputAmount(label: 'To' | 'From') {
-  const {selectedFrom, selectedTo, inputValueFrom, inputValueTo} = useSelector(stateSelector)
-  const dispatch = useDispatch()
+  const selectedFrom = useStore(state => state.selectedFrom)
+  const selectedTo = useStore(state => state.selectedTo)
+  const inputValueFrom = useStore(state => state.inputValueFrom)
+  const inputValueTo = useStore(state => state.inputValueTo)
 
-  const onChnage = label === 'From' ? onInputChangeFrom : onInputChangeTo
+  const actions = useStore(state => state.actions)
+  const {handleInputChangeFrom, handleInputChangeTo} = actions
+
+  const onChnage = label === 'From' ? handleInputChangeFrom : handleInputChangeTo
   const selected = label === 'From' ? selectedFrom : selectedTo
   const inputValue = label === 'From' ? inputValueFrom : inputValueTo
   const symbol = selected && SYMBOLS[selected.name].symbol_native
   const sign = label === 'From' ? FiMinus : FiPlus
 
-  const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    dispatch(onChnage(e.target.value))
-  }, [])
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    onChnage(e.target.value)
+  }
 
   return {inputValue, handleChange, symbol, sign}
 }
