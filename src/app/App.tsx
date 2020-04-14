@@ -17,17 +17,11 @@ import {useNotification} from 'utils/hooks'
 import useStore from 'app/store'
 
 export default function CurrencyExchange() {
-  const state = useStore()
-
-  console.log({state})
-
   const currencies = useStore(state => state.currencies)
-  console.log({currencies})
-
   useFetchCurrencies()
-  useCurrencyToUpdates()
-  useHandleUpdates()
-  // useNotification()
+  useCurrencyRatePolling()
+  useNewCurrentRate()
+  useNotification()
 
   if (currencies.isLoading) {
     return <Loader />
@@ -96,16 +90,6 @@ function ContainerInputs(props: ContainerProps): JSX.Element {
   return <Flex flexDir="column" width={['full', 'full', '50%']} {...props} />
 }
 
-function useCurrencyToUpdates() {
-  const handleSelectedToUpdate = useStore(state => state.actions.handleSelectedToUpdate)
-  const currentRate = useStore(state => state.currentRate.value)
-  const selectedFrom = useStore(state => state.selectedFrom)
-  React.useEffect(() => {
-    if (!selectedFrom || !currentRate.value) return
-    handleSelectedToUpdate()
-  }, [currentRate, selectedFrom])
-}
-
 function useFetchCurrencies() {
   const fetchCurrencies = useStore(state => state.asyncActions.fetchCurrencies)
   React.useEffect(() => {
@@ -113,17 +97,22 @@ function useFetchCurrencies() {
   }, [])
 }
 
-function useHandleUpdates() {
+function useNewCurrentRate() {
   const fetchDataPoints = useStore(state => state.asyncActions.fetchDataPoints)
   const fetchCurrentRate = useStore(state => state.asyncActions.fetchCurrentRate)
   const selectedTo = useStore(state => state.selectedTo)
   const selectedFrom = useStore(state => state.selectedFrom)
+  const currentRate = useStore(state => state.currentRate.value)
+  const handleSelectedToUpdate = useStore(state => state.actions.handleSelectedToUpdate)
+
   React.useEffect(() => {
     if (!selectedFrom || !selectedTo) return
     // get new dataPoints
     fetchDataPoints({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
     // get new currentRate
     fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
+    // update inputValueTo and pocketValueFrom
+    handleSelectedToUpdate()
     // save currency names to local storage
     window.localStorage.setItem(
       'currencies',
@@ -132,7 +121,21 @@ function useHandleUpdates() {
         currencyTo: selectedTo.name,
       }),
     )
+  }, [currentRate])
+}
 
+function useCurrencyRatePolling() {
+  const selectedTo = useStore(state => state.selectedTo)
+  const selectedFrom = useStore(state => state.selectedFrom)
+  const fetchCurrentRate = useStore(state => state.asyncActions.fetchCurrentRate)
+  const fetchDataPoints = useStore(state => state.asyncActions.fetchDataPoints)
+
+  React.useEffect(() => {
+    if (!selectedFrom || !selectedTo) return
+    // get new dataPoints
+    fetchDataPoints({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
+    // get new currentRate
+    fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
     // start new currentRate polling
     let timer: any = null
     timer = setInterval(() => {

@@ -12,7 +12,7 @@ interface ButtonContinueProps {
 export function ButtonContinue(props: ButtonContinueProps) {
   const canSubmit = useStore(state => state.canSubmit)
   const isSubmitting = useStore(state => state.submitValues.isSubmitting)
-  const handleSubmitValues = useStore(state => state.actions.handleSubmitValues)
+  const handleSubmitValues = useStore(state => state.asyncActions.handleSubmitValues)
 
   return (
     <Box {...props}>

@@ -27,17 +27,25 @@ const bg = {
 
 export function Dropdown({label, ...rest}: DropdownProps) {
   const ref = React.useRef()
-  const {isOpen, toggleOpen, handleSelect, currenciesList, pocketValue, selected, pocketValueColor} = useDropdown(
-    label,
-    ref,
-  )
+  const {
+    isOpen,
+    toggleOpen,
+    handleSelect,
+    currenciesList,
+    pocketValue,
+    selected,
+    pocketValueColor,
+    handleOnKeyUp,
+  } = useDropdown(label, ref)
   const [filtered, setFiltered] = React.useState<Currencies>(currenciesList)
   const [searchTerm, setSearchTerm] = React.useState<string>('')
   const {colorMode} = useColorMode()
+
   React.useEffect(() => {
     setFiltered(currenciesList)
     setSearchTerm('')
   }, [currenciesList])
+
   const handleSearch = (searchTerm: string) => {
     if (searchTerm) {
       setFiltered(filterList(searchTerm, currenciesList))
@@ -50,13 +58,7 @@ export function Dropdown({label, ...rest}: DropdownProps) {
   return (
     <Box {...rest}>
       <Box>
-        <Text
-          data-testid={`selected-${label.toLowerCase()}`}
-          mb="2"
-          fontWeight="bold"
-          color={color[colorMode]}
-          fontSize="xs"
-        >
+        <Text mb="2" fontWeight="bold" color={color[colorMode]} fontSize="xs">
           {label}
         </Text>
       </Box>
@@ -96,8 +98,8 @@ export function Dropdown({label, ...rest}: DropdownProps) {
             {filtered.map((item: Currency, idx: number) => {
               return (
                 <CurrencyItem
-                  // handleOnKeySelect={handleOnKeySelect}
                   key={`${item.name}-${idx}`}
+                  handleOnKeyUp={handleOnKeyUp}
                   handleSelect={handleSelect}
                   item={item}
                 />
@@ -110,35 +112,43 @@ export function Dropdown({label, ...rest}: DropdownProps) {
   )
 }
 
-function useDropdown(label: 'From' | 'To', ref: any) {
-  const selectedFrom = useStore(store => store.selectedFrom)
-  const selectedTo = useStore(store => store.selectedTo)
-  const currencies = useStore(store => store.currencies)
-  const pocketValueFrom = useStore(store => store.pocketValueFrom)
-  const pocketValueTo = useStore(store => store.pocketValueTo)
-  const actions = useStore(store => store.actions)
+export function useDropdown(label: 'From' | 'To', ref: any) {
+  const selectedFrom = useStore(state => state.selectedFrom)
+  const selectedTo = useStore(state => state.selectedTo)
+  const currencies = useStore(state => state.currencies)
+  const pocketValueFrom = useStore(state => state.pocketValueFrom)
+  const pocketValueTo = useStore(state => state.pocketValueTo)
+  const actions = useStore(state => state.actions)
   const {handleSelectFrom, handleSelectTo} = actions
-  console.log({pocketValueFrom})
-  const [isOpen, setOpen] = React.useState<boolean>(false)
-  const [currenciesList, setList] = React.useState<Currencies>(getFiltered(currencies.value, selectedFrom, selectedTo))
-
+  const [isOpen, setOpen] = React.useState<boolean>(() => false)
+  const [currenciesList, setList] = React.useState<Currencies>([])
   useOnClickOutside(ref, () => setOpen(false))
-
-  const toggleOpen = (): void => setOpen(!isOpen)
 
   const selected = label === 'From' ? selectedFrom : selectedTo
   const pocketValue = label === 'From' ? pocketValueFrom : pocketValueTo
   const onSelect = label === 'From' ? handleSelectFrom : handleSelectTo
-  const pocketValueColor = Math.sign(parseInt(pocketValue)) === -1 ? 'red.400' : 'revo.gray'
+
+  const toggleOpen = (): void => setOpen(!isOpen)
 
   const handleSelect = (item: Currency): void => {
     onSelect(item)
     setOpen(false)
   }
 
+  const handleOnKeyUp = (item: Currency): void => {
+    onSelect(item)
+  }
+
+  const pocketValueColor = Math.sign(parseInt(pocketValue)) === -1 ? 'red.400' : 'revo.gray'
+
   React.useEffect(() => {
-    if (!selectedFrom || !selectedTo || !currencies.value.length) return
-    setList(getFiltered(currencies.value, selectedFrom, selectedTo))
+    if (!selectedTo || !selectedFrom || !currencies.value.length) return
+    if (label === 'From') {
+      setList(getFiltered(currencies.value, selectedTo))
+    }
+    if (label === 'To') {
+      setList(getFiltered(currencies.value, selectedFrom))
+    }
   }, [currencies.value, selectedFrom?.name, selectedTo?.name])
 
   return {
@@ -148,6 +158,7 @@ function useDropdown(label: 'From' | 'To', ref: any) {
     currenciesList,
     pocketValue,
     selected,
+    handleOnKeyUp,
     pocketValueColor,
   }
 }

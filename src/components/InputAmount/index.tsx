@@ -7,8 +7,8 @@ import useStore from 'app/store'
 import {filterList, fPocket, getFiltered} from 'utils/helpers'
 
 interface InputAmountProps {
-  label: 'From' | 'To'
   autoFocus?: boolean
+  label: 'From' | 'To'
   [key: string]: any
 }
 
@@ -94,7 +94,6 @@ function useInputAmount(label: 'To' | 'From') {
   const selectedTo = useStore(state => state.selectedTo)
   const inputValueFrom = useStore(state => state.inputValueFrom)
   const inputValueTo = useStore(state => state.inputValueTo)
-
   const actions = useStore(state => state.actions)
   const {handleInputChangeFrom, handleInputChangeTo} = actions
 

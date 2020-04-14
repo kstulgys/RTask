@@ -8,10 +8,10 @@ export function CurrencyChangeChart(props: any) {
   const dataPoints = useStore(state => state.dataPoints.value)
   const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null)
 
-  if (!dataPoints.length) return null
+  if (dataPoints.length < 2) return null
 
   return (
-    <Flex {...props} height="175px" ml="-30px" my="16">
+    <Flex {...props} height="175px" ml="-30px" my="16" data-testid="chart">
       <FlexibleWidthXYPlot height={175} onMouseLeave={() => setHoveredNode(null)}>
         <LineSeries
           color="#0075EB"

@@ -12,7 +12,7 @@ export function CurrencyMetadata({...props}: {[key: string]: string}) {
   )
 }
 
-function TodaysChange(props: any) {
+export function TodaysChange(props: any) {
   const dataPoints = useStore(state => state.dataPoints.value)
   if (dataPoints.length < 2) return null
   const change: number = dataPoints[dataPoints.length - 1].y - dataPoints[dataPoints.length - 2].y
@@ -25,37 +25,36 @@ function TodaysChange(props: any) {
         {`Today's change`}
       </Text>
       <StatHelpText fontWeight="medium" fontSize="xl" color={sign === -1 ? 'red.400' : 'green.400'}>
-        <StatArrow data-testid="current-change" type={sign === -1 ? 'decrease' : 'increase'} />
-        <AnimatePresence>
-          <motion.span
-            key={change}
-            initial={{opacity: 0, y: -50}}
-            animate={{opacity: 1, y: 0}}
-            exit={{opacity: 0, y: 50}}
-            style={{position: 'absolute'}}
-          >
+        <StatArrow type={sign === -1 ? 'decrease' : 'increase'} />
+        <AnimateChange change={percent}>
+          <span data-testid="current-change">
             {Math.abs(change).toFixed(4)} ({percent.toFixed(2)} %)
-          </motion.span>
-        </AnimatePresence>
+          </span>
+        </AnimateChange>
       </StatHelpText>
     </Box>
   )
 }
 
-function CurrentRate(props: any) {
+export function CurrentRate(props: any) {
   const currentRate = useStore(state => state.currentRate.value)
   const {colorMode} = useColorMode()
   const color = {
     light: 'gray.800',
     dark: 'revo.lightGray',
   }
+
+  if (!currentRate) return null
+
   return (
     <Box {...props}>
       <Text fontSize="xs" color="revo.gray" fontWeight="medium">
         Current rate
       </Text>
-      <Text color={color[colorMode]} data-testid="current-rate" fontWeight="medium" fontSize="xl">
-        <AnimateChange change={currentRate}>{currentRate}</AnimateChange>
+      <Text color={color[colorMode]} fontWeight="medium" fontSize="xl">
+        <AnimateChange change={currentRate}>
+          <span data-testid="current-rate">{currentRate}</span>
+        </AnimateChange>
       </Text>
     </Box>
   )

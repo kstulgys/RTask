@@ -2,8 +2,6 @@ import * as React from 'react'
 import {Box, Text, useColorMode} from '@chakra-ui/core'
 
 function Header({text}: {text: string}): JSX.Element {
-  // const ref = React.useRef(0);
-  // console.log('TextHeader rendered times', ref.current++);
   const {colorMode} = useColorMode()
   const color = {
     light: 'revo.gray',

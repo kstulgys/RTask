@@ -1,67 +1,63 @@
 import * as React from 'react'
-import {render, cleanup, fireEvent, act, wait, waitForElement, queryByTestId} from 'utils/testing'
-// import {render, cleanup} from '@testing-library/react'
+import {render} from 'utils/testing'
 import user from '@testing-library/user-event'
 import '@testing-library/jest-dom/extend-expect'
 import {ButtonContinue} from '.'
 import useStore from 'app/store'
-// import { useSelector, useDispatch } from 'react-redux';
 
-// const mockDispatch = jest.fn();
-// jest.mock('zustand', () => ({
-//   useSelector: jest.fn(),
-//   useDispatch: () => mockDispatch
-// }));
-// import {filterList, fPocket} from 'utils/helpers'
-// import {getCurrencies} from 'api/currenciesAPI';
-// jest.mock('../../app/store', () =>
-//   jest.fn(fn => {
-//     canSubmit: true
-//   }),
-// )
-const state = {
+const initialState = {
   canSubmit: false,
   submitValues: {
     isSubmitting: false,
   },
-  actions: {
-    handleSubmitValues: () => null,
+  asyncActions: {
+    handleSubmitValues: jest.fn(),
   },
 }
 
-jest.mock('../../app/store', () => {
-  return jest.fn().mockImplementation(() => ([val]: any) => {
-    return {[val]: {...state}}
-  })
+jest.mock('../../app/store')
+afterEach(() => {
+  useStore.mockClear()
 })
 
-beforeEach(cleanup)
-
-describe('ButtonContinue', () => {
-  it('has submit/continue button"', () => {
-    const {getByText} = render(<ButtonContinue />)
-    const button = getByText(/continue/i)
-    expect(button).toBeInTheDocument()
-    expect(useStore).toBeCalledTimes(3)
+const setup = (partialState: any) => {
+  useStore.mockImplementation((callback: any) => {
+    return callback(partialState)
   })
+  const {getByText, ...rest} = render(<ButtonContinue />)
+  const button = getByText(/continue/i)
+
+  return {button, ...rest}
+}
+
+test('has submit/continue button"', () => {
+  const {button} = setup(initialState)
+  expect(button).toBeInTheDocument()
 })
 
-describe('button enabled/disabled', () => {
-  it('button is disabled', () => {
-    const {getByText} = render(<ButtonContinue />)
-    const button = getByText(/continue/i)
-    // const button = allBtn[0] as HTMLInputElement
-    expect(button.disabled).toBeTruthy()
-  })
-  // it('button is enabled', () => {
-  //   const {getAllByText} = render(<App />, {canSubmit: true})
-  //   const allBtn = getAllByText(/continue/i)
-  //   const button = allBtn[0] as HTMLInputElement
-  //   expect(button.disabled).toBeFalsy()
-  // })
+test('useStore has been called 3 times', () => {
+  setup(initialState)
+  expect(useStore).toBeCalledTimes(3)
 })
 
-//   it('has no loader when data is loaded', async () => {
-//     const {queryByTestId, debug} = render(<App />)
-//     expect(queryByTestId(/loader/i)).toBeNull()
-//   })
+test('button is  disabled', () => {
+  const {button} = setup(initialState)
+  expect(button.disabled).toBeTruthy()
+})
+
+test('button is enabled', () => {
+  const {button} = setup({...initialState, canSubmit: true})
+  expect(button.disabled).toBeFalsy()
+})
+
+test('onClick does not call handleSubmitValues', () => {
+  const {button} = setup(initialState)
+  user.click(button)
+  expect(initialState.asyncActions.handleSubmitValues).toBeCalledTimes(0)
+})
+
+test('onClick calls handleSubmitValues', async () => {
+  const {button} = setup({...initialState, canSubmit: true})
+  user.click(button)
+  expect(initialState.asyncActions.handleSubmitValues).toBeCalledTimes(1)
+})
