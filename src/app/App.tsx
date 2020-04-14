@@ -13,16 +13,15 @@ import {
   ErrorBoundary,
   ToggleTheme,
 } from 'components'
-import {useSelector, useDispatch} from 'react-redux'
-import {fetchCurrencies, fetchCurrentRate, updateSelectedTo, fetchDataPoints, stateSelector} from 'app/appState'
 import {useNotification} from 'utils/hooks'
+import useStore from 'app/store'
 
 export default function CurrencyExchange() {
-  const {currencies} = useSelector(stateSelector)
+  const currencies = useStore(state => state.currencies)
   useFetchCurrencies()
+  useCurrencyRatePolling()
+  useNewCurrentRate()
   useNotification()
-  useHandleUpdates()
-  useCurrencyToUpdates()
 
   if (currencies.isLoading) {
     return <Loader />
@@ -30,40 +29,31 @@ export default function CurrencyExchange() {
 
   return (
     <ContainerScreen>
-      <ContainerApp>
-        <AppErrorBoundary>
-          <TextHeader text="Exchange money" />
-          <Flex flexDirection={['column', 'column', 'row']} alignItems="start">
-            <ContainerInputs>
-              <Dropdown label="From" />
-              <InputAmount label="From" autoFocus={true} />
-              <ButtonContinue display={['none', 'none', 'block']} />
-            </ContainerInputs>
-            <IconSwapInputs />
-            <ContainerInputs>
-              <Dropdown label="To" />
-              <InputAmount label="To" />
-              <ButtonContinue display={['block', 'block', 'none']} mb="12" mt="2" />
-              <CurrencyMetadata />
-            </ContainerInputs>
-          </Flex>
-          <CurrencyChangeChart mt="6" />
-        </AppErrorBoundary>
-      </ContainerApp>
+      <ErrorBoundary
+        render={() => (
+          <Text fontSize="3xl" color="revo.gray" textAlign="center">
+            Something went wrong. Please try again later.
+          </Text>
+        )}
+      >
+        <TextHeader text="Exchange money" />
+        <Flex flexDirection={['column', 'column', 'row']} alignItems="start">
+          <ContainerInputs>
+            <Dropdown label="From" />
+            <InputAmount label="From" autoFocus={true} />
+            <ButtonContinue display={['none', 'none', 'block']} />
+          </ContainerInputs>
+          <IconSwapInputs />
+          <ContainerInputs>
+            <Dropdown label="To" />
+            <InputAmount label="To" />
+            <ButtonContinue display={['block', 'block', 'none']} mb="12" mt="2" />
+            <CurrencyMetadata />
+          </ContainerInputs>
+        </Flex>
+        <CurrencyChangeChart mt="6" />
+      </ErrorBoundary>
     </ContainerScreen>
-  )
-}
-
-function AppErrorBoundary(props: any) {
-  return (
-    <ErrorBoundary
-      render={() => (
-        <Text fontSize="3xl" color="revo.gray" textAlign="center">
-          Something went wrong. Please try again later.
-        </Text>
-      )}
-      {...props}
-    />
   )
 }
 
@@ -71,7 +61,7 @@ interface ContainerProps {
   [key: string]: any
 }
 
-function ContainerScreen(props: ContainerProps): JSX.Element {
+function ContainerScreen({children, ...props}: ContainerProps): JSX.Element {
   const {colorMode} = useColorMode()
   const bg = {
     light: 'white',
@@ -89,45 +79,40 @@ function ContainerScreen(props: ContainerProps): JSX.Element {
       {...props}
     >
       <ToggleTheme />
-      {props.children}
+      <Flex width={['full', 'full', 'full', '60%']} flexDirection="column" mx="auto" mt={[0, 16]} px="4">
+        {children}
+      </Flex>
     </Flex>
   )
 }
 
-function ContainerApp(props: ContainerProps): JSX.Element {
-  return (
-    <Flex width={['full', 'full', 'full', '60%']} flexDirection="column" mx="auto" mt={[0, 16]} px="4" {...props} />
-  )
-}
 function ContainerInputs(props: ContainerProps): JSX.Element {
   return <Flex flexDir="column" width={['full', 'full', '50%']} {...props} />
 }
 
-function useCurrencyToUpdates() {
-  const dispatch = useDispatch()
-  const {selectedFrom, currentRate} = useSelector(stateSelector)
-  React.useEffect(() => {
-    if (!selectedFrom || !currentRate.value) return
-    dispatch(updateSelectedTo())
-  }, [currentRate.value, selectedFrom])
-}
-
 function useFetchCurrencies() {
-  const dispatch = useDispatch()
+  const fetchCurrencies = useStore(state => state.asyncActions.fetchCurrencies)
   React.useEffect(() => {
-    dispatch(fetchCurrencies())
+    fetchCurrencies()
   }, [])
 }
 
-function useHandleUpdates() {
-  const dispatch = useDispatch()
-  const {selectedFrom, selectedTo} = useSelector(stateSelector)
+function useNewCurrentRate() {
+  const fetchDataPoints = useStore(state => state.asyncActions.fetchDataPoints)
+  const fetchCurrentRate = useStore(state => state.asyncActions.fetchCurrentRate)
+  const selectedTo = useStore(state => state.selectedTo)
+  const selectedFrom = useStore(state => state.selectedFrom)
+  const currentRate = useStore(state => state.currentRate.value)
+  const handleSelectedToUpdate = useStore(state => state.actions.handleSelectedToUpdate)
+
   React.useEffect(() => {
     if (!selectedFrom || !selectedTo) return
     // get new dataPoints
-    dispatch(fetchDataPoints({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name}))
+    fetchDataPoints({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
     // get new currentRate
-    dispatch(fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name}))
+    fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
+    // update inputValueTo and pocketValueFrom
+    handleSelectedToUpdate()
     // save currency names to local storage
     window.localStorage.setItem(
       'currencies',
@@ -136,7 +121,21 @@ function useHandleUpdates() {
         currencyTo: selectedTo.name,
       }),
     )
+  }, [currentRate])
+}
 
+function useCurrencyRatePolling() {
+  const selectedTo = useStore(state => state.selectedTo)
+  const selectedFrom = useStore(state => state.selectedFrom)
+  const fetchCurrentRate = useStore(state => state.asyncActions.fetchCurrentRate)
+  const fetchDataPoints = useStore(state => state.asyncActions.fetchDataPoints)
+
+  React.useEffect(() => {
+    if (!selectedFrom || !selectedTo) return
+    // get new dataPoints
+    fetchDataPoints({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
+    // get new currentRate
+    fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
     // start new currentRate polling
     let timer: any = null
     timer = setInterval(() => {
@@ -144,7 +143,7 @@ function useHandleUpdates() {
       startPolling(selectedFrom.name, selectedTo.name)
     }, 10000)
     function startPolling(currencyFrom: string, currencyTo: string) {
-      dispatch(fetchCurrentRate({selectedFrom: currencyFrom, selectedTo: currencyTo}))
+      fetchCurrentRate({selectedFrom: currencyFrom, selectedTo: currencyTo})
     }
     // unsubscribe from previous rate polling
     return () => clearInterval(timer)

@@ -6,7 +6,6 @@ export type DataPoints = DataPoint[]
 export type Message = {text?: string; type?: 'success' | 'warning'} | null
 
 export type CurrencyState = {
-  isSubmitting: boolean
   pocketValueFrom: string
   pocketValueTo: string
   inputValueFrom: string
@@ -27,5 +26,8 @@ export type CurrencyState = {
     value: number
     message: Message
   }
-  message: Message
+  submitValues: {
+    isSubmitting: boolean
+    message: Message
+  }
 }

@@ -3,14 +3,15 @@ import {Box, Flex, Button, Text, useColorMode} from '@chakra-ui/core'
 import {currencyFlags} from './currencyFlags'
 import {Currency} from 'app/types'
 import numeral from 'numeral'
+import {fPocket} from 'utils/helpers'
 
 interface CurrencyItemProps {
   handleSelect: (item: Currency) => void
-  // handleOnKeySelect: (item: Currency) => void;
+  handleOnKeyUp: (item: Currency) => void
   item: Currency
 }
 
-export default function CurrencyItem({handleSelect, item}: CurrencyItemProps): JSX.Element {
+export default function CurrencyItem({handleSelect, handleOnKeyUp, item}: CurrencyItemProps): JSX.Element {
   const {colorMode} = useColorMode()
 
   const color = {
@@ -33,7 +34,7 @@ export default function CurrencyItem({handleSelect, item}: CurrencyItemProps): J
         borderRadius="none"
         bg={bg[colorMode]}
         onClick={(): void => handleSelect(item)}
-        // onKeyUp={(): void => handleOnKeySelect(item)}
+        onKeyUp={(): void => handleOnKeyUp(item)}
       >
         <Flex width="full" alignItems="center">
           <Flex mr="auto" alignItems="center">
@@ -46,7 +47,7 @@ export default function CurrencyItem({handleSelect, item}: CurrencyItemProps): J
           </Flex>
           <Flex ml="auto">
             <Text color="revo.gray" fontWeight="medium">
-              {!!item.value && numeral(item.value).format('00,000.00')}
+              {fPocket(item.value.toString())}
             </Text>
           </Flex>
         </Flex>

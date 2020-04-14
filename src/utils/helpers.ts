@@ -1,6 +1,7 @@
 import {subDays, format} from 'date-fns'
 import {Currencies, Currency, DataPoints} from 'app/types'
 import numeral from 'numeral'
+// import {fPocket} from 'utils/helpers'
 
 type FomOrTo = 'From' | 'To'
 
@@ -65,12 +66,12 @@ function isValidInput(value: string) {
   return !exceedsDecimalPlace && isNumber && isPositive && !isFirstZero
 }
 
-function getFiltered(array: Currencies, selectedFrom: Currency | undefined, selectedTo: Currency | undefined) {
-  if (!selectedFrom || !selectedTo || !array.length) return []
-  return array.filter(c => c.name !== selectedFrom.name && c.name !== selectedTo.name)
+function getFiltered(array: Currencies, selectedCurrency: Currency | undefined) {
+  if (!selectedCurrency || !array.length) return []
+  return array.filter(c => c.name !== selectedCurrency.name)
 }
 
-const fPocket = (value: number) => numeral(value).format('00,000.00')
+const fPocket = (value: string) => numeral(value).format('00,000.00')
 
 function getCurrenciesFromStorage(): any {
   const result = window.localStorage.getItem('currencies')

@@ -7,9 +7,8 @@ import SearchCurrencyInput from './SearchCurrencyInput'
 import CurrencyItem from './CurrencyItem'
 import {useOnClickOutside} from 'utils/hooks'
 import {filterList, fPocket, getFiltered} from 'utils/helpers'
-import {useSelector, useDispatch} from 'react-redux'
 import {Currency, Currencies} from 'app/types'
-import {selectTo, selectFrom, stateSelector} from 'app/appState'
+import useStore from 'app/store'
 
 interface DropdownProps {
   label: 'From' | 'To'
@@ -26,13 +25,18 @@ const bg = {
   dark: 'gray.800',
 }
 
-export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
+export function Dropdown({label, ...rest}: DropdownProps) {
   const ref = React.useRef()
-  const {isOpen, toggleOpen, handleSelect, currenciesList, pocketValue, selected, pocketValueColor} = useDropdown(
-    label,
-    ref,
-  )
-
+  const {
+    isOpen,
+    toggleOpen,
+    handleSelect,
+    currenciesList,
+    pocketValue,
+    selected,
+    pocketValueColor,
+    handleOnKeyUp,
+  } = useDropdown(label, ref)
   const [filtered, setFiltered] = React.useState<Currencies>(currenciesList)
   const [searchTerm, setSearchTerm] = React.useState<string>('')
   const {colorMode} = useColorMode()
@@ -51,17 +55,10 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
       setSearchTerm('')
     }
   }
-
   return (
     <Box {...rest}>
       <Box>
-        <Text
-          data-testid={`selected-${label.toLowerCase()}`}
-          mb="2"
-          fontWeight="bold"
-          color={color[colorMode]}
-          fontSize="xs"
-        >
+        <Text mb="2" fontWeight="bold" color={color[colorMode]} fontSize="xs">
           {label}
         </Text>
       </Box>
@@ -73,8 +70,7 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
             </Text>
             <Flex ml="auto" alignItems="center">
               <Text color={pocketValueColor} fontWeight="medium" data-testid={`pocket-${label.toLowerCase()}`}>
-                {/* {fPocket(pocketValue)} */}
-                {pocketValue}
+                {fPocket(pocketValue)}
               </Text>
               <Box ml="2" size="20px" as={isOpen ? FiChevronUp : FiChevronDown} color="revo.gray"></Box>
             </Flex>
@@ -102,8 +98,8 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
             {filtered.map((item: Currency, idx: number) => {
               return (
                 <CurrencyItem
-                  // handleOnKeySelect={handleOnKeySelect}
                   key={`${item.name}-${idx}`}
+                  handleOnKeyUp={handleOnKeyUp}
                   handleSelect={handleSelect}
                   item={item}
                 />
@@ -116,30 +112,43 @@ export function Dropdown({label, ...rest}: DropdownProps): JSX.Element {
   )
 }
 
-function useDropdown(label: 'From' | 'To', ref: any) {
-  const dispatch = useDispatch()
-  const {selectedFrom, selectedTo, currencies, pocketValueFrom, pocketValueTo} = useSelector(stateSelector)
-  const [isOpen, setOpen] = React.useState<boolean>(false)
-  const [currenciesList, setList] = React.useState<Currencies>(getFiltered(currencies.value, selectedFrom, selectedTo))
-
+export function useDropdown(label: 'From' | 'To', ref: any) {
+  const selectedFrom = useStore(state => state.selectedFrom)
+  const selectedTo = useStore(state => state.selectedTo)
+  const currencies = useStore(state => state.currencies)
+  const pocketValueFrom = useStore(state => state.pocketValueFrom)
+  const pocketValueTo = useStore(state => state.pocketValueTo)
+  const actions = useStore(state => state.actions)
+  const {handleSelectFrom, handleSelectTo} = actions
+  const [isOpen, setOpen] = React.useState<boolean>(() => false)
+  const [currenciesList, setList] = React.useState<Currencies>([])
   useOnClickOutside(ref, () => setOpen(false))
-
-  const toggleOpen = (): void => setOpen(!isOpen)
 
   const selected = label === 'From' ? selectedFrom : selectedTo
   const pocketValue = label === 'From' ? pocketValueFrom : pocketValueTo
-  const onSelect = label === 'From' ? selectFrom : selectTo
+  const onSelect = label === 'From' ? handleSelectFrom : handleSelectTo
 
-  const pocketValueColor = Math.sign(parseInt(pocketValue)) === -1 ? 'red.400' : 'revo.gray'
+  const toggleOpen = (): void => setOpen(!isOpen)
 
   const handleSelect = (item: Currency): void => {
-    dispatch(onSelect(item))
+    onSelect(item)
     setOpen(false)
   }
 
+  const handleOnKeyUp = (item: Currency): void => {
+    onSelect(item)
+  }
+
+  const pocketValueColor = Math.sign(parseInt(pocketValue)) === -1 ? 'red.400' : 'revo.gray'
+
   React.useEffect(() => {
-    if (!selectedFrom || !selectedTo || !currencies.value.length) return
-    setList(getFiltered(currencies.value, selectedFrom, selectedTo))
+    if (!selectedTo || !selectedFrom || !currencies.value.length) return
+    if (label === 'From') {
+      setList(getFiltered(currencies.value, selectedTo))
+    }
+    if (label === 'To') {
+      setList(getFiltered(currencies.value, selectedFrom))
+    }
   }, [currencies.value, selectedFrom?.name, selectedTo?.name])
 
   return {
@@ -149,6 +158,7 @@ function useDropdown(label: 'From' | 'To', ref: any) {
     currenciesList,
     pocketValue,
     selected,
+    handleOnKeyUp,
     pocketValueColor,
   }
 }

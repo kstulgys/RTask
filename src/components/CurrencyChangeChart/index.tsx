@@ -1,22 +1,21 @@
 import * as React from 'react'
 import {Text, Flex} from '@chakra-ui/core'
 import {LineSeries, FlexibleWidthXYPlot, Hint} from 'react-vis'
-import {useSelector, useDispatch} from 'react-redux'
-import {stateSelector} from 'app/appState'
 import '../../..//node_modules/react-vis/dist/style.css'
+import useStore from 'app/store'
 
 export function CurrencyChangeChart(props: any) {
-  const {dataPoints} = useSelector(stateSelector)
+  const dataPoints = useStore(state => state.dataPoints.value)
   const [hoveredNode, setHoveredNode] = React.useState<null | {x: number; y: number}>(null)
 
-  if (!dataPoints.value.length) return null
+  if (dataPoints.length < 2) return null
 
   return (
-    <Flex {...props} height="175px" ml="-30px" my="16">
+    <Flex {...props} height="175px" ml="-30px" my="16" data-testid="chart">
       <FlexibleWidthXYPlot height={175} onMouseLeave={() => setHoveredNode(null)}>
         <LineSeries
           color="#0075EB"
-          data={dataPoints.value}
+          data={dataPoints}
           animation
           onNearestXY={(value: any) => {
             setHoveredNode(value)
