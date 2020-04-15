@@ -1,6 +1,7 @@
-import {Currencies, CurrencyState, Currency, DataPoints} from 'app/types'
+import {CurrencyState, Currency} from 'app/types'
+import {getDataPoints, getCurrencies, getCurrentRate} from 'api/currenciesAPI'
+import {savePockets} from 'api/backendAPI'
 import {create} from 'zustand'
-import {getDataPoints, getCurrencies, getCurrentRate, updatePockets} from 'api/currenciesAPI'
 import {
   isValidInput,
   getSelected,
@@ -9,6 +10,7 @@ import {
   getPocketValueTo,
   getCanSubmit,
   getInputValueFrom,
+  getDefaultsFromStorage,
 } from 'utils/helpers'
 
 export const initialState: CurrencyState = {
@@ -38,27 +40,27 @@ export const initialState: CurrencyState = {
   },
 }
 
-const [useStore] = create((set, get) => ({
+const [useStore, api] = create((set, get) => ({
   ...initialState,
 
   // Async Actions
   asyncActions: {
     fetchCurrencies: async () => {
-      const defaultFrom = 'GBP'
-      const defaultTo = 'USD'
+      const {defaultFrom, defaultTo} = getDefaultsFromStorage()
       try {
         const currencies = await getCurrencies()
         const currentRate = await getCurrentRate({selectedFrom: defaultFrom, selectedTo: defaultTo})
         const dataPoints = await getDataPoints({selectedFrom: defaultFrom, selectedTo: defaultTo})
         const selectedFrom = getSelected(defaultFrom, currencies)
         const selectedTo = getSelected(defaultTo, currencies)
+        if (!selectedTo || !selectedFrom) throw Error()
         set({
           ...initialState,
           currencies: {isLoading: false, value: currencies, message: null},
           currentRate: {isLoading: false, value: currentRate, message: null},
           dataPoints: {isLoading: false, value: dataPoints, message: null},
-          pocketValueFrom: selectedFrom?.value.toString(),
-          pocketValueTo: selectedTo?.value.toString(),
+          pocketValueFrom: getPocketValueFrom(selectedFrom?.value, '0'),
+          pocketValueTo: getPocketValueTo(selectedTo?.value, '0'),
           selectedFrom,
           selectedTo,
         })
@@ -102,10 +104,10 @@ const [useStore] = create((set, get) => ({
       })
       const {selectedFrom, selectedTo, inputValueFrom, inputValueTo, asyncActions} = get()
       const {fetchCurrencies} = asyncActions
-      const from = {name: selectedFrom.name, value: +inputValueFrom}
-      const to = {name: selectedTo.name, value: +inputValueTo}
+      const from = {name: selectedFrom.name, value: inputValueFrom}
+      const to = {name: selectedTo.name, value: inputValueTo}
       try {
-        await updatePockets({selectedFrom: from, selectedTo: to})
+        await savePockets({from, to})
         await fetchCurrencies()
         set({
           submitValues: {isSubmitting: false, message: {text: `Successfully submitted.`, type: 'success'}},
@@ -176,3 +178,4 @@ const [useStore] = create((set, get) => ({
 }))
 
 export default useStore
+export {api}

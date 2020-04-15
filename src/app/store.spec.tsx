@@ -1,12 +1,60 @@
-// import * as React from 'react'
-// import App from 'app/App'
-// import {render, cleanup, fireEvent, act, wait, waitForElement, queryByTestId} from 'utils/testing'
-// import user from '@testing-library/user-event'
-// import '@testing-library/jest-dom/extend-expect'
-// import {filterList, fPocket} from 'utils/helpers'
-// // import {getCurrencies} from 'api/currenciesAPI';
+import * as React from 'react'
+import {render, act} from 'utils/testing'
+import user from '@testing-library/user-event'
+import '@testing-library/jest-dom/extend-expect'
+import useStore, {api, initialState} from 'app/store'
+import App from './App'
+import * as currenciesAPI from '../api/currenciesAPI'
 
-// beforeEach(cleanup)
+jest.mock('../api/currenciesAPI')
+jest.mock('../api/backendAPI')
+
+const setup = () => render(<App />)
+const currencies = [
+  {name: 'GBP', value: 10000},
+  {name: 'USD', value: 20000},
+]
+const currentRate = 1
+const dataPoints = [
+  {x: 1, y: 1},
+  {x: 1, y: 1},
+]
+test('fetch currencies ', async () => {
+  currenciesAPI.getCurrencies.mockReturnValue(currencies)
+  currenciesAPI.getCurrentRate.mockReturnValue(1)
+  currenciesAPI.getDataPoints.mockReturnValue(dataPoints)
+
+  setup()
+  await expect(currenciesAPI.getCurrencies).toBeCalledTimes(1)
+  await expect(currenciesAPI.getCurrentRate).toBeCalledTimes(1)
+  await expect(currenciesAPI.getDataPoints).toBeCalledTimes(1)
+
+  const state = api.getState()
+
+  const currentState = {
+    ...initialState,
+    currencies: state.currencies,
+    currentRate: state.currentRate,
+    dataPoints: state.dataPoints,
+    pocketValueFrom: state.pocketValueFrom,
+    pocketValueTo: state.pocketValueTo,
+    selectedFrom: state.selectedFrom,
+    selectedTo: state.selectedTo,
+  }
+
+  const expectedState = {
+    ...initialState,
+    currencies: {isLoading: false, value: currencies, message: null},
+    currentRate: {isLoading: false, value: currentRate, message: null},
+    dataPoints: {isLoading: false, value: dataPoints, message: null},
+    pocketValueFrom: '10,000.00',
+    pocketValueTo: '20,000.00',
+    selectedFrom: currencies[0],
+    selectedTo: currencies[1],
+  }
+
+  expect(currentState).toEqual(expectedState)
+})
 
 // describe('Layout', () => {
 //   it('has loader visible', async () => {
@@ -193,5 +241,3 @@
 // // it('changes input value TO and pocket value TO when currency change', () => {})
 
 // // it('search dropdown list for currencies', () => {})
-
-it('test', () => {})

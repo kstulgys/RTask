@@ -2,30 +2,21 @@
 import axios from 'axios'
 import {formatHistoryData, getEndAtDay, getStartAtDay, waait} from 'utils/helpers'
 import {Currency, Currencies, DataPoints} from 'app/types'
+import {getPockets} from './backendAPI'
 const baseUrl = 'https://api.exchangeratesapi.io'
 
 type Rates = {[key: string]: number}
 
 async function getCurrencies(): Promise<Currencies> {
   const {data} = await axios.get<{rates: Rates; base: string}>(`${baseUrl}/latest`)
-  const myPockets = await getMyPockets()
+  const myPockets = await getPockets()
   const names = [...Object.keys(data.rates), data.base]
-
-  const formatted: Currencies = []
-  names.forEach(name => {
-    if (myPockets[name]) {
-      formatted.push({name, value: myPockets[name]})
-    } else {
-      formatted.push({name, value: 0})
-    }
-  })
-
-  return formatted.sort((a, b) => b.value - a.value)
-}
-
-async function getMyPockets(): Promise<{[key: string]: number}> {
-  const {data} = await axios.get<{[key: string]: number}>('/api/getPockets')
-  return data
+  const formatted: Currencies = names
+    .reduce((acc: {name: string; value: number}[], name: string) => {
+      return myPockets[name] ? [...acc, {name, value: +myPockets[name]}] : [...acc, {name, value: 0}]
+    }, [])
+    .sort((a, b) => b.value - a.value)
+  return formatted
 }
 
 interface GetCurrentRateProps {
@@ -59,13 +50,4 @@ export interface UpdatePocketsProps {
   selectedTo: Currency
 }
 
-async function updatePockets({selectedFrom, selectedTo}: UpdatePocketsProps): Promise<[]> {
-  const {data} = await axios.post('/api/updatePockets', {
-    selectedFrom,
-    selectedTo,
-  })
-  await waait()
-  return data
-}
-
-export {getCurrencies, getCurrentRate, getDataPoints, updatePockets}
+export {getCurrencies, getCurrentRate, getDataPoints}

@@ -1,9 +1,6 @@
 import {subDays, format} from 'date-fns'
 import {Currencies, Currency, DataPoints} from 'app/types'
 import numeral from 'numeral'
-// import {fPocket} from 'utils/helpers'
-
-type FomOrTo = 'From' | 'To'
 
 function numberBetween(min: number, max: number, precision = 100): number {
   return Math.floor(Math.random() * ((max - min) * precision - 1 * precision) + 1 * precision) / (1 * precision)
@@ -73,19 +70,22 @@ function getFiltered(array: Currencies, selectedCurrency: Currency | undefined) 
 
 const fPocket = (value: string) => numeral(value).format('00,000.00')
 
-function getCurrenciesFromStorage(): any {
-  const result = window.localStorage.getItem('currencies')
-  if (!result) return {currencyFrom: null, currencyTo: null}
-  const {currencyFrom, currencyTo} = JSON.parse(result)
-  return {currencyFrom, currencyTo}
+function getDefaultsFromStorage(): any {
+  const result = window.localStorage.getItem('currencies') || null
+  if (!result) {
+    window.localStorage.setItem('currencies', JSON.stringify({defaultFrom: 'GBP', defaultTo: 'USD'}))
+    return {defaultFrom: 'GBP', defaultTo: 'USD'}
+  }
+  const {defaultFrom, defaultTo} = JSON.parse(result)
+  return {defaultFrom, defaultTo}
 }
+
 const getInputValueTo = (inputValueFrom: string, currentRate: number) => {
   if (!inputValueFrom) return ''
   return numeral(inputValueFrom)
     .multiply(currentRate)
     .format('0.00')
 }
-
 const getInputValueFrom = (inputValueTo: string, currentRate: number) => {
   if (!inputValueTo) return ''
   return numeral(inputValueTo)
@@ -108,7 +108,7 @@ export {
   getInputValueFrom,
   getPocketValueTo,
   getPocketValueFrom,
-  getCurrenciesFromStorage,
+  getDefaultsFromStorage,
   fPocket,
   getFiltered,
   isValidInput,

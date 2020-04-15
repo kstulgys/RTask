@@ -20,7 +20,7 @@ export default function CurrencyExchange() {
   const currencies = useStore(state => state.currencies)
   useFetchCurrencies()
   useCurrencyRatePolling()
-  useNewCurrentRate()
+  useUpdateOnNewRate()
   useNotification()
 
   if (currencies.isLoading) {
@@ -97,7 +97,7 @@ function useFetchCurrencies() {
   }, [])
 }
 
-function useNewCurrentRate() {
+function useUpdateOnNewRate() {
   const fetchDataPoints = useStore(state => state.asyncActions.fetchDataPoints)
   const fetchCurrentRate = useStore(state => state.asyncActions.fetchCurrentRate)
   const selectedTo = useStore(state => state.selectedTo)
@@ -113,14 +113,6 @@ function useNewCurrentRate() {
     fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
     // update inputValueTo and pocketValueFrom
     handleSelectedToUpdate()
-    // save currency names to local storage
-    window.localStorage.setItem(
-      'currencies',
-      JSON.stringify({
-        currencyFrom: selectedFrom.name,
-        currencyTo: selectedTo.name,
-      }),
-    )
   }, [currentRate])
 }
 
@@ -136,6 +128,14 @@ function useCurrencyRatePolling() {
     fetchDataPoints({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
     // get new currentRate
     fetchCurrentRate({selectedFrom: selectedFrom.name, selectedTo: selectedTo.name})
+    // save currency names to localStorage
+    window.localStorage.setItem(
+      'currencies',
+      JSON.stringify({
+        defaultFrom: selectedFrom.name,
+        defaultTo: selectedTo.name,
+      }),
+    )
     // start new currentRate polling
     let timer: any = null
     timer = setInterval(() => {
