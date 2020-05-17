@@ -1,6 +1,6 @@
 import React from 'react'
 import { ThemeProvider, CSSReset } from '@chakra-ui/core'
-import theme from 'theme'
+import { theme } from 'theme'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import useStore from 'store'
