@@ -80,9 +80,8 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "export": "next export",
-    "deploy": "npm run build && npm run export",
     "start": "next start",
+    "export": "yarn build && next export",
     "test": "jest",
     "test:watch": "yarn test -- --watchAll",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
