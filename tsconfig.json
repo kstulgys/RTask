@@ -1,29 +1,27 @@
 {
-  "include": ["src"],
   "compilerOptions": {
-    "baseUrl": "src",
-    "outDir": "build/dist",
-    "module": "esnext",
     "target": "es5",
-    "lib": ["es6", "dom"],
-    "sourceMap": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
-    "jsx": "react",
-    "moduleResolution": "node",
-    "rootDir": "src",
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@components": ["components"],
+      "@lib/*": ["lib/*"],
+      "@layout/*": ["layout/*"],
+      "@static/*": ["static/*"],
+      "@public/*": ["public/*"]
+    }
   },
-
-  "types": ["typePatches"]
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
 }
