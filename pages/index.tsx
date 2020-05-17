@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/no-autofocus */
 import * as React from 'react'
+import Head from 'next/head'
 import { Flex, Text, useColorMode } from '@chakra-ui/core'
 import {
   CurrencyChangeChart,
@@ -29,6 +30,14 @@ export default function IndexPage() {
 
   return (
     <ContainerScreen>
+      <Head>
+        <title>Home</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        {/* <meta name="theme-color" content="#000000" /> */}
+        {/* <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+        <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" /> */}
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+      </Head>
       <ErrorBoundary
         render={() => (
           <Text fontSize="3xl" color="revo.gray" textAlign="center">
