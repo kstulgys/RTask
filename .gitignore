@@ -25,3 +25,4 @@ yarn-error.log*
 
 dev-tools.local.js
 .next/
+out/
