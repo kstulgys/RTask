@@ -81,7 +81,6 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "export": "yarn build && next export",
     "test": "jest",
     "test:watch": "yarn test -- --watchAll",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
