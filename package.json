@@ -1,7 +1,7 @@
 {
-  "name": "react-ts",
+  "name": "app",
   "version": "1.0.0",
-  "description": "React and TypeScript example starter project",
+  "description": "Currency Exchange App",
   "keywords": [
     "typescript",
     "react",
@@ -79,9 +79,7 @@
   },
   "scripts": {
     "dev": "next",
-    "build": "next build",
-    "export": "next export",
-    "deploy": "npm run build && npm run export",
+    "build": "next build && next export",
     "start": "next start",
     "test": "jest",
     "test:watch": "yarn test -- --watchAll",
