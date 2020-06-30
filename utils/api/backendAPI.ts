@@ -1,8 +1,9 @@
-const lucky = () => (Math.random() > 0.1 ? true : false)
+const lucky = () => (Math.random() > 0.5 ? true : false)
 
 async function getPockets(): Promise<{ [key: string]: string }> {
   const pockets = JSON.parse(window.localStorage.getItem('pockets') || '{}')
   if (Object.keys(pockets).length === 0) {
+    pockets['EUR'] = '400.02'
     pockets['GBP'] = '30400.45'
     pockets['USD'] = '1000.12'
     window.localStorage.setItem('pockets', JSON.stringify(pockets))

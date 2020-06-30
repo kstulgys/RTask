@@ -1,5 +1,5 @@
 import { subDays, format } from 'date-fns'
-import { Currencies, Currency, DataPoints } from 'store/types'
+import { Currencies, Currency } from 'store/types'
 import numeral from 'numeral'
 
 function numberBetween(min: number, max: number, precision = 100): number {
@@ -23,10 +23,7 @@ function formatHistoryData({ data, selectedTo }: FormatHistoryData): { x: number
     return { x: getTimestamp(date), y: rate[selectedTo] }
   })
 
-  const sorted = result.sort((a, b) => {
-    return a.x - b.x
-  })
-  return sorted
+  return result.sort((a, b) => a.x - b.x)
 }
 
 function getEndAtDay(): string {
@@ -48,11 +45,6 @@ function filterList(searchTerm: string, currencies: Currencies) {
 
 function getCanSubmit({ pocketValueFrom, inputValueFrom }: { pocketValueFrom: string; inputValueFrom: string }) {
   return Math.sign(parseInt(pocketValueFrom)) !== -1 && !!inputValueFrom
-}
-
-function waait() {
-  const time = numberBetween(1000, 3500, 1)
-  return new Promise((res, rej) => setTimeout(() => res(), time))
 }
 
 function isValidInput(value: string) {
@@ -101,6 +93,11 @@ const getPocketValueFrom = (selectedValueFrom: number, inputValueTo: string) => 
   return numeral(selectedValueFrom)
     .subtract(inputValueTo)
     .format('00,000.00')
+}
+
+function waait() {
+  const time = numberBetween(1000, 3500, 1)
+  return new Promise((res, rej) => setTimeout(() => res(), time))
 }
 
 export {

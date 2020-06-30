@@ -17,7 +17,7 @@ export function IconSwapInputs() {
 
   return (
     <Box height="auto" mx={['auto', 'auto', 12]} mt={[0, 0, 6]} mb={[8, 12, 0]}>
-      <Rotate key={selectedFrom.name}>
+      <Rotate key={selectedFrom?.name}>
         <IconButton
           data-testid="button-swap"
           aria-label="swap currencies"

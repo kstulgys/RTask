@@ -2,16 +2,7 @@ import { CurrencyState, Currency } from 'store/types'
 import { getDataPoints, getCurrencies, getCurrentRate } from 'utils/api/currenciesAPI'
 import { savePockets } from 'utils/api/backendAPI'
 import { create } from 'zustand'
-import {
-  isValidInput,
-  getSelected,
-  getPocketValueFrom,
-  getInputValueTo,
-  getPocketValueTo,
-  getCanSubmit,
-  getInputValueFrom,
-  getDefaultsFromStorage,
-} from 'utils/helpers'
+import { isValidInput, getSelected, getPocketValueFrom, getInputValueTo, getPocketValueTo, getCanSubmit, getInputValueFrom } from 'utils/helpers'
 
 export const initialState: CurrencyState = {
   pocketValueFrom: '',
@@ -46,7 +37,7 @@ const [useStore, api] = create((set, get) => ({
   // Async Actions
   asyncActions: {
     fetchCurrencies: async () => {
-      const { defaultFrom, defaultTo } = getDefaultsFromStorage()
+      const [defaultFrom, defaultTo] = ['EUR', 'GBP']
       try {
         const currencies = await getCurrencies()
         const currentRate = await getCurrentRate({ selectedFrom: defaultFrom, selectedTo: defaultTo })

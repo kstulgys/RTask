@@ -7,12 +7,12 @@ declare global {
   }
 }
 
-type MyState = {
+type State = {
   hasError: boolean
   error: any
   errorInfo: any
 }
-export class ErrorBoundary extends React.Component<{render: any}, MyState> {
+export class ErrorBoundary extends React.Component<{ render: any }, State> {
   state = {
     hasError: false,
     error: null,
@@ -20,7 +20,7 @@ export class ErrorBoundary extends React.Component<{render: any}, MyState> {
   }
 
   componentDidCatch(error: any, errorInfo: any) {
-    this.setState({hasError: true, error, errorInfo})
+    this.setState({ hasError: true, error, errorInfo })
 
     // if we have Bugsnag in this environment, we can notify our error tracker
     if (window.Bugsnag) {
@@ -29,9 +29,7 @@ export class ErrorBoundary extends React.Component<{render: any}, MyState> {
   }
 
   render() {
-    if (this.state.hasError) {
-      return this.props.render(this.state.error, this.state.errorInfo)
-    }
+    if (this.state.hasError) return this.props.render(this.state.error, this.state.errorInfo)
     return this.props.children
   }
 }

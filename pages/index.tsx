@@ -1,43 +1,26 @@
-/* eslint-disable jsx-a11y/no-autofocus */
 import * as React from 'react'
-import Head from 'next/head'
-import { Flex, Text, useColorMode } from '@chakra-ui/core'
-import {
-  CurrencyChangeChart,
-  Dropdown,
-  CurrencyMetadata,
-  InputAmount,
-  TextHeader,
-  ButtonContinue,
-  IconSwapInputs,
-  Loader,
-  ErrorBoundary,
-  ToggleTheme,
-} from 'components'
+import { Flex, Text, Stack } from '@chakra-ui/core'
+import { Dropdown, CurrencyMetadata, InputAmount, TextHeader, ButtonContinue, IconSwapInputs, Loader, ErrorBoundary, ToggleTheme } from 'components'
 import { useNotification } from 'utils/hooks'
 import useStore from 'store'
+import { Layout } from 'components/Layout'
 
 export default function IndexPage() {
   const currencies = useStore(state => state.currencies)
-  useFetchCurrencies()
+  const { fetchCurrencies } = useStore(state => state.asyncActions)
+  React.useEffect(() => {
+    fetchCurrencies()
+  }, [])
+
+  // Setup listeners
   useCurrencyRatePolling()
   useUpdateOnNewRate()
   useNotification()
 
-  if (currencies.isLoading) {
-    return <Loader />
-  }
+  if (currencies.isLoading) return <Loader />
 
   return (
-    <ContainerScreen>
-      <Head>
-        <title>Home</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        {/* <meta name="theme-color" content="#000000" /> */}
-        {/* <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-        <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" /> */}
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
-      </Head>
+    <Layout title="Currency Exchange Application">
       <ErrorBoundary
         render={() => (
           <Text fontSize="3xl" color="revo.gray" textAlign="center">
@@ -45,66 +28,32 @@ export default function IndexPage() {
           </Text>
         )}
       >
-        <TextHeader text="Exchange money" />
-        <Flex flexDirection={['column', 'column', 'row']} alignItems="start">
-          <ContainerInputs>
-            <Dropdown label="From" />
-            <InputAmount label="From" autoFocus={true} />
-            <ButtonContinue display={['none', 'none', 'block']} />
-          </ContainerInputs>
-          <IconSwapInputs />
-          <ContainerInputs>
-            <Dropdown label="To" />
-            <InputAmount label="To" />
-            <ButtonContinue display={['block', 'block', 'none']} mb="12" mt="2" />
-            <CurrencyMetadata />
-          </ContainerInputs>
-        </Flex>
-        {/* <CurrencyChangeChart mt="6" /> */}
+        <Stack maxW="6xl" width="full" m="auto" p="5">
+          <TextHeader text="Exchange money" />
+          <Stack flexDir={['column', 'column', 'row']}>
+            <Flex flexDir="column" width={['full', 'full', '50%']}>
+              <Dropdown label="From" />
+              <InputAmount label="From" />
+              <ButtonContinue display={['none', 'none', 'block']} />
+            </Flex>
+            <IconSwapInputs />
+            <Flex flexDir="column" width={['full', 'full', '50%']}>
+              <Dropdown label="To" />
+              <InputAmount label="To" />
+              <ButtonContinue display={['block', 'block', 'none']} mb="12" mt="2" />
+              <CurrencyMetadata />
+            </Flex>
+          </Stack>
+        </Stack>
       </ErrorBoundary>
-    </ContainerScreen>
+    </Layout>
   )
-}
-
-interface ContainerProps {
-  [key: string]: any
-}
-
-function ContainerScreen({ children, ...props }: ContainerProps): JSX.Element {
-  const { colorMode } = useColorMode()
-  const bg = {
-    light: 'white',
-    dark: 'gray.800',
-  }
-
-  return (
-    <Flex as="main" minHeight="100vh" bg={bg[colorMode]} width="full" flexDirection="column" position="relative" {...props}>
-      <ToggleTheme />
-      <Flex width={['full', 'full', 'full', '60%']} flexDirection="column" mx="auto" mt={[0, 16]} px="4">
-        {children}
-      </Flex>
-    </Flex>
-  )
-}
-
-function ContainerInputs(props: ContainerProps): JSX.Element {
-  return <Flex flexDir="column" width={['full', 'full', '50%']} {...props} />
-}
-
-function useFetchCurrencies() {
-  const fetchCurrencies = useStore(state => state.asyncActions.fetchCurrencies)
-  React.useEffect(() => {
-    fetchCurrencies()
-  }, [])
 }
 
 function useUpdateOnNewRate() {
-  const fetchDataPoints = useStore(state => state.asyncActions.fetchDataPoints)
-  const fetchCurrentRate = useStore(state => state.asyncActions.fetchCurrentRate)
-  const selectedTo = useStore(state => state.selectedTo)
-  const selectedFrom = useStore(state => state.selectedFrom)
-  const currentRate = useStore(state => state.currentRate.value)
-  const handleSelectedToUpdate = useStore(state => state.actions.handleSelectedToUpdate)
+  const { fetchDataPoints, fetchCurrentRate } = useStore(state => state.asyncActions)
+  const { selectedTo, selectedFrom, currentRate } = useStore(state => state)
+  const { handleSelectedToUpdate } = useStore(state => state.actions)
 
   React.useEffect(() => {
     if (!selectedFrom || !selectedTo) return
@@ -114,38 +63,29 @@ function useUpdateOnNewRate() {
     fetchCurrentRate({ selectedFrom: selectedFrom.name, selectedTo: selectedTo.name })
     // update inputValueTo and pocketValueFrom
     handleSelectedToUpdate()
-  }, [currentRate])
+  }, [currentRate.value])
 }
 
 function useCurrencyRatePolling() {
-  const selectedTo = useStore(state => state.selectedTo)
-  const selectedFrom = useStore(state => state.selectedFrom)
-  const fetchCurrentRate = useStore(state => state.asyncActions.fetchCurrentRate)
-  const fetchDataPoints = useStore(state => state.asyncActions.fetchDataPoints)
+  const { selectedTo, selectedFrom } = useStore(state => state)
+  const { fetchCurrentRate, fetchDataPoints } = useStore(state => state.asyncActions)
 
   React.useEffect(() => {
     if (!selectedFrom || !selectedTo) return
+    const { name: selectedFromName } = selectedFrom
+    const { name: selectedToName } = selectedTo
+
     // get new dataPoints
-    fetchDataPoints({ selectedFrom: selectedFrom.name, selectedTo: selectedTo.name })
+    fetchDataPoints({ selectedFrom: selectedFromName, selectedTo: selectedToName })
     // get new currentRate
-    fetchCurrentRate({ selectedFrom: selectedFrom.name, selectedTo: selectedTo.name })
-    // save currency names to localStorage
-    window.localStorage.setItem(
-      'currencies',
-      JSON.stringify({
-        defaultFrom: selectedFrom.name,
-        defaultTo: selectedTo.name,
-      })
-    )
+    fetchCurrentRate({ selectedFrom: selectedFromName, selectedTo: selectedToName })
     // start new currentRate polling
     let timer: any = null
     timer = setInterval(() => {
       if (!selectedFrom || !selectedTo) return
-      startPolling(selectedFrom.name, selectedTo.name)
+      fetchCurrentRate({ selectedFrom: selectedFromName, selectedTo: selectedToName })
     }, 10000)
-    function startPolling(currencyFrom: string, currencyTo: string) {
-      fetchCurrentRate({ selectedFrom: currencyFrom, selectedTo: currencyTo })
-    }
+
     // unsubscribe from previous rate polling
     return () => clearInterval(timer)
   }, [selectedFrom, selectedTo])

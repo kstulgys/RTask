@@ -1,8 +1,8 @@
 import * as React from 'react'
-import {Box, IconButton, useColorMode} from '@chakra-ui/core'
+import { Box, IconButton, useColorMode } from '@chakra-ui/core'
 
 export function ToggleTheme() {
-  const {colorMode, toggleColorMode} = useColorMode()
+  const { colorMode, toggleColorMode } = useColorMode()
 
   return (
     <Box position="absolute" top="0" right="0" m={[2, 4, 10]}>

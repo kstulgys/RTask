@@ -4,13 +4,6 @@ import { Box, Flex, Text, NumberInput, NumberInputField, useColorMode, IconButto
 import { SYMBOLS } from './symbols'
 import { FiPlus, FiMinus } from 'react-icons/fi'
 import useStore from 'store'
-import { filterList, fPocket, getFiltered } from 'utils/helpers'
-
-interface InputAmountProps {
-  autoFocus?: boolean
-  label: 'From' | 'To'
-  [key: string]: any
-}
 
 const style = {
   color: {
@@ -27,13 +20,17 @@ const style = {
   },
 }
 
-export function InputAmount(props: InputAmountProps) {
-  const { autoFocus, label, ...rest } = props
-  const { inputValue, handleChange, symbol, sign } = useInputAmount(label)
+export function InputAmount({ label }: { label: 'From' | 'To' }) {
+  const { inputValue, handleChange, symbol, sign, isDisabled } = useInputAmount(label)
   const { colorMode } = useColorMode()
+  const inputRef = React.useRef(null)
+
+  React.useEffect(() => {
+    if (label === 'From') inputRef.current.focus()
+  }, [label])
 
   return (
-    <Flex alignItems="center" my={[6, 12, 16]} {...rest}>
+    <Flex alignItems="center" my={[6, 12, 16]}>
       <Box display={['none', 'block']}>
         <Text pr="1" color={style.color[colorMode]} data-testid="currency-symbol" lineHeight="none" fontSize="110px" fontWeight="lighter">
           {symbol}
@@ -46,11 +43,11 @@ export function InputAmount(props: InputAmountProps) {
       )}
       <NumberInput height={['80px', '110px']}>
         <NumberInputField
+          isDisabled={isDisabled}
+          ref={inputRef}
           lineHeight="none"
           color={style.color[colorMode]}
           bg={style.bgInput[colorMode]}
-          data-testid={autoFocus ? 'input-from' : 'input-to'}
-          autoFocus={autoFocus}
           onChange={handleChange}
           value={inputValue ? inputValue : ''}
           pl="0"
@@ -74,22 +71,17 @@ export function InputAmount(props: InputAmountProps) {
 }
 
 function useInputAmount(label: 'To' | 'From') {
-  const selectedFrom = useStore(state => state.selectedFrom)
-  const selectedTo = useStore(state => state.selectedTo)
-  const inputValueFrom = useStore(state => state.inputValueFrom)
-  const inputValueTo = useStore(state => state.inputValueTo)
-  const actions = useStore(state => state.actions)
-  const { handleInputChangeFrom, handleInputChangeTo } = actions
+  const { selectedFrom, selectedTo, inputValueFrom, inputValueTo } = useStore(state => state)
+  const { handleInputChangeFrom, handleInputChangeTo } = useStore(state => state.actions)
 
   const onChnage = label === 'From' ? handleInputChangeFrom : handleInputChangeTo
   const selected = label === 'From' ? selectedFrom : selectedTo
   const inputValue = label === 'From' ? inputValueFrom : inputValueTo
   const symbol = selected && SYMBOLS[selected.name].symbol_native
   const sign = label === 'From' ? FiMinus : FiPlus
+  const isDisabled = !selectedFrom || !selectedTo
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    onChnage(e.target.value)
-  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => onChnage(e.target.value)
 
-  return { inputValue, handleChange, symbol, sign }
+  return { inputValue, handleChange, isDisabled, symbol, sign }
 }

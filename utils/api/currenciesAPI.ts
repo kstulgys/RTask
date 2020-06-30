@@ -11,6 +11,7 @@ async function getCurrencies(): Promise<Currencies> {
   const { data } = await axios.get<{ rates: Rates; base: string }>(`${baseUrl}/latest`)
   const myPockets = await getPockets()
   const names = [...Object.keys(data.rates), data.base]
+
   const formatted: Currencies = names
     .reduce((acc: { name: string; value: number }[], name: string) => {
       return myPockets[name] ? [...acc, { name, value: +myPockets[name] }] : [...acc, { name, value: 0 }]

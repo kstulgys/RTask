@@ -3,15 +3,13 @@ import { useToast } from '@chakra-ui/core'
 import useStore from 'store'
 
 export function useNotification(): any {
-  const currenciesMessage = useStore(state => state.currencies.message)
-  const dataPointsMessage = useStore(state => state.dataPoints.message)
-  const currentRateMessage = useStore(state => state.currentRate.message)
-  const submitValuesMessage = useStore(state => state.submitValues.message)
+  const { currencies, currentRate, submitValues } = useStore(state => state)
+
   const toast = useToast()
-  const messages = [currenciesMessage, dataPointsMessage, currentRateMessage, submitValuesMessage]
+  const messages = [currencies, currentRate, submitValues]
 
   React.useEffect(() => {
-    messages.forEach(message => {
+    messages.forEach(({ message }) => {
       if (!message) return
 
       toast({
@@ -23,5 +21,5 @@ export function useNotification(): any {
         isClosable: true,
       })
     })
-  }, [currenciesMessage, dataPointsMessage, currentRateMessage, submitValuesMessage])
+  }, [currencies, currentRate, submitValues])
 }
